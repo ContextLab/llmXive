@@ -5,11 +5,8 @@ This script performs the following steps:
 1. Computes a SHA‑256 checksum of the top‑level ``requirements.txt`` file
    and writes it to ``requirements_checksum.txt`` (project root).
 
-2. Installs the pinned requirements using ``pip install -r requirements.txt``
-   inside the current Python environment.
-
-3. Captures the output of the installation as well as the output of
-   ``pip list`` and writes both to ``setup_log.txt`` (project root).
+2. Captures the current Python version and the list of installed packages
+   (via ``pip list``) and writes both to ``setup_log.txt`` (project root).
 
 The script is intended to be run from the project root with:
     python code/setup_requirements.py
@@ -19,7 +16,6 @@ import hashlib
 import subprocess
 import sys
 from pathlib import Path
-
 
 def compute_sha256(file_path: Path) -> str:
     """Return the SHA‑256 hex digest of ``file_path``."""
@@ -43,8 +39,8 @@ def run_command(command: list[str]) -> str:
 
 
 def main() -> None:
-    # Resolve project‑root (two levels up from this file: code/ -> project root)
-    project_root = Path(__file__).resolve().parents[2]
+    # Resolve project root (parent of the ``code`` directory)
+    project_root = Path(__file__).resolve().parents[1]
 
     # ------------------------------------------------------------------
     # 1. Compute and write requirements checksum
@@ -59,27 +55,18 @@ def main() -> None:
     print(f"SHA‑256 checksum written to {checksum_path}")
 
     # ------------------------------------------------------------------
-    # 2. Install requirements and capture log
+    # 2. Capture Python version and ``pip list`` output
     # ------------------------------------------------------------------
-    install_cmd = [sys.executable, "-m", "pip", "install", "-r", str(req_path)]
-    print("Installing requirements…")
-    install_output = run_command(install_cmd)
-
-    # ------------------------------------------------------------------
-    # 3. Capture pip list output
-    # ------------------------------------------------------------------
+    python_version = sys.version.replace("\\n", " ").strip()
     pip_list_cmd = [sys.executable, "-m", "pip", "list"]
-    print("Gathering pip list…")
     pip_list_output = run_command(pip_list_cmd)
 
     # ------------------------------------------------------------------
-    # 4. Write combined log
+    # 3. Write combined log
     # ------------------------------------------------------------------
     log_path = project_root / "setup_log.txt"
     log_contents = (
-        f"Python version: {sys.version}\\n"
-        f"{'='*40} pip install output {'='*40}\\n"
-        f"{install_output}\\n"
+        f"Python version: {python_version}\\n"
         f"{'='*40} pip list output {'='*40}\\n"
         f"{pip_list_output}\\n"
     )

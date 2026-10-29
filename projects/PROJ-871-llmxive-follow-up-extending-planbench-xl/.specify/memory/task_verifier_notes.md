@@ -8,3 +8,4 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T004** — The `setup_log.txt` file exists but only shows pip install output; it does not contain the required `python --version` line nor the `pip list` output showing a non‑empty package list. The verification output is therefore missing.
 - **T005** — Requested task execution failed; rerun successfully: code/dataset/loader.py exit=1
 - **T006** — Requested task execution failed; rerun successfully: code/dataset/extractor.py exit=1
+- **T010** — Requested task execution failed; rerun successfully: code/run_baseline.py exit=1; code/run_augmented.py exit=1

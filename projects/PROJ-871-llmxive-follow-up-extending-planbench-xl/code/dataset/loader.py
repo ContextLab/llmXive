@@ -1,117 +1,180 @@
+"""
+Dataset loader for PlanBench‑XL.
+
+This module streams the official PlanBench‑XL dataset from HuggingFace
+and writes each split to a JSON Lines (JSONL) file under the ``data/raw``
+directory.  The original implementation used Apache Arrow Parquet files,
+but the runtime environment lacks a compatible ``pyarrow`` build (it
+requires NumPy 2.0).  To remain fully functional without external native
+extensions we store the streamed records in line‑delimited JSON, which can
+be consumed by the downstream extractor without modification.
+
+The script can be invoked as a CLI utility:
+
+    python code/dataset/loader.py --download
+
+The ``--download`` flag triggers the download; without it the script
+prints a short usage hint and exits with status 0.
+
+All paths are resolved via ``utils.config.get_path`` which creates the
+required directories on demand.
+"""
+
 import argparse
 import json
-import os
 import sys
 import time
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Iterable
 
-import pyarrow as pa
-import pyarrow.parquet as pq
 from datasets import load_dataset
 
 from utils.config import get_path, ensure_dirs_exist
 
-def _write_parquet(split_name: str, split_iter, out_dir: Path, batch_size: int = 1000) -> Path:
-    """Write a streaming split to a parquet file in batches."""
-    out_file = out_dir / f"{split_name}.parquet"
-    writer: Optional[pq.ParquetWriter] = None
-    batch = []
+def _write_jsonl(
+    split_name: str,
+    split_iter: Iterable[dict],
+    out_dir: Path,
+) -> Path:
+    """
+    Write a streaming split to a JSON Lines file.
 
-    for item in split_iter:
-        batch.append(item)
-        if len(batch) >= batch_size:
-            table = _batch_to_table(batch)
-            if writer is None:
-                writer = pq.ParquetWriter(str(out_file), table.schema)
-            writer.write_table(table)
-            batch.clear()
+    Parameters
+    ----------
+    split_name: str
+        Name of the dataset split (e.g. ``train`` or ``validation``).
+    split_iter: Iterable[dict]
+        Iterator yielding dictionaries for each record.
+    out_dir: Path
+        Directory where the ``{split_name}.jsonl`` file will be created.
 
-    # Write any remaining rows
-    if batch:
-        table = _batch_to_table(batch)
-        if writer is None:
-            writer = pq.ParquetWriter(str(out_file), table.schema)
-        writer.write_table(table)
+    Returns
+    -------
+    Path
+        Path to the written JSONL file.
+    """
+    out_file = out_dir / f"{split_name}.jsonl"
+    # Ensure the parent directory exists.
+    out_file.parent.mkdir(parents=True, exist_ok=True)
 
-    if writer is not None:
-        writer.close()
-    else:
-        # Empty split – create an empty parquet file
-        out_file.touch()
+    with out_file.open("w", encoding="utf-8") as f:
+        for item in split_iter:
+            # ``json.dumps`` guarantees a single line per record.
+            f.write(json.dumps(item, ensure_ascii=False) + "\n")
     return out_file
 
-def _batch_to_table(batch):
-    """Convert a list of dicts to a pyarrow Table."""
-    # Assume all dicts have the same keys
-    first = batch[0]
-    columns = {k: [d[k] for d in batch] for k in first}
-    return pa.Table.from_pydict(columns)
-
-def download_planbench_xl(output_dir: Optional[Path] = None, max_retries: int = 3) -> Path:
+def download_planbench_xl(
+    output_dir: Optional[Path] = None,
+    max_retries: int = 3,
+) -> Path:
     """
-    Download the PlanBench-XL dataset (streaming) and write each split to parquet files
-    under ``output_dir`` (default ``data/raw``). Returns the directory containing the
-    parquet files.
+    Download the PlanBench‑XL dataset (streaming) and write each split
+    to a JSONL file under ``output_dir`` (default ``data/raw``).
+
+    The function retries on transient errors up to ``max_retries`` times
+    with exponential back‑off.  Any unrecoverable error is re‑raised so
+    that the caller can see a loud failure.
+
+    Parameters
+    ----------
+    output_dir: Optional[Path]
+        Destination directory for the raw files.  If ``None`` the
+        ``data/raw`` directory resolved via ``utils.config.get_path`` is used.
+    max_retries: int
+        Maximum number of retry attempts for the whole download process.
+
+    Returns
+    -------
+    Path
+        The directory containing the downloaded JSONL files.
     """
     if output_dir is None:
-        output_dir = get_path('data/raw')
+        output_dir = get_path("data/raw")
     ensure_dirs_exist(output_dir)
 
     retry = 0
     last_error = None
     while retry < max_retries:
         try:
-            # Load the dataset in streaming mode
+            # Load the dataset in streaming mode.
             dataset = load_dataset("PlanBench/planbench-xl", streaming=True)
 
-            for split_name in dataset.keys():
-                split_iter = dataset[split_name]
+            for split_name, split_iter in dataset.items():
                 print(f"Downloading split '{split_name}'...", flush=True)
-                _write_parquet(split_name, split_iter, output_dir)
+                _write_jsonl(split_name, split_iter, output_dir)
 
             return output_dir
-        except Exception as e:
-            last_error = e
+        except Exception as exc:  # pragma: no cover – exercised via retries
+            last_error = exc
             retry += 1
             if retry < max_retries:
                 wait = 2 ** retry
-                print(f"Retry {retry}/{max_retries} after {wait}s due to error: {e}", file=sys.stderr)
+                print(
+                    f"Retry {retry}/{max_retries} after {wait}s due to error: {exc}",
+                    file=sys.stderr,
+                )
                 time.sleep(wait)
             else:
                 raise RuntimeError(
-                    f"Failed to download PlanBench-XL after {max_retries} attempts: {e}"
-                ) from e
+                    f"Failed to download PlanBench‑XL after {max_retries} attempts: {exc}"
+                ) from exc
 
+    # Should never reach here, but keep mypy happy.
     raise RuntimeError(f"Download failed: {last_error}")
 
 def load_injected_data(input_path: Optional[Path] = None) -> list:
-    """Load the injected failure subset."""
+    """
+    Load the injected failure subset generated by the ``injector`` step.
+
+    The default location is ``data/derived/implicit_failure_subset.jsonl``.
+    If the file does not exist an empty list is returned (the caller can
+    decide how to handle the missing data).
+
+    Parameters
+    ----------
+    input_path: Optional[Path]
+        Path to the JSONL file.  If ``None`` the default path is used.
+
+    Returns
+    -------
+    list
+        List of dictionaries, one per task record.
+    """
     if input_path is None:
-        input_path = get_path('data/derived/implicit_failure_subset.jsonl')
+        input_path = get_path("data/derived/implicit_failure_subset.jsonl")
 
     data = []
     if input_path.exists():
-        with open(input_path, 'r') as f:
+        with input_path.open("r", encoding="utf-8") as f:
             for line in f:
-                if line.strip():
+                line = line.strip()
+                if line:
                     data.append(json.loads(line))
     return data
 
-def main():
-    parser = argparse.ArgumentParser(description="PlanBench-XL data loader")
+def main() -> None:
+    """
+    CLI entry point.
+
+    ``--download`` triggers the download of the raw PlanBench‑XL dataset.
+    Without the flag a short help message is printed.
+    """
+    parser = argparse.ArgumentParser(description="PlanBench‑XL data loader")
     parser.add_argument(
         "--download",
         action="store_true",
-        help="Download the raw PlanBench-XL dataset and write parquet files to data/raw/",
+        help="Download the raw PlanBench‑XL dataset and write JSONL files to data/raw/",
     )
     args = parser.parse_args()
 
     if args.download:
         out_dir = download_planbench_xl()
-        print(f"Dataset parquet files written to: {out_dir}")
+        print(f"Dataset JSONL files written to: {out_dir}")
     else:
-        print("No action specified. Use --download to fetch the dataset.", file=sys.stderr)
+        print(
+            "No action specified. Use --download to fetch the dataset.",
+            file=sys.stderr,
+        )
 
 if __name__ == "__main__":
     main()

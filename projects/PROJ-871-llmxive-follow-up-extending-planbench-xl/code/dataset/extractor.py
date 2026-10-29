@@ -1,58 +1,52 @@
 """
 Extractor for the implicit‑failure subset of the PlanBench‑XL dataset.
 
-This script streams the raw parquet files produced by ``loader.py`` (stored in
+This script streams the raw JSON Lines files produced by ``loader.py`` (stored in
 ``data/raw/``), filters tasks whose ``ground_truth`` field is equal to the
 string ``"implicit_failure"``, and writes the filtered records to a JSON‑Lines
 file at ``data/derived/implicit_failure_subset.jsonl``.
 
-The implementation is deliberately streaming‑friendly to keep memory usage
-low – each parquet file is read in batches and rows are processed one by
-one.  If the raw data directory does not exist or contains no parquet files,
-a ``FileNotFoundError`` is raised so that the failure is loud and visible
-to the execution harness.
+The implementation is streaming‑friendly to keep memory usage low – each
+raw JSONL file is read line‑by‑line.  If the raw data directory does not exist
+or contains no JSONL files, a ``FileNotFoundError`` is raised so that the
+failure is loud and visible to the execution harness.
 """
 
 import argparse
 import json
-import os
 from pathlib import Path
-from typing import Iterable, List
-
-import pyarrow.parquet as pq
+from typing import Iterable
 
 from utils.config import get_path, ensure_dirs_exist
 
-def _iter_parquet_rows(parquet_path: Path) -> Iterable[dict]:
+def _iter_jsonl_rows(jsonl_path: Path) -> Iterable[dict]:
     """
-    Yield rows from a parquet file as plain Python dictionaries.
+    Yield rows from a JSON‑Lines file as plain Python dictionaries.
 
     Parameters
     ----------
-    parquet_path: Path
-        Path to the parquet file.
+    jsonl_path: Path
+        Path to the JSON‑Lines file.
 
     Yields
     ------
     dict
-        One row of the parquet file.
+        One row of the file.
     """
-    # ``ParquetFile.iter_batches`` yields RecordBatch objects; we convert each
-    # batch to a list of dictionaries with ``to_pylist`` which is efficient
-    # and avoids loading the whole file into memory.
-    pq_file = pq.ParquetFile(str(parquet_path))
-    for batch in pq_file.iter_batches():
-        for row in batch.to_pylist():
-            yield row
+    with jsonl_path.open("r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if line:
+                yield json.loads(line)
 
 def _stream_raw_dataset(raw_dir: Path) -> Iterable[dict]:
     """
-    Stream all rows from every parquet file in ``raw_dir``.
+    Stream all rows from every JSON‑Lines file in ``raw_dir``.
 
     Parameters
     ----------
     raw_dir: Path
-        Directory containing parquet files written by ``loader.py``.
+        Directory containing raw JSONL files written by ``loader.py``.
 
     Yields
     ------
@@ -62,12 +56,12 @@ def _stream_raw_dataset(raw_dir: Path) -> Iterable[dict]:
     if not raw_dir.exists():
         raise FileNotFoundError(f"Raw data directory does not exist: {raw_dir}")
 
-    parquet_files = sorted(raw_dir.glob("*.parquet"))
-    if not parquet_files:
-        raise FileNotFoundError(f"No parquet files found in {raw_dir}")
+    jsonl_files = sorted(raw_dir.glob("*.jsonl"))
+    if not jsonl_files:
+        raise FileNotFoundError(f"No JSONL files found in {raw_dir}")
 
-    for parquet_path in parquet_files:
-        yield from _iter_parquet_rows(parquet_path)
+    for jsonl_path in jsonl_files:
+        yield from _iter_jsonl_rows(jsonl_path)
 
 def extract_implicit_failure_subset(
     raw_dir: Path,
@@ -82,7 +76,7 @@ def extract_implicit_failure_subset(
     Parameters
     ----------
     raw_dir: Path
-        Directory with the raw parquet files.
+        Directory with the raw JSONL files.
     output_path: Path
         Destination JSONL file for the filtered subset.
     ground_truth_key: str, optional
@@ -100,7 +94,7 @@ def extract_implicit_failure_subset(
     ensure_dirs_exist(output_path.parent)
 
     # Write incrementally to avoid holding all filtered rows in memory.
-    with open(output_path, "w", encoding="utf-8") as out_f:
+    with output_path.open("w", encoding="utf-8") as out_f:
         for record in _stream_raw_dataset(raw_dir):
             if record.get(ground_truth_key) == target_value:
                 json_line = json.dumps(record, ensure_ascii=False)

@@ -1,29 +1,25 @@
 """
 Unit test for the ``extractor.py`` module.
 
-The test creates a minimal synthetic parquet file containing a handful of
-records, invokes the extractor, and then checks that the output JSONL file
-contains only the rows whose ``ground_truth`` field equals
-``\"implicit_failure\"``.
+The test creates a minimal synthetic raw data directory containing a
+JSON‑Lines file with a handful of records, invokes the extractor, and then
+checks that the output JSONL file contains only the rows whose
+``ground_truth`` field equals ``"implicit_failure"``.
 """
 
 import json
-import os
-import shutil
 from pathlib import Path
 
-import pyarrow as pa
-import pyarrow.parquet as pq
 import pytest
 
-# Import the function directly – no need to run the CLI.
+# Import the functions directly – no need to run the CLI.
 from dataset.extractor import extract_implicit_failure_subset, _stream_raw_dataset
 
 @pytest.fixture
 def synthetic_raw_dir(tmp_path: Path) -> Path:
     """
-    Create a temporary ``data/raw`` directory containing a single parquet file
-    with a small number of records.  Two records have
+    Create a temporary ``data/raw`` directory containing a single JSONL file
+    with a small number of records. Two records have
     ``ground_truth == "implicit_failure"``, the others do not.
     """
     raw_dir = tmp_path / "raw"
@@ -36,10 +32,10 @@ def synthetic_raw_dir(tmp_path: Path) -> Path:
         {"task_id": "t4", "prompt": "Q4", "ground_truth": "success"},
     ]
 
-    # Convert to Arrow table and write a parquet file.
-    table = pa.Table.from_pylist(records)
-    parquet_path = raw_dir / "sample.parquet"
-    pq.write_table(table, parquet_path)
+    jsonl_path = raw_dir / "sample.jsonl"
+    with jsonl_path.open("w", encoding="utf-8") as f:
+        for rec in records:
+            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
 
     return raw_dir
 
@@ -62,7 +58,7 @@ def test_extract_implicit_failure_subset(synthetic_raw_dir: Path, tmp_path: Path
     assert result_path == output_path
 
     # Read the JSONL output.
-    with open(output_path, "r", encoding="utf-8") as f:
+    with output_path.open("r", encoding="utf-8") as f:
         lines = [json.loads(line) for line in f if line.strip()]
 
     # Expect exactly the two rows with the target ground truth.

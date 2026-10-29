@@ -7,11 +7,11 @@
 
 ## Phase 0 – Project scaffolding (foundational, must be completed before any user‑story work)
 
-- [ ] **T001** Create the project root `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/` with sub‑directories `code/`, `data/`, `tests/` (and the nested folders listed in `plan.md`).   <!-- FAILED-IN-EXECUTION: code/verify_scaffold.py exit=1 -->
+- [~] **T001** Create the project root `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/` with sub‑directories `code/`, `data/`, `tests/` (and the nested folders listed in `plan.md`).
   *Artifact*: empty directories at the paths above.  
   **Verification**: run a script that asserts `code/`, `data/`, and `tests/` exist.
 
-- [ ] **T002** Write `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/requirements.txt` containing the exact pinned versions required for reproducibility:   <!-- FAILED-IN-EXECUTION: code/setup_requirements.py exit=1 -->
+- [~] **T002** Write `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/requirements.txt` containing the exact pinned versions required for reproducibility:
 
   ```text
   datasets==2.14.0
@@ -28,7 +28,7 @@
 
   **Verification**: after `pip install -r requirements.txt`, generate a SHA‑256 checksum file `requirements_checksum.txt` and ensure `pip list` succeeds (log captured in `setup_log.txt`).
 
-- [ ] **T003** Add a `.gitignore` at `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/.gitignore` that excludes large artefacts and virtual‑environment files:  
+- [~] **T003** Add a `.gitignore` at `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/.gitignore` that excludes large artefacts and virtual‑environment files:  
 
   ```text
   data/
@@ -41,7 +41,7 @@
 
   **Verification**: test that the file exists and contains the three patterns above.
 
-- [ ] **T004** Create a Python virtual environment in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/venv/`, install the `requirements.txt` into it, and capture verification output (`python --version` and `pip list`) in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/venv/setup_log.txt`.  
+- [~] **T004** Create a Python virtual environment in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/venv/`, install the `requirements.txt` into it, and capture verification output (`python --version` and `pip list`) in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/venv/setup_log.txt`.  
   *Artifact*: the `venv/` directory and the `setup_log.txt` file.  
   **Verification**: assert that `setup_log.txt` contains the expected Python version line and a non‑empty package list.
 
@@ -59,7 +59,7 @@
 
   **Verification**: unit test confirms that the output file contains only tasks with `ground_truth == "implicit_failure"`.
 
-- [ ] **T007** Implement `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/dataset/indexer.py` that parses `data/derived/implicit_failure_subset.jsonl`, extracts the failure‑signature patterns **directly from the ground‑truth definitions** (e.g., expected error strings), and creates a static, CPU‑tractable JSON index `data/derived/failure_signatures.json` with schema:  
+- [~] **T007** Implement `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/dataset/indexer.py` that parses `data/derived/implicit_failure_subset.jsonl`, extracts the failure‑signature patterns **directly from the ground‑truth definitions** (e.g., expected error strings), and creates a static, CPU‑tractable JSON index `data/derived/failure_signatures.json` with schema:  
 
   ```json
   {
@@ -76,7 +76,7 @@
 
 ## Phase 2 – Agent implementations (user‑story 1 & 2)
 
-- [ ] **T008** Implement the **baseline agent** in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/agents/baseline.py`.  
+- [~] **T008** Implement the **baseline agent** in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/agents/baseline.py`.  
   *Requirements*:  
   • Use a locally‑hosted, CPU‑only LLM (e.g., `meta-llama/Meta-Llama-3-8B` quantised with `bitsandbytes` 8‑bit).  
   • No access to `failure_signatures.json`.  
@@ -84,7 +84,7 @@
 
   **Verification**: unit test asserts that the module does **not** import `failure_signatures.json`.
 
-- [ ] **T009** Implement the **augmented agent** in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/agents/augmented.py`.  
+- [~] **T009** Implement the **augmented agent** in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/agents/augmented.py`.  
   *Requirements*:  
   • Same LLM as baseline.  
   • After each tool invocation, load `data/derived/failure_signatures.json` and perform a lightweight exact‑match string check (using `fnmatch` for simple wild‑cards).  
@@ -93,7 +93,7 @@
 
   **Verification**: unit test confirms that when a signature matches, `signature_triggered` is `True` and a second LLM call is made.
 
-- [ ] **T010** Provide two thin runner scripts:  
+- [ ] **T010** Provide two thin runner scripts:   <!-- FAILED-IN-EXECUTION: code/run_baseline.py exit=1; code/run_augmented.py exit=1 -->
 
   • `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/run_baseline.py` – iterates over `data/derived/implicit_failure_subset.jsonl`, invokes `baseline.run`, and writes a line‑delimited JSON log to `data/logs/baseline_execution.jsonl`.  
 

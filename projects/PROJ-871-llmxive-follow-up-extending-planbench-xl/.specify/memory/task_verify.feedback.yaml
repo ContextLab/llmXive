@@ -31,6 +31,8 @@ T008:
 T009:
   task: 40fb7ae7f712263b768edd55b5414a666410c51eefc490c7bc89db383be7966c
 T010:
+  reason: 'Requested task execution failed; rerun successfully: code/run_baseline.py
+    exit=1; code/run_augmented.py exit=1'
   task: c1a0ad2bcdf42f0b1ae12517279116201d738f51646f5d7c9c2e41ecbb575126
 T011:
   task: 335259627599f07cee19de0cedddd2289773c9382ea21708e03b43110f8db29a
