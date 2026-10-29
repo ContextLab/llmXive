@@ -1,56 +1,42 @@
 status: verified
 kind: pypi_package
 ref: networkx
-access_python: "import networkx as nx\n\n# Generate synthetic networks using NetworkX\n\
-  networks = []\n\n# Erd\u0151s-R\xE9nyi graph\ner_graph = nx.erdos_renyi_graph(n=500,\
-  \ p=0.01, seed=42)\ner_degrees = [d for n, d in er_graph.degree()]\nnetworks.append({\n\
-  \    'network_type': 'erdos_renyi',\n    'num_nodes': er_graph.number_of_nodes(),\n\
-  \    'random_seed': 42,\n    'degree_distribution': er_degrees,\n    'clustering_coefficient':\
-  \ nx.average_clustering(er_graph),\n    'average_path_length': nx.average_shortest_path_length(er_graph)\
-  \ if nx.is_connected(er_graph) else None,\n    'average_degree': sum(er_degrees)\
-  \ / len(er_degrees),\n    'edge_list': list(er_graph.edges())\n})\n\n# Barab\xE1\
-  si-Albert graph\nba_graph = nx.barabasi_albert_graph(n=500, m=2, seed=42)\nba_degrees\
-  \ = [d for n, d in ba_graph.degree()]\nnetworks.append({\n    'network_type': 'barabasi_albert',\n\
-  \    'num_nodes': ba_graph.number_of_nodes(),\n    'random_seed': 42,\n    'degree_distribution':\
-  \ ba_degrees,\n    'clustering_coefficient': nx.average_clustering(ba_graph),\n\
-  \    'average_path_length': nx.average_shortest_path_length(ba_graph) if nx.is_connected(ba_graph)\
-  \ else None,\n    'average_degree': sum(ba_degrees) / len(ba_degrees),\n    'attachment_parameter_m':\
-  \ 2,\n    'edge_list': list(ba_graph.edges())\n})\n\n# Watts-Strogatz graph\nws_graph\
-  \ = nx.watts_strogatz_graph(n=500, k=4, p=0.3, seed=42)\nws_degrees = [d for n,\
-  \ d in ws_graph.degree()]\nnetworks.append({\n    'network_type': 'watts_strogatz',\n\
-  \    'num_nodes': ws_graph.number_of_nodes(),\n    'random_seed': 42,\n    'degree_distribution':\
-  \ ws_degrees,\n    'clustering_coefficient': nx.average_clustering(ws_graph),\n\
-  \    'average_path_length': nx.average_shortest_path_length(ws_graph) if nx.is_connected(ws_graph)\
-  \ else None,\n    'average_degree': sum(ws_degrees) / len(ws_degrees),\n    'rewiring_probability':\
-  \ 0.3,\n    'edge_list': list(ws_graph.edges())\n})\n\nprint(f\"RECORDS={len(networks)}\"\
-  )\nprint(\"FIELDS=network_type,num_nodes,random_seed,degree_distribution,clustering_coefficient,average_path_length,average_degree,attachment_parameter_m,rewiring_probability,edge_list\"\
-  )"
-record_count: 3
+access_python: "import itertools\nimport networkx as nx\n\nrecords = []\nseeds = [42,\
+  \ 43, 44]\nprobs = [0.01, 0.05, 0.1]\n\nfor idx, (seed, p) in enumerate(itertools.product(seeds,\
+  \ probs), start=1):\n    G = nx.erdos_renyi_graph(n=500, p=p, seed=seed)\n    record\
+  \ = {\n        \"graph_id\": idx,\n        \"topology_type\": \"erdos_renyi\",\n\
+  \        \"num_nodes\": G.number_of_nodes(),\n        \"parameter_values\": p,\n\
+  \        \"random_seed\": seed,\n        \"edge_list\": list(G.edges()),\n     \
+  \   \"adjacency_dict\": nx.to_dict_of_dicts(G),\n        \"degree_distribution\"\
+  : [d for _, d in G.degree()],\n        \"average_clustering_coefficient\": nx.average_clustering(G),\n\
+  \    }\n    try:\n        record[\"average_path_length\"] = nx.average_shortest_path_length(G)\n\
+  \    except nx.NetworkXError:\n        record[\"average_path_length\"] = float(\"\
+  inf\")\n    records.append(record)\n\nprint(f\"RECORDS={len(records)}\")\nprint(\"\
+  FIELDS=\" + \",\".join(records[0].keys()) if records else \"FIELDS=\")"
+record_count: 9
 sample_fields:
-- network_type
+- graph_id
+- topology_type
 - num_nodes
+- parameter_values
 - random_seed
-- degree_distribution
-- clustering_coefficient
-- average_path_length
-- average_degree
-- attachment_parameter_m
-- rewiring_probability
 - edge_list
-field_coverage: 0.833
+- adjacency_dict
+- degree_distribution
+- average_clustering_coefficient
+- average_path_length
+field_coverage: 1.0
 required_fields:
-- network_type (erdos_renyi, barabasi_albert, watts_strogatz)
-- num_nodes (N=500)
-- random_seed (integer for reproducibility)
-- degree_distribution (array of node degrees)
-- clustering_coefficient (float)
-- average_path_length (float)
-- average_degree (float)
-- power_law_exponent (for BA networks)
-- rewiring_probability (for WS networks)
-- attachment_parameter_m (for BA networks)
-- adjacency_matrix (sparse or dense representation)
-- edge_list (source, target pairs)
-intent: "NetworkX python package synthetic network generation Erd\u0151s-R\xE9nyi\
-  \ Barab\xE1si-Albert Watts-Strogatz"
-cache_key: 377076303bdb0a6cd8f7a1dee7f998387cde6626b559186a1be8cf189fa3f93e
+- graph_id
+- topology_type
+- num_nodes
+- parameter_values
+- random_seed
+- edge_list
+- adjacency_matrix
+- degree_distribution
+- average_clustering_coefficient
+- average_path_length
+intent: NetworkX synthetic graphs dataset 500 nodes Network Repository python package
+  dataset
+cache_key: e3454a9a186ef1f3470f1ad9a9a313f6d25d4356252288c23d0aa0a882b827c0

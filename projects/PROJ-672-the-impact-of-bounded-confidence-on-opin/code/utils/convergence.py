@@ -16,10 +16,9 @@ The module provides two public functions:
 
 from __future__ import annotations
 
-from typing import List, Sequence, Tuple
+from typing import List, Sequence
 
 import numpy as np
-
 
 def has_converged(prev: Sequence[float], cur: Sequence[float], tol: float = 1e-4) -> bool:
     """

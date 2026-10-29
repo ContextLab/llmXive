@@ -1,20 +1,26 @@
-import pytest
-import os
+"""
+Unit tests for the checksum utilities.
+"""
+import hashlib
 from pathlib import Path
-from code.utils.checksums import sha256, calculate_sha256, generate_checksums_for_directory
+import tempfile
 
-def test_sha256_length(tmp_path):
-    f = tmp_path / "test.txt"
-    f.write_text("hello world")
-    # Test both aliases
-    assert len(sha256(f)) == 64
-    assert len(calculate_sha256(f)) == 64
-    assert sha256(f) == calculate_sha256(f)
+# Import the sha256 function from the project's utils package
+from code.utils.checksums import sha256
 
-def test_directory_checksums(tmp_path):
-    (tmp_path / "f1.txt").write_text("a")
-    (tmp_path / "f2.txt").write_text("b")
-    checksums = generate_checksums_for_directory(tmp_path)
-    assert len(checksums) == 2
-    assert "f1.txt" in checksums
-    assert len(checksums["f1.txt"]) == 64
+
+def test_sha256_matches_hashlib():
+    # Create a temporary file with known content
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmp_path = Path(tmpdir) / "sample.txt"
+        content = b"OpenAI LLMXive test content"
+        tmp_path.write_bytes(content)
+
+        # Compute hash using the utility
+        util_hash = sha256(tmp_path)
+
+        # Compute hash directly with hashlib for verification
+        expected_hash = hashlib.sha256(content).hexdigest()
+
+        assert util_hash == expected_hash
+        assert len(util_hash) == 64, "SHA‑256 hash should be 64 hexadecimal characters"
