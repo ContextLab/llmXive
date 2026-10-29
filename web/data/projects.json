@@ -28700,7 +28700,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-29T19:07:05.089762+00:00",
+  "generated_at": "2026-10-29T19:09:07.911511+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -41917,6 +41917,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 4.037307,
+          "ended_at": "2026-10-29T19:07:14.634089Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-29T19:07:10.596782Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 4.48283,
           "ended_at": "2026-10-29T18:07:14.993519Z",
           "model": "zai-org.glm-5.3",
@@ -41986,14 +41994,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-22T03:41:22.855297Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 1303.269157,
-          "ended_at": "2026-10-22T03:41:10.035299Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "failed",
-          "started_at": "2026-10-22T03:19:26.766142Z"
         }
       ],
       "paper_status": null,
@@ -52968,6 +52968,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 4.03626,
+          "ended_at": "2026-10-29T19:08:09.450464Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-29T19:08:05.414204Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 2.613674,
           "ended_at": "2026-10-29T08:08:17.259407Z",
           "model": "zai-org.glm-5.3",
@@ -53037,14 +53045,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-09-25T07:16:55.908266Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 38.154816,
-          "ended_at": "2026-09-25T07:16:55.905108Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-25T07:16:17.750292Z"
         }
       ],
       "paper_status": null,
@@ -175697,6 +175697,30 @@
   ],
   "recent_activity": [
     {
+      "agent": "implementer",
+      "duration_s": 4.03626,
+      "ended_at": "2026-10-29T19:08:09.450464Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-1071-llmxive-follow-up-extending-synthdocbenc",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-10-29T19:08:05.414204Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 4.037307,
+      "ended_at": "2026-10-29T19:07:14.634089Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-069-statistical-analysis-of-sentiment-drift-",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-10-29T19:07:10.596782Z"
+    },
+    {
       "agent": "project_initializer",
       "duration_s": 3.839005,
       "ended_at": "2026-10-29T18:19:20.233773Z",
@@ -181746,30 +181770,6 @@
       "project_stage": "clarified",
       "severity": "hard",
       "started_at": "2026-10-27T01:24:14.263451Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 2.926681,
-      "ended_at": "2026-10-27T01:24:42.391034Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-055-investigating-the-impact-of-telomere-len",
-      "project_stage": "planned",
-      "severity": "hard",
-      "started_at": "2026-10-27T01:24:39.464353Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 3.530885,
-      "ended_at": "2026-10-27T01:24:36.974173Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-712-predicting-individual-pain-sensitivity-f",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-10-27T01:24:33.443288Z"
     }
   ],
   "reviewed_preprints": [
