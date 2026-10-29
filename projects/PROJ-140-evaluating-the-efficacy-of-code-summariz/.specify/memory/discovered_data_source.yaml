@@ -1,13 +1,15 @@
 status: none
-intent: Defects4J v2.0 official download dataset python package dataset
+intent: Defects4J v2.0 bug localization dataset download pip install python package
+  dataset
 required_fields:
-- timestamp
-- selected_line_number
 - participant_id
-- condition
-- ground_truth_buggy_line
 - task_id
-- method_id
-cache_key: 4f757695030697fd7460ba47fd4a1ed90dfa4e4f7da10aade2dfa30c02a694f3
-searched_at: '2026-10-29T00:13:23.320387+00:00'
+- condition
+- timestamp_ms
+- selected_line_number
+- ground_truth_buggy_line
+- project_name
+- method_name
+cache_key: a4cb8abdaabbe710e8509f419709688a7e879661fbf1e5d4a0224315eab83523
+searched_at: '2026-10-29T06:09:42.911722+00:00'
 retry_count: 1
