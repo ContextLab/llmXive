@@ -1,13 +1,18 @@
 status: none
-intent: download daily OHLCV Bitcoin Ethereum dataset CoinGecko API HuggingFace datasets
-  python package dataset
+intent: download daily OHLCV Bitcoin and Ethereum dataset via CoinGecko python package
+  dataset
 required_fields:
 - date
-- open
-- high
-- low
-- close
-- volume
-cache_key: 8ab2137269cda7d9f594ef561be385bba7b4395e82916006c8c2d3cf6157c6ec
-searched_at: '2026-10-30T03:12:21.626473+00:00'
+- btc_open
+- btc_high
+- btc_low
+- btc_close
+- btc_volume
+- eth_open
+- eth_high
+- eth_low
+- eth_close
+- eth_volume
+cache_key: d950212cf139b824ef1cf8abf61a8eeb13e679913fd9b3170d091abfd7064d4d
+searched_at: '2026-10-30T06:12:25.999475+00:00'
 retry_count: 1
