@@ -28700,7 +28700,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-30T19:06:15.445156+00:00",
+  "generated_at": "2026-10-30T19:08:15.536906+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -36931,6 +36931,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 2.958242,
+          "ended_at": "2026-10-30T19:06:13.701401Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-30T19:06:10.743159Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 2.664443,
           "ended_at": "2026-10-30T17:09:04.693798Z",
           "model": "zai-org.glm-5.3",
@@ -37000,14 +37008,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-09-26T07:15:11.314767Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 5.42229,
-          "ended_at": "2026-09-26T07:15:11.311346Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-26T07:15:05.889056Z"
         }
       ],
       "paper_status": null,
@@ -41917,6 +41917,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 5.248826,
+          "ended_at": "2026-10-30T19:07:15.538925Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-30T19:07:10.290099Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 4.437942,
           "ended_at": "2026-10-30T08:07:09.392870Z",
           "model": "zai-org.glm-5.3",
@@ -41986,14 +41994,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-23T23:30:01.790556Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 137.915248,
-          "ended_at": "2026-10-23T23:29:48.893732Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-23T23:27:30.978484Z"
         }
       ],
       "paper_status": null,
@@ -175705,6 +175705,30 @@
   ],
   "recent_activity": [
     {
+      "agent": "implementer",
+      "duration_s": 5.248826,
+      "ended_at": "2026-10-30T19:07:15.538925Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-069-statistical-analysis-of-sentiment-drift-",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-10-30T19:07:10.290099Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 2.958242,
+      "ended_at": "2026-10-30T19:06:13.701401Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-039-investigating-the-relationship-between-g",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-10-30T19:06:10.743159Z"
+    },
+    {
       "agent": "planner",
       "duration_s": 364.482957,
       "ended_at": "2026-10-30T18:28:53.864096Z",
@@ -181748,30 +181772,6 @@
       "project_stage": "clarified",
       "severity": "soft",
       "started_at": "2026-10-28T02:05:36.764308+00:00"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 6.462172,
-      "ended_at": "2026-10-28T01:16:32.144589Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-252-exploring-the-correlation-between-atmosp",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-10-28T01:16:25.682417Z"
-    },
-    {
-      "agent": "planner",
-      "duration_s": 266.194647,
-      "ended_at": "2026-10-28T01:12:44.429006Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-170-predicting-catalytic-activity-from-elect",
-      "project_stage": "clarified",
-      "severity": "hard",
-      "started_at": "2026-10-28T01:08:18.234359Z"
     }
   ],
   "reviewed_preprints": [
