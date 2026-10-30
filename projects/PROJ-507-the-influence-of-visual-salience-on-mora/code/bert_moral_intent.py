@@ -1,230 +1,99 @@
 """
-bert_moral_intent.py
---------------------
-Thin wrapper around a BERT model fine‑tuned on the MoralD dataset.
-It provides a single public function:
-
-    compute_preservation_score(original_image_path, manipulated_image_path)
-
-which:
-    1. Generates a caption for each image using a pretrained image‑to‑text model.
-    2. Encodes each caption with the BERT model and extracts the CLS hidden state.
-    3. Returns the Pearson correlation between the two CLS vectors.
-
-The module also offers a helper to compute the SHA‑256 checksum of the
-downloaded model weights so that callers (or the unit test) can verify that
-the correct, verified checkpoint has been fetched.
-
-All heavy models are loaded lazily and use the default Hugging‑Face cache
-directory (``~/.cache/huggingface/transformers``).  The code runs on CPU
-first; if a GPU is available ``torch`` will automatically use it.
+T015 – Wrapper for the moral-intent model.
+Provides a preservation score based on image captions and BERT embeddings.
 """
-
 import hashlib
 import logging
 from pathlib import Path
 from typing import Tuple
 
 import torch
+import numpy as np
 from scipy.stats import pearsonr
-from transformers import AutoModelForSequenceClassification, AutoTokenizer, pipeline
-from transformers.utils.hub import get_file_from_repo
+from transformers import (
+    AutoModelForSequenceClassification, 
+    AutoTokenizer, 
+    pipeline, 
+    AutoConfig
+)
+from huggingface_hub import hf_hub_download
 
-# ----------------------------------------------------------------------
-# Configuration
-# ----------------------------------------------------------------------
-# The base model name – a ``bert-base-uncased`` checkpoint that has been
-# fine‑tuned on the MoralD dataset.  The exact repository name is the one
-# used by the original authors; if the repository moves, update this
-# constant.
-_BERT_MODEL_NAME = "bert-base-uncased"  # fine‑tuned on MoralD (verified source)
+from llmxive_toolkit import get_logger
 
-# Caption model – a lightweight ViT‑GPT‑2 model that works well on
-# generic photographs.
-_CAPTION_MODEL_NAME = "nlpconnect/vit-gpt2-image-captioning"
+log = get_logger(__name__)
 
-# Logging – the project already provides ``llmxive_toolkit.get_logger``.
-# To avoid a hard dependency on that optional helper we fall back to the
-# standard library logger if the import fails.
-try:
-    from llmxive_toolkit import get_logger
+# Constants
+BERT_MODEL_ID = "bert-base-uncased"
+CAPTION_MODEL_ID = "nlpconnect/vit-gpt2-image-captioning"
+# Example hash for bert-base-uncased pytorch_model.bin (simplified for implementation)
+# In a real scenario, this would be the exact SHA-256 of the fine-tuned weights.
+EXPECTED_HASH = "8f69a7c6785e9d3e7b4f9a8c7d6e5f4a3b2c1d0e" 
 
-    log = get_logger(__name__)
-except Exception:  # pragma: no cover
-    log = logging.getLogger(__name__)
-    logging.basicConfig(level=logging.INFO)
-
-# ----------------------------------------------------------------------
-# Helper: download / load BERT model and tokenizer
-# ----------------------------------------------------------------------
-_bert_model: AutoModelForSequenceClassification | None = None
-_bert_tokenizer: AutoTokenizer | None = None
-
-def _load_bert() -> Tuple[AutoModelForSequenceClassification, AutoTokenizer]:
-    """Load (or retrieve from cache) the BERT model and its tokenizer."""
-    global _bert_model, _bert_tokenizer
-
-    if _bert_model is None or _bert_tokenizer is None:
-        log.info(f"Loading BERT model '{_BERT_MODEL_NAME}' (fine‑tuned on MoralD)…")
-        _bert_tokenizer = AutoTokenizer.from_pretrained(_BERT_MODEL_NAME)
-        _bert_model = AutoModelForSequenceClassification.from_pretrained(
-            _BERT_MODEL_NAME, output_hidden_states=True
-        )
-        _bert_model.eval()
-        if torch.cuda.is_available():
-            _bert_model.to("cuda")
-    return _bert_model, _bert_tokenizer
-
-# ----------------------------------------------------------------------
-# Helper: compute SHA‑256 checksum of the model's weight file
-# ----------------------------------------------------------------------
 def compute_model_checksum() -> str:
     """
-    Compute the SHA‑256 checksum of the ``pytorch_model.bin`` file that
-    belongs to the BERT checkpoint.  The function triggers a download
-    (if necessary) and then returns the hex digest.
-
-    Returns
-    -------
-    str
-        Hexadecimal SHA‑256 checksum.
-    """
-    # ``get_file_from_repo`` downloads the file into the Hugging‑Face cache
-    # and returns the local path.
-    weight_path = get_file_from_repo(_BERT_MODEL_NAME, "pytorch_model.bin")
-    sha256 = hashlib.sha256()
-    with open(weight_path, "rb") as f:
-        for block in iter(lambda: f.read(8192), b""):
-            sha256.update(block)
-    checksum = sha256.hexdigest()
-    log.info(f"Checksum for model '{_BERT_MODEL_NAME}': {checksum}")
-    return checksum
-
-# ----------------------------------------------------------------------
-# Helper: caption generation
-# ----------------------------------------------------------------------
-_caption_pipe = None
-
-def _get_caption_pipe():
-    """Create (or reuse) the image‑to‑text pipeline."""
-    global _caption_pipe
-    if _caption_pipe is None:
-        log.info(f"Loading caption model '{_CAPTION_MODEL_NAME}'…")
-        _caption_pipe = pipeline("image-to-text", model=_CAPTION_MODEL_NAME)
-    return _caption_pipe
-
-def _generate_caption(image_path: Path | str) -> str:
-    """
-    Generate a short English caption for ``image_path`` using the
-    ViT‑GPT‑2 caption model.
-
-    Parameters
-    ----------
-    image_path : Path | str
-        Path to the image file.
-
-    Returns
-    -------
-    str
-        The generated caption (first candidate).
-    """
-    pipe = _get_caption_pipe()
-    # ``pipeline`` accepts a path‑like object; we forward the string form.
-    result = pipe(str(image_path))
-    # The pipeline returns a list of dicts; we keep the first entry.
-    if isinstance(result, list) and len(result) > 0:
-        caption = result[0].get("generated_text", "")
-    else:
-        caption = result.get("generated_text", "")
-    log.debug(f"Caption for '{image_path}': {caption}")
-    return caption
-
-# ----------------------------------------------------------------------
-# Helper: encode a caption with BERT and extract the CLS hidden state
-# ----------------------------------------------------------------------
-def _encode_caption(caption: str) -> torch.Tensor:
-    """
-    Encode ``caption`` with the loaded BERT model and return the CLS
-    hidden state as a 1‑D ``torch.Tensor`` on CPU.
-
-    Parameters
-    ----------
-    caption : str
-        Text to encode.
-
-    Returns
-    -------
-    torch.Tensor
-        CLS embedding (size = model hidden dimension).
-    """
-    model, tokenizer = _load_bert()
-    inputs = tokenizer(caption, return_tensors="pt")
-    if torch.cuda.is_available():
-        inputs = {k: v.to("cuda") for k, v in inputs.items()}
-
-    with torch.no_grad():
-        outputs = model(**inputs)
-        # ``outputs.hidden_states`` is a tuple; the last element is the
-        # final hidden layer.  CLS token is at position 0.
-        hidden_states = outputs.hidden_states[-1]  # (1, seq_len, hidden)
-        cls_vec = hidden_states[:, 0, :].squeeze(0)  # (hidden,)
-    # Ensure the vector is on CPU for NumPy / SciPy downstream.
-    return cls_vec.cpu()
-
-# ----------------------------------------------------------------------
-# Public API
-# ----------------------------------------------------------------------
-def compute_preservation_score(original_image_path: Path | str,
-                               manipulated_image_path: Path | str) -> float:
-    """
-    Compute a moral‑intent preservation score between two images.
-
-    The procedure follows the specification for Task T015:
-
-    1. Generate a caption for each image using a pretrained caption model.
-    2. Encode each caption with the BERT moral‑intent model and extract the
-       CLS hidden state.
-    3. Return the Pearson correlation coefficient between the two CLS
-       vectors.  The correlation lies in ``[-1, 1]``; values close to ``1``
-       indicate that the moral intent (as captured by the model) is
-       preserved.
-
-    Parameters
-    ----------
-    original_image_path : Path | str
-        Path to the original stimulus image.
-    manipulated_image_path : Path | str
-        Path to the salience‑manipulated version of the same stimulus.
-
-    Returns
-    -------
-    float
-        Pearson correlation coefficient (≥ 0.90 on a sanity‑check image).
-
-    Raises
-    ------
-    RuntimeError
-        If caption generation or model inference fails.
+    Compute the SHA-256 checksum of the BERT model file.
     """
     try:
-        # Step 1 – captions
-        caption_orig = _generate_caption(original_image_path)
-        caption_manip = _generate_caption(manipulated_image_path)
+        # Download the model weights file to compute its hash
+        model_path = hf_hub_download(repo_id=BERT_MODEL_ID, filename="pytorch_model.bin")
+        sha256_hash = hashlib.sha256()
+        with open(model_path, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+    except Exception as e:
+        log.error(f"Checksum computation failed: {e}")
+        return ""
 
-        # Step 2 – BERT embeddings
-        vec_orig = _encode_caption(caption_orig)
-        vec_manip = _encode_caption(caption_manip)
+def _load_bert() -> Tuple[AutoModelForSequenceClassification, AutoTokenizer]:
+    """Load the BERT model and tokenizer."""
+    tokenizer = AutoTokenizer.from_pretrained(BERT_MODEL_ID)
+    model = AutoModelForSequenceClassification.from_pretrained(BERT_MODEL_ID)
+    model.eval()
+    return model, tokenizer
 
-        # Convert to NumPy for ``pearsonr`` (expects 1‑D arrays)
-        arr_orig = vec_orig.numpy()
-        arr_manip = vec_manip.numpy()
+def _get_caption_pipe():
+    """Create the image-to-text pipeline."""
+    return pipeline("image-to-text", model=CAPTION_MODEL_ID)
 
-        # Step 3 – correlation
-        corr, _ = pearsonr(arr_orig, arr_manip)
-        log.info(
-            f"Moral‑intent preservation score (Pearson r) = {corr:.4f}"
-        )
+def _generate_caption(image_path: Path | str) -> str:
+    """Generate a short English caption for image_path."""
+    try:
+        pipe = _get_caption_pipe()
+        result = pipe(str(image_path))
+        return result[0]['generated_text']
+    except Exception as e:
+        log.error(f"Caption generation failed for {image_path}: {e}")
+        raise RuntimeError(f"Captioning error: {e}")
+
+def _encode_caption(caption: str) -> torch.Tensor:
+    """Encode caption with BERT and return the CLS hidden state."""
+    model, tokenizer = _load_bert()
+    inputs = tokenizer(caption, return_tensors="pt", padding=True, truncation=True, max_length=128)
+    with torch.no_grad():
+        outputs = model.bert(**inputs)
+        # CLS token is the first token
+        cls_embedding = outputs.last_hidden_state[:, 0, :]
+    return cls_embedding.squeeze().cpu()
+
+def compute_preservation_score(original_image_path: Path | str, manipulated_image_path: Path | str) -> float:
+    """
+    Compute a moral-intent preservation score between two images.
+    Returns the Pearson correlation between the CLS vectors of their captions.
+    """
+    try:
+        cap_orig = _generate_caption(original_image_path)
+        cap_man = _generate_caption(manipulated_image_path)
+
+        vec_orig = _encode_caption(cap_orig).numpy()
+        vec_man = _encode_caption(cap_man).numpy()
+
+        # If vectors are identical, correlation is 1.0
+        if np.array_equal(vec_orig, vec_man):
+            return 1.0
+        
+        corr, _ = pearsonr(vec_orig, vec_man)
         return float(corr)
-    except Exception as exc:  # pragma: no cover
-        log.error(f"Failed to compute preservation score: {exc}")
-        raise RuntimeError("Preservation score computation failed.") from exc
+    except Exception as e:
+        log.error(f"Preservation score failed: {e}")
+        raise RuntimeError(f"Preservation score error: {e}")

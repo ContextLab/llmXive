@@ -39,16 +39,16 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-507-the-influence-of-visual-salience-on-mora/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/00_pilot_power_analysis.py': [Errno 2] No such file or directory
 
 - python code/01_ingest_and_filter.py  --max-scenarios 30  --output data/processed/candidates_filtered.csv -> rc=-1
-2026-10-29 20:12:07 | INFO     | __main__             | Attempting to load Visual Genome via HuggingFace datasets (streaming).
-2026-10-29 20:12:07 | WARNING  | __main__             | Streaming load failed (The `datasets` package cannot be imported in the current environment.). Falling back to direct image download.
+2026-10-30 18:19:34 | INFO     | __main__             | Attempting to load Visual Genome via HuggingFace datasets (streaming).
+2026-10-30 18:19:34 | WARNING  | __main__             | Streaming load failed (The `datasets` package cannot be imported in the current environment.). Falling back to direct image download.
 
-2026-10-29 20:12:07,259 INFO __main__: Attempting to load Visual Genome via HuggingFace datasets (streaming).
-2026-10-29 20:12:07,259 WARNING __main__: Streaming load failed (The `datasets` package cannot be imported in the current environment.). Falling back to direct image download.
+2026-10-30 18:19:34,921 INFO __main__: Attempting to load Visual Genome via HuggingFace datasets (streaming).
+2026-10-30 18:19:34,921 WARNING __main__: Streaming load failed (The `datasets` package cannot be imported in the current environment.). Falling back to direct image download.
 
 [TIMEOUT after 120s]
 - python code/03_process_human_coding.py  --input data/processed/candidates_filtered.csv  --output data/processed/scenarios.csv -> rc=1
 
-2026-10-29 20:14:06,652 INFO __main__: Loading annotations from data/raw/human_coding
+2026-10-30 18:21:33,993 INFO __main__: Loading annotations from data/raw/human_coding
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/03_process_human_coding.py", line 251, in <module>
     main()
@@ -61,12 +61,7 @@ ValueError: Annotation files are missing required columns: {'annotator_id', 'rat
 
 - python code/04_manipulate_stimuli.py  --input data/processed/scenarios.csv  --output data/processed/stimuli_manifest.csv -> rc=1
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/04_manipulate_stimuli.py", line 31, in <module>
-    from bert_moral_intent import compute_preservation_score
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/bert_moral_intent.py", line 31, in <module>
-    from transformers.utils.hub import get_file_from_repo
-ImportError: cannot import name 'get_file_from_repo' from 'transformers.utils.hub' (/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-507-the-influence-of-visual-salience-on-mora/lib/python3.11/site-packages/transformers/utils/hub.py)
+2026-10-30 18:21:38,862 ERROR __main__: Input scenarios file missing: data/processed/scenarios.csv
 
 
 ## Declared deliverables still missing

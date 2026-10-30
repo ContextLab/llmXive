@@ -1,9 +1,16 @@
-# Project‑specific dependencies for the visual‑salience pipeline.
-# Core scientific stack (already available in the runner) is omitted.
-transformers>=4.35.0
-torch>=2.2.0
-pillow>=10.0.0
-scipy>=1.11.0
-# Note: numpy, pandas, scikit‑learn, statsmodels, seaborn, matplotlib,
-# pytest, PyYAML, requests, jsonschema, psutil are provided by the
-# execution environment and need not be listed here.
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
+statsmodels
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil
+pillow
+torch
+transformers
+huggingface_hub

@@ -1,12 +1,15 @@
 status: none
-intent: CodedotAI code_clippy_github Visual Genome MoralD CLMM Benchmark python package
-  dataset
+intent: download CodedotAI code_clippy_github image URLs dataset Visual Genome CLMM
+  Benchmark python package dataset
 required_fields:
 - image_id
 - image_url
 - metadata
-- bounding_box
+- bounding_box_x_min
+- bounding_box_y_min
+- bounding_box_x_max
+- bounding_box_y_max
 - moral_ambiguity_label
-cache_key: 9df1e1256950b85712fef214956fbee91ad06e88cd4313b2d9b7da0a67363d6b
-searched_at: '2026-10-29T20:15:17.884803+00:00'
+cache_key: 8729ecfd924236003be7bb78d6c6af9b3dbbf426e758373eba94fe3d7ffc0c8d
+searched_at: '2026-10-30T18:22:29.903760+00:00'
 retry_count: 1
