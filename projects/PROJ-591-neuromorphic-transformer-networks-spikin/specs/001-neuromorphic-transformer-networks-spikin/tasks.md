@@ -76,7 +76,7 @@
 
 - [~] T012 [US1] Implement perplexity calculation in `code/metrics/perplexity.py` and log to CSV after each epoch.
 - [~] T013 [US1] Implement baseline training loop in `code/main.py` (seeds 1-5, batch size 32, lr 1e-3). **Signature**: `def train_baseline(seed: int) -> MetricRecord`. **Output**: Save results to `data/processed/baseline_metrics.csv` with columns: `seed`, `epoch`, `perplexity`, `energy_per_token_kWh`, `wall_clock_time`. **Requirement**: Must use the same random seed configuration as the spiking model (T017) to enable paired testing (FR-009).
-- [~] T014 [US1] {{claim:c_96b50f74}} <!-- ATOMIZE: requested -->
+- [~] T014 [US1] Add early stopping logic (patience=2, delta=0.01) to baseline training. <!-- ATOMIZE: requested -->
 - [ ] T015 [US1] Add random seed configuration (multiple seeds) and store results in `data/processed/baseline_metrics.csv`. <!-- ATOMIZE: requested -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
