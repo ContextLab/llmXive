@@ -1,0 +1,111 @@
+T001:
+  task: b004887b126a6294536a016da666f4e991c552ab8aa1d0cf5fe8d33884e40b29
+T002:
+  task: 9f23c6b1fc035889221bf124cbcfb2b8e8b2cc4d2e4539a9e5528ce6affaf3c6
+T003:
+  task: 3ad32b98813531dbde20f2b2ec3338939896ecdee546b5892a5b207b587d0d07
+T004:
+  task: 9ddb869f656864eab7441a911c1c57a3520e7f59dab8ac4e352cae5df103173f
+T004a:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/trajectories.parquet,
+    data/raw/alfworld/, data/raw/textworld/'
+  task: be9bc3a040d18a96c1c53e74ba1d74e21c2c21d97e94f7fe217ac67c845af2d3
+T004b:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/PROJ-587-episodic-future-thinking-in-llms-impleme.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: b24f9ae3ad6f23a8a7f0fcb53e094e9aaab90d43af5f732f7f09660ef69fd639
+T005:
+  task: d41f50dedb9bb382938a5fb26ab5ec98576305a168c8a599089c7b3a18e2ae48
+T006:
+  task: 9e06a2bbc738fb90c8b6b9f09359be704d468afded93925c7f5bcaaf8f9db76f
+T007:
+  task: 1ded0e0454409b8bd1f41cd6c76d39005038fbd7b2cc161d0d5cbd61df6240fd
+T008:
+  task: f75053b8c604335dbb9222e65c974325455ede0c9c4e32e4ddf34443f9bdd8af
+T008a:
+  reason: 'declared artifact(s) missing/empty/invalid: config/config.yaml, projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/config/config.yaml'
+  task: 5a5e72920fe1587ded278011fbeba3cb0b8782448b5c9a42c7349abfee21fe18
+T008b:
+  task: af1557cedac0dccd42470bd2df4037ac260fa8dcb299339e5e880ab1838467a9
+T008c:
+  task: 0b57c7eda5e1a418cc819d5c9b8052b097df9781f071b795466ccd484093cf73
+T010a:
+  task: e4471d5b1493719f7ba4a8ab194736f4ef0ea54f8cb041bca7d2f01fad8359dc
+T010b:
+  task: 25ae069a31b0570882c405d5d634e29e59304116250d4ea6754e4eaf5d25bd88
+T011a:
+  task: 62da5c852b23c580bde6e5f4f6aee0a494c3d0cedc59c4adad263ec0e6357d7e
+T011b:
+  task: 63fdfb9831a52c6d71fa37a695fde0af24e8c1881a62c2c79948b613c5e1e3c4
+T012:
+  task: b8b8cdaae6479ec78f37d31e094d691b842ed8e1a51e1ad5607a4c4ccfcc865a
+T013a:
+  task: 2d194ae82a1b6fa149903de58dcceb21ac31645a6cac31c1da2e81cc5e3343d9
+T013b:
+  task: 13bdae34945c51e83deb0725d3bf105ca81d1dc3dbda34a6100b3400988c7dcb
+T014:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/services/retrieval_service.py'
+  task: ef9168bae90a11be0afd7872723b260e187356512fab7190b274908088482a9c
+T015:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/services/retrieval_service.py'
+  task: 0b7b66e020ea533728e46826901c15da61b0731cf8f0bd8337c7ed60971bf7fc
+T016:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/services/retrieval_service.py'
+  task: 14b1fdf6a88ca458aee3d20b94bb09e88c470d8bec6a998dd15ac2f0db3e5494
+T017:
+  task: e9962a622065e0963d0795f96796269e2dae17d66407402e1855fe7ac573046a
+T018:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/tests/contract/test_scenario_gen.py'
+  task: d3ffafb6633baeb6f0567e537972c0c230c812fc120771287fc3a6e9fa727594
+T019:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/tests/integration/test_planning_service.py'
+  task: b96a26d03fab670527d03ecef73cb6a7cc6c1c700797ce909e9e40072e89507b
+T020:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/services/planning_service.py'
+  task: da3669ea2dd8df002e6ad90fae9772d1f5fccb56dfbdbd054b0a5b4e5bf04f38
+T021:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/models/baseline_transformer.py'
+  task: 06035b3330140a6bac026d486bd7de5f94eca60c69fe86cd77df96431f3d3aa9
+T022:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/models/augmented_llm.py'
+  task: ec282af21cb3b1bc44dcb21923895eb2690be2335ce31237f722da3acfe7d5aa
+T023:
+  task: 15080f6c5d18324c3c3d714a8e6936a2a3a76d171f31dabfa3924bb20be916d5
+T023b:
+  task: dfd12f7512bf054bdf5c9819c615205d67738dfcbf23ec64ae0f60f6bb24c15d
+T025:
+  task: 6545249d83b608335905ccdcd9dae16ce8622df9b9459606b9b7b404bbed8fe5
+T026:
+  task: 3ef81db5dbe3d9bed4fc76a33eafe975a8e63cc5419f89412086491cf36bd34b
+T027a:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/validation/evaluation_protocol.md'
+  task: ef710627c40c64f64406d59294f44d56657e8289e2c7c86289bd3795c96d2360
+T027b:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/validation/counterfactual_gen.py'
+  task: 16ecb26ae2861f0bafca6f33d76e6aa3c0334903e9fe61dbbb26cdf3687305dc
+T027c:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/validation/confidence_calib.py'
+  task: ce3fd2a52107f6ccbeef2c980060689e2965affa06a86a0380105f159985bbab
+T027d:
+  reason: 'declared artifact(s) missing/empty/invalid: scripts/run_human_eval.py,
+    data/results/human_eval_ratings.csv'
+  task: 0e9fda146ad9793f0f5dedef6e724065e04b0fa20d6409699f6be85bfa8478e7
+T029:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/experiments/sensitivity_analysis.py,
+    data/results/sensitivity_analysis.csv'
+  task: 5da70dbf3732a6c292045373225107bbfdbcfc19b63b31e7f39936fc36e1c9cc
+T032:
+  reason: 'declared artifact(s) missing/empty/invalid: projects/PROJ-587-episodic-future-thinking-in-llms-impleme/docs/architecture.md'
+  task: 5359922f60a2380fb8e5105d615c1e5e05b72510e155bea87f63a3161f413e46
+T033:
+  task: 3576d2051c17c69f832796dbe8b8c2888419612c7361995e8b367e636f1fb40e
+T034:
+  task: 7019528501317e3bd6f771f51534115ca0960b2d7a44acbf4141a8501a6d3bed
+T035:
+  task: 9f9505465c2fbbd4cba9b8ae0656682585b6b43c12a5c8ea49c575b20d05113b
+T036:
+  task: 0c0f7fde69ce5f9347ab24406f5fdcafde8a8d4aba151079b9a73418201b9bd8
+T037:
+  task: 63a98f4a168ecda44e2b1d97870119e15e479783699b516a38be1962dcd4370d

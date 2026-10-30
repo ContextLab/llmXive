@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 Create project structure per implementation plan
-- [X] T002 Initialize Python 3.11 project with PyTorch/Transformers dependencies
-- [X] T003 [P] Configure linting and formatting tools
+- [~] T001 Create project structure per implementation plan
+- [~] T002 Initialize Python 3.11 project with PyTorch/Transformers dependencies
+- [~] T003 [P] Configure linting and formatting tools
 
 ---
 
@@ -57,16 +57,16 @@
 
 Examples of foundational tasks (adjust based on your project):
 
-- [X] T004 [P] Implement data loading pipeline for ALFWorld/TextWorld benchmarks
-- [X] T004a [P] Generate `data/processed/trajectories.parquet` by parsing raw ALFWorld/TextWorld datasets (specifically `data/raw/alfworld/*.jsonl` and `data/raw/textworld/*.jsonl`) into (state, action, outcome) tuples; ensure at least 100 trajectories are generated for testing [UNRESOLVED-CLAIM: c_9b255bcc — status=not_enough_info]. Raise `ValueError` if < 100 valid tuples are found. Depends on: T004.
-- [X] T004b [P] Generate SHA-256 checksum for `data/processed/trajectories.parquet` and record it in `data/checksums.txt` and update `state/projects/PROJ-587-episodic-future-thinking-in-llms-impleme.yaml` artifact_hashes. Depends on: T004a.
-- [X] T005 [P] Implement authentication/authorization framework
-- [X] T006 [P] Setup API routing and middleware structure
-- [X] T007 Create base models/entities that all stories depend on
-- [X] T008 [P] Setup environment configuration management
-- [X] T008a [P] Generate `config/config.yaml`at `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/config/config.yaml` with concrete defaults: `similarity_threshold: 0.75 `, `{{claim:c_7ef7f8af}} (Wikipedia: Redmi Note 6 Pro, https://en.wikipedia.org/wiki/Redmi_Note_6_Pro)`, `faiss_hnsw_m: 16 `, `faiss_hnsw_ef_construction: 100 `.
-- [X] T008b [P] Implement `config_loader.py` to validate `config.yaml` keys and types; raise `ValueError` if `max_ram_gb` > 7 [UNRESOLVED-CLAIM: c_a8cfa699 — status=not_enough_info] or `faiss_hnsw_m` is invalid. Depends on: T008a.
-- [X] T008c [P] Implement memory limit enforcement in `utils/memory_monitor.py` to raise RuntimeError if process exceeds 6 GB RAM [UNRESOLVED-CLAIM: c_fd9349bf — status=not_enough_info]. Depends on: T008a.
+- [~] T004 [P] Implement data loading pipeline for ALFWorld/TextWorld benchmarks
+- [ ] T004a [P] Generate `data/processed/trajectories.parquet` by parsing raw ALFWorld/TextWorld datasets (specifically `data/raw/alfworld/*.jsonl` and `data/raw/textworld/*.jsonl`) into (state, action, outcome) tuples; ensure at least 100 trajectories are generated for testing [UNRESOLVED-CLAIM: c_9b255bcc — status=not_enough_info]. Raise `ValueError` if < 100 valid tuples are found. Depends on: T004.
+- [ ] T004b [P] Generate SHA-256 checksum for `data/processed/trajectories.parquet` and record it in `data/checksums.txt` and update `state/projects/PROJ-587-episodic-future-thinking-in-llms-impleme.yaml` artifact_hashes. Depends on: T004a.
+- [~] T005 [P] Implement authentication/authorization framework
+- [~] T006 [P] Setup API routing and middleware structure
+- [~] T007 Create base models/entities that all stories depend on
+- [~] T008 [P] Setup environment configuration management
+- [ ] T008a [P] Generate `config/config.yaml`at `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/config/config.yaml` with concrete defaults: `similarity_threshold: 0.75 `, `max_ram_gb: 6 (Wikipedia: Redmi Note 6 Pro, https://en.wikipedia.org/wiki/Redmi_Note_6_Pro)`, `faiss_hnsw_m: 16 `, `faiss_hnsw_ef_construction: 100 `.
+- [~] T008b [P] Implement `config_loader.py` to validate `config.yaml` keys and types; raise `ValueError` if `max_ram_gb` > 7 [UNRESOLVED-CLAIM: c_a8cfa699 — status=not_enough_info] or `faiss_hnsw_m` is invalid. Depends on: T008a.
+- [~] T008c [P] Implement memory limit enforcement in `utils/memory_monitor.py` to raise RuntimeError if process exceeds 6 GB RAM [UNRESOLVED-CLAIM: c_fd9349bf — status=not_enough_info]. Depends on: T008a.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -82,34 +82,34 @@ Examples of foundational tasks (adjust based on your project):
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T010a [P] [US1] Define `IEpisodicMemory` protocol/interface in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/models/episodic_memory.py` (abstract class or Protocol) with `store`, `retrieve`, `update` methods.
-- [X] T010b [US1] Write test stub `test_store_returns_id` in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/tests/unit/test_episodic_memory.py` that imports `IEpisodicMemory` and asserts `store()` returns a valid episode ID (using mock factory). Depends on: T010a.
-- [X] T011a [P] [US1] Write test `test_retrieval_latency_1k` in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/tests/integration/test_retrieval_latency.py` that uses a generated mock dataset to assert `latency < 0.5s` (unit test). Depends on: T010a.
-- [X] T011b [US1] Write test `test_retrieval_latency_10k` in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/tests/integration/test_retrieval_latency.py` that loads REAL entries from `data/processed/trajectories.parquet` (generated by T004a) and asserts `latency < 0.5s` and `memory_usage < 7GB`. Ensure T004a has been executed successfully before running this test. Implementation (T012) must be complete before test execution. Depends on: T012, T004a.
+- [~] T010a [P] [US1] Define `IEpisodicMemory` protocol/interface in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/models/episodic_memory.py` (abstract class or Protocol) with `store`, `retrieve`, `update` methods.
+- [~] T010b [US1] Write test stub `test_store_returns_id` in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/tests/unit/test_episodic_memory.py` that imports `IEpisodicMemory` and asserts `store()` returns a valid episode ID (using mock factory). Depends on: T010a.
+- [~] T011a [P] [US1] Write test `test_retrieval_latency_1k` in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/tests/integration/test_retrieval_latency.py` that uses a generated mock dataset to assert `latency < 0.5s` (unit test). Depends on: T010a.
+- [~] T011b [US1] Write test `test_retrieval_latency_10k` in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/tests/integration/test_retrieval_latency.py` that loads REAL entries from `data/processed/trajectories.parquet` (generated by T004a) and asserts `latency < 0.5s` and `memory_usage < 7GB`. Ensure T004a has been executed successfully before running this test. Implementation (T012) must be complete before test execution. Depends on: T012, T004a.
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Implement `EpisodicMemory` class with FAISS HNSW index in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/models/episodic_memory.py`.
+- [~] T012 [US1] Implement `EpisodicMemory` class with FAISS HNSW index in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/models/episodic_memory.py`.
  - *Addressing Alan Turing*: Explicitly define storage as discrete-state machine configurations (state-action-outcome tuples) rather than weight updates.
  - *Addressing Eric Kandel*: Implement "consolidation" (timestamp-based) to distinguish specific events from semantic patterns.
 
-- [X] T013a [US1] Implement `encode_state()` function in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/models/episodic_memory.py` with signature: `def encode_state(state_text: str) -> np.ndarray` (returns a fixed-dimensional embedding).
+- [~] T013a [US1] Implement `encode_state()` function in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/models/episodic_memory.py` with signature: `def encode_state(state_text: str) -> np.ndarray` (returns a fixed-dimensional embedding).
 
-- [X] T013b [US1] Implement `encode_action()` function in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/models/episodic_memory.py` with signature: `def encode_action(action_text: str) -> np.ndarray` (returns a fixed-dimensional embedding).
+- [~] T013b [US1] Implement `encode_action()` function in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/models/episodic_memory.py` with signature: `def encode_action(action_text: str) -> np.ndarray` (returns a fixed-dimensional embedding).
 
-- [X] T014 [US1] Implement `RetrievalService` with conflict resolution logic in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/services/retrieval_service.py`.
+- [ ] T014 [US1] Implement `RetrievalService` with conflict resolution logic in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/services/retrieval_service.py`.
  - *Conflict Definition*: Same `state_hash`, different `outcome_hash`.
- - *Logic*: {{claim:c_703d23d6}}; default to most recent.
+ - *Logic*: Flag conflict if similarity difference < 0.15; default to most recent.
  - *Addressing Eric Kandel*: Ensure timestamps act as the "cellular alphabet" for consolidation.
 
-- [X] T015 [US1] Implement fallback logic: if retrieval count ≤ 2, default to baseline transformer and log event in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/services/retrieval_service.py`.
+- [ ] T015 [US1] Implement fallback logic: if retrieval count ≤ 2, default to baseline transformer and log event in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/services/retrieval_service.py`.
 
-- [X] T016 [US1] Add `validate_similarity_threshold()` function in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/services/retrieval_service.py`.
+- [ ] T016 [US1] Add `validate_similarity_threshold()` function in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/services/retrieval_service.py`.
  - *Operational Default*: Enforce `similarity_threshold == 0.75` via `ValueError` if different value is passed without `--override-threshold` flag.
  - *Experimental Override*: Allow `--override-threshold` flag (used by T029) to bypass the 0.75 check for sensitivity analysis.
  - *Addressing FR-002*: Ensures the fixed threshold is enforced for operational retrieval.
 
-- [X] T017 [US1] Add logging for retrieval events, confidence scores, and fallback triggers in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/utils/logging.py`.
+- [~] T017 [US1] Add logging for retrieval events, confidence scores, and fallback triggers in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/utils/logging.py`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -123,25 +123,25 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T018 [P] [US2] Contract test for scenario generation output format in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/tests/contract/test_scenario_gen.py`.
-- [X] T019 [P] [US2] Integration test for full planning pipeline (retrieve + generate + evaluate) in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/tests/integration/test_planning_service.py`.
+- [ ] T018 [P] [US2] Contract test for scenario generation output format in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/tests/contract/test_scenario_gen.py`.
+- [ ] T019 [P] [US2] Integration test for full planning pipeline (retrieve + generate + evaluate) in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/tests/integration/test_planning_service.py`.
 
 ### Implementation for User Story 2
 
-- [X] T020 [US2] Implement `PlanningService` to combine retrieved episodes with current state in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/services/planning_service.py`.
+- [ ] T020 [US2] Implement `PlanningService` to combine retrieved episodes with current state in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/services/planning_service.py`.
  - *Depends on: T012, T013a, T013b, T014, T015, T017, T004a* (US1 components + data).
  - *Integration*: Use `RetrievalService.retrieve()` and `EpisodicMemory` classes.
  - *Addressing Dan Rockmore*: Ensure generation explicitly navigates "topology" of possible futures by weighting retrieved trajectories.
  - *Addressing David Krakauer*: Implement error-minimization update rule to revise internal models when predictions fail.
  - *Sub-task*: Add uncertainty markers for details not supported by retrieved memories (WYSIATI prevention) in this same task.
 
-- [X] T021 [US2] Implement baseline transformer inference (medium-scale parameter count, CPU-optimized) in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/models/baseline_transformer.py`.
+- [ ] T021 [US2] Implement baseline transformer inference (medium-scale parameter count, CPU-optimized) in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/models/baseline_transformer.py`.
 
-- [X] T022 [US2] Implement augmented LLM inference (Transformer + Episodic Control) in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/models/augmented_llm.py`.
+- [ ] T022 [US2] Implement augmented LLM inference (Transformer + Episodic Control) in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/models/augmented_llm.py`.
 
-- [X] T023 [US2] Implement `run_mixed_effects_test()` in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/utils/stats.py` using `statsmodels` with Bonferroni correction for multiple-comparison testing (FR-008).
+- [~] T023 [US2] Implement `run_mixed_effects_test()` in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/utils/stats.py` using `statsmodels` with Bonferroni correction for multiple-comparison testing (FR-008).
 
-- [X] T023b [US2] Integrate `run_mixed_effects_test()` into the main evaluation pipeline in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/experiments/run_episodic.py`, ensuring Bonferroni correction is applied to final reported p-values. Depends on: T023.
+- [~] T023b [US2] Integrate `run_mixed_effects_test()` into the main evaluation pipeline in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/experiments/run_episodic.py`, ensuring Bonferroni correction is applied to final reported p-values. Depends on: T023.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -155,24 +155,24 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T025 [P] [US3] Contract test for confidence score reporting in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/tests/contract/test_confidence.py`.
-- [X] T026 [P] [US3] Integration test for counterfactual perturbation and confidence calibration in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/tests/integration/test_validation_service.py`.
+- [~] T025 [P] [US3] Contract test for confidence score reporting in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/tests/contract/test_confidence.py`.
+- [~] T026 [P] [US3] Integration test for counterfactual perturbation and confidence calibration in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/tests/integration/test_validation_service.py`.
 
 ### Implementation for User Story 3
 
-- [X] T027a [US3] Implement protocol for implement protocol for recruiting ≥ 3 human raters [UNRESOLVED-CLAIM: c_05afb4b8 — status=not_enough_info] and managing the evaluation interface in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/validation/evaluation_protocol.md`. This task defines the workflow, rater instructions, and data collection format.
+- [ ] T027a [US3] Implement protocol for implement protocol for recruiting ≥ 3 human raters [UNRESOLVED-CLAIM: c_05afb4b8 — status=not_enough_info] and managing the evaluation interface in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/validation/evaluation_protocol.md`. This task defines the workflow, rater instructions, and data collection format.
  - *Addressing Daniel Kahneman*: Distinguish "simulation" vs "evaluation"; ensure System 2 checks System 1.
 
-- [X] T027b [US3] Implement `CounterfactualGenerator` to create perturbed scenarios (swapping outcome values) in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/validation/counterfactual_gen.py`.
+- [ ] T027b [US3] Implement `CounterfactualGenerator` to create perturbed scenarios (swapping outcome values) in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/validation/counterfactual_gen.py`.
  - *Addressing Daniel Kahneman*: Explicitly measure confidence in counterfactual details to detect WYSIATI bias.
 
-- [X] T027c [US3] Implement `ValidationService` to measure confidence calibration, flagging rates, calculate inter-rater reliability (Krippendorff's alpha), and sweep similarity thresholds in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/validation/confidence_calib.py`.
+- [ ] T027c [US3] Implement `ValidationService` to measure confidence calibration, flagging rates, calculate inter-rater reliability (Krippendorff's alpha), and sweep similarity thresholds in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/validation/confidence_calib.py`.
  - *Note*: Consolidates T027c and T028 logic.
  - *Sensitivity Analysis*: Include logic to run with `--override-threshold` flag (from T016) for the set {0.70, 0.75, 0.80}.
 
-- [X] T027d [US3] Implement `scripts/run_human_eval.py` to automate rater recruitment interface, present generated scenarios, collect raw Likert ratings, and aggregate results into `data/results/human_eval_ratings.csv`. This task executes the measurement required by SC-004. Depends on: T027a.
+- [ ] T027d [US3] Implement `scripts/run_human_eval.py` to automate rater recruitment interface, present generated scenarios, collect raw Likert ratings, and aggregate results into `data/results/human_eval_ratings.csv`. This task executes the measurement required by SC-004. Depends on: T027a.
 
-- [X] T029 [US3] Implement sensitivity analysis script to sweep similarity thresholds across a specific set of representative values and report precision variation in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/experiments/sensitivity_analysis.py`.
+- [ ] T029 [US3] Implement sensitivity analysis script to sweep similarity thresholds across a specific set of representative values and report precision variation in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/experiments/sensitivity_analysis.py`.
  - *Output Format*: Generate `data/results/sensitivity_analysis.csv` with columns: `threshold`, `precision`, `recall`, `latency_ms`.
  - *Execution*: Must invoke `ValidationService` with `--override-threshold` flag to bypass T016's default check.
  - *Addressing FR-006*: Explicitly executes the sweep required by FR-006.
@@ -185,12 +185,12 @@ Examples of foundational tasks (adjust based on your project):
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T032 [P] Update `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/docs/architecture.md` to document reproducibility mechanisms (human evaluation workflow) and address methodological concerns regarding episodic vs. semantic retrieval in plain prose.
-- [X] T033 [P] Code cleanup: Remove unused imports and refactor `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/models/episodic_memory.py` (T012) to use dependency injection.
-- [X] T034 [P] Performance optimization: Tune FAISS HNSW parameters in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/models/episodic_memory.py` to achieve index build time < 10s for 10k entries [UNRESOLVED-CLAIM: c_f874fad8 — status=not_enough_info].
-- [X] T035 [P] Additional unit tests for statistical utilities in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/tests/unit/test_stats.py`.
-- [X] T036 [P] Add GPG signature verification to `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/scripts/download_data.sh` for data download security.
-- [X] T037 [P] Create `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/.github/workflows/validate_quickstart.yml` to run `quickstart.md` end-to-end validation.
+- [ ] T032 [P] Update `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/docs/architecture.md` to document reproducibility mechanisms (human evaluation workflow) and address methodological concerns regarding episodic vs. semantic retrieval in plain prose.
+- [~] T033 [P] Code cleanup: Remove unused imports and refactor `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/models/episodic_memory.py` (T012) to use dependency injection.
+- [~] T034 [P] Performance optimization: Tune FAISS HNSW parameters in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/models/episodic_memory.py` to achieve index build time < 10s for 10k entries [UNRESOLVED-CLAIM: c_f874fad8 — status=not_enough_info].
+- [~] T035 [P] Additional unit tests for statistical utilities in `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/tests/unit/test_stats.py`.
+- [~] T036 [P] Add GPG signature verification to `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/scripts/download_data.sh` for data download security.
+- [~] T037 [P] Create `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/.github/workflows/validate_quickstart.yml` to run `quickstart.md` end-to-end validation.
 
 ---
 
