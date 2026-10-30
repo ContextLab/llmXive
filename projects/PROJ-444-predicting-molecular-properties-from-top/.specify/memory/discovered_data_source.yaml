@@ -1,19 +1,19 @@
 status: verified
 kind: pypi_package
-ref: PubChemPy
-access_python: "import pubchempy as pcp\n\ncids = [2244, 3672, 5957]\ncompounds =\
-  \ pcp.get_compounds(cids, 'cid')\n\nrecords = []\nfor comp in compounds:\n    records.append({\n\
-  \        'CID': comp.cid,\n        'IsomericSMILES': comp.isomeric_smiles\n    })\n\
-  \nprint(f\"RECORDS={len(records)}\")\nif records:\n    print(\"FIELDS=\" + \",\"\
-  .join(sorted(records[0].keys())))"
-record_count: 3
+ref: datasets
+access_python: 'import datasets
+
+  ds = datasets.load_dataset(''sagawa/pubchem-10m-canonicalized'', split=''train'')
+
+  print(f''RECORDS={len(ds)}'')
+
+  print(''FIELDS='' + '',''.join(ds.column_names))'
+record_count: 8999964
 sample_fields:
-- CID
-- IsomericSMILES
+- smiles
 field_coverage: 0.5
 required_fields:
-- cid
 - smiles
-intent: download PubChem compound parquet dataset with SMILES and CID columns python
-  package dataset
-cache_key: ae639c703f72dbbbfdd38a304cb86b5efce0031518c1c0c6dfb40f768451b4ab
+- molecule_id
+intent: download PubChem canonical SMILES parquet dataset python package dataset
+cache_key: 0abf359ad6f989f23d76174b45e82248c0f24e50c7b83a5c91c20703a614c5eb
