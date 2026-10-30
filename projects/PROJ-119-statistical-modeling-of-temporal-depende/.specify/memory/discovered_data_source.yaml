@@ -1,18 +1,10 @@
 status: none
-intent: download daily OHLCV Bitcoin and Ethereum dataset via CoinGecko python package
+intent: download daily OHLCV Bitcoin Ethereum dataset CoinGecko tner/btc python package
   dataset
 required_fields:
 - date
-- btc_open
-- btc_high
-- btc_low
 - btc_close
-- btc_volume
-- eth_open
-- eth_high
-- eth_low
 - eth_close
-- eth_volume
-cache_key: d950212cf139b824ef1cf8abf61a8eeb13e679913fd9b3170d091abfd7064d4d
-searched_at: '2026-10-30T06:12:25.999475+00:00'
+cache_key: 63aeea748c4fcd886a10e83c70f4a5566dbc2baf36e627b69bd00fb82780e87d
+searched_at: '2026-10-30T12:13:20.716092+00:00'
 retry_count: 1
