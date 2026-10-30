@@ -1,22 +1,20 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: ThresholdFit
-description: Schema for the sigmoid fit results of the critical threshold theta_c.
 type: object
+description: Schema for sigmoid-fit results of the outlier phase transition.
 properties:
   theta_c_estimate:
     type: ["number", "null"]
-    description: MLE of the critical threshold theta_c.
+    description: MLE estimate of the critical threshold theta_c.
   theta_c_confidence:
     type: ["number", "null"]
-    description: 95% CI half-width from bootstrap.
+    description: 95% confidence interval half-width.
   a:
     type: ["number", "null"]
-    description: Slope of the logistic function.
+    description: Slope parameter of the logistic function.
   b:
     type: ["number", "null"]
-    description: Intercept for the equivalent form 1/(1+exp(-(a*theta + b))).
+    description: Intercept parameter (a * theta_c_estimate).
   fit_status:
     type: string
     enum: ["success", "failed"]
-    description: Status of the numerical fit.
-required: ["theta_c_estimate", "theta_c_confidence", "a", "b", "fit_status"]
+    description: Status of the curve fitting process.
+required: [theta_c_estimate, theta_c_confidence, a, b, fit_status]

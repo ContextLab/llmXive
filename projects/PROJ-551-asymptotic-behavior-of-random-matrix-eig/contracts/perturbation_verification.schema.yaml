@@ -1,14 +1,12 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: PerturbationVerification
-description: Verification of the spectral norm theta and sparsity of the perturbation matrix.
 type: object
+description: Verification of perturbation norm and sparsity pattern fidelity.
 properties:
   requested_theta:
     type: number
-    description: The target spectral norm theta.
+    description: The target spectral norm of the perturbation.
   measured_norm:
     type: number
-    description: The actual L2 norm of the generated perturbation matrix.
+    description: The actual spectral norm computed from the generated matrix.
   requested_sparsity:
     type: number
     description: The target support density p.
@@ -18,5 +16,5 @@ properties:
   verification_status:
     type: string
     enum: ["pass", "fail"]
-    description: Whether the perturbation meets the structural fidelity constraints.
-required: ["requested_theta", "measured_norm", "requested_sparsity", "measured_sparsity", "verification_status"]
+    description: Whether the perturbation meets structural fidelity constraints.
+required: [requested_theta, measured_norm, requested_sparsity, measured_sparsity, verification_status]

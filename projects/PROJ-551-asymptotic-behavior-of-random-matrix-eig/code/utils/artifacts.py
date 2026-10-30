@@ -26,6 +26,7 @@ def _load_schema(schema_name: str) -> Mapping[str, Any]:
     """
     Load a JSON-Schema definition from ``contracts/<schema_name>.schema.yaml``.
     """
+    # Path relative to this file: code/utils/artifacts.py -> root/contracts/
     schema_path = Path(__file__).parents[2] / "contracts" / f"{schema_name}.schema.yaml"
     if not schema_path.is_file():
         raise FileNotFoundError(f"Schema file not found: {schema_path}")
@@ -56,7 +57,6 @@ def _update_checksums(artifact_path: Path, checksum: str) -> None:
 
     # Store using POSIX style relative to the project root
     try:
-        # Attempt to make path relative to root if it's absolute
         root = paths.root
         rel_path = artifact_path.relative_to(root).as_posix()
     except ValueError:

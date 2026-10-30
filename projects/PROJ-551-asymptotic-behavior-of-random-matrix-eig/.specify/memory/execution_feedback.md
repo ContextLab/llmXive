@@ -29,7 +29,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m code.main --mode single --N 1000 --theta 2.5 --k 1 --pattern diagonal --seed 42 -> rc=1
-tic-behavior-of-random-matrix-eig/code/main.py", line 339, in <module>
+mptotic-behavior-of-random-matrix-eig/code/main.py", line 339, in <module>
     sys.exit(main())
              ^^^^^^
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/main.py", line 331, in main
@@ -43,8 +43,8 @@ tic-behavior-of-random-matrix-eig/code/main.py", line 339, in <module>
 jsonschema.exceptions.ValidationError: '' is not one of ['pass', 'fail']
 
 Failed validating 'enum' in schema['properties']['verification_status']:
-    {'description': 'Whether the perturbation meets the structural '
-                    'fidelity constraints.',
+    {'description': 'Whether the perturbation meets structural fidelity '
+                    'constraints.',
      'enum': ['pass', 'fail'],
      'type': 'string'}
 

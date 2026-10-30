@@ -11,9 +11,7 @@ The test re‑runs the reference single‑run configuration using the CLI entry 
    deliberately excluded from the comparison).
 
 The reference JSON file is stored at
-``data/processed/reference_single_run_results.json`` and contains the same
-structure as the file produced by the pipeline, with the ``timestamp`` field
-set to the literal string ``"PLACEHOLDER"``.
+``data/processed/reference_single_run_results.json``.
 """
 import json
 import re
@@ -22,12 +20,11 @@ import sys
 from pathlib import Path
 
 import pytest
+from llmxive_toolkit import paths
 
 # Path helpers -------------------------------------------------------------
-REPO_ROOT = Path(__file__).resolve().parents[3]
-DATA_PROCESSED = REPO_ROOT / "data" / "processed"
-REFERENCE_JSON = DATA_PROCESSED / "reference_single_run_results.json"
-GENERATED_JSON = DATA_PROCESSED / "single_run_results.json"
+GENERATED_JSON = paths.data("processed", "single_run_results.json")
+REFERENCE_JSON = paths.data("processed", "reference_single_run_results.json")
 
 # Expected top eigenvalue (reference) --------------------------------------
 REFERENCE_TOP_EIGEN = 2.901642355091
@@ -55,9 +52,10 @@ def _run_single_mode() -> str:
         "--pattern",
         "diagonal",
     ]
+    # Run the command from the project root
     result = subprocess.run(
         cmd,
-        cwd=REPO_ROOT,
+        cwd=paths.root,
         capture_output=True,
         text=True,
         check=True,
@@ -112,7 +110,6 @@ def test_single_run_results_json_is_reproducible():
     to the stored reference (modulo the ``timestamp`` field).
     """
     # Ensure the CLI has been executed – the previous test already did this.
-    # Load both JSON files, normalise the timestamp, and compare.
     assert GENERATED_JSON.is_file(), f"Generated file missing: {GENERATED_JSON}"
     assert REFERENCE_JSON.is_file(), f"Reference file missing: {REFERENCE_JSON}"
 

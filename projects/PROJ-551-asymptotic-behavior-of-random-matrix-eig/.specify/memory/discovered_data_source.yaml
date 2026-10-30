@@ -1,11 +1,12 @@
 status: none
-intent: synthetic matrices perturbation patterns benchmark python package dataset
+intent: synthetic matrices python package dataset
 required_fields:
 - matrix_id
-- matrix_values
-- perturbation_pattern
-- reference_value
+- dimensions
 - generation_method
-cache_key: 72bfc8ee2cd80fff02b2fda112b088265f0a4c253f07f1fd8c1e3c8bc07966fd
-searched_at: '2026-10-29T05:10:31.519121+00:00'
+- perturbation_pattern
+- reference_constant
+- source
+cache_key: b5c2f20207ec87a952e403343b69acdaf030f8b4d4297e5c4165df767f78b045
+searched_at: '2026-10-30T03:16:03.624792+00:00'
 retry_count: 1
