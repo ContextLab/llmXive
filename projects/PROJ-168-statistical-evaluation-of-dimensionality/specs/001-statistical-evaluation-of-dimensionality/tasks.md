@@ -49,7 +49,7 @@ All tasks are expressed as plain‑text checklist items; each unchecked box (`- 
         - Fails loudly if any parameter deviates.  
     10. Wrap the routine with `ResourceMonitor.run(f"preprocess_{dataset_id}", ...)`.  
 
-- [ ] T009 **[FR‑004 US1]** Generate PCA, t‑SNE, and UMAP embeddings (`code/generate_embeddings.py`).   <!-- FAILED-IN-EXECUTION: code/generate_embeddings.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/generate_embeddings.py exit=1 -->
+- [ ] T009 **[FR‑004 US1]** Generate PCA, t‑SNE, and UMAP embeddings (`code/generate_embeddings.py`).   <!-- FAILED-IN-EXECUTION: code/generate_embeddings.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/generate_embeddings.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/generate_embeddings.py exit=1 -->
   - Load `data/processed/<dataset_id>_matrix.parquet`.  
   - **PCA**: `sklearn.decomposition.PCA(n_components=30, random_state=42)` → save `data/embeddings/<dataset_id>_PCA.csv` (columns: `cell_id,PC1,…,PC30`).  
   - **t‑SNE**: `sklearn.manifold.TSNE(n_components=2, perplexity=30, n_iter=1000, random_state=42)` → save `data/embeddings/<dataset_id>_tSNE.csv`.  
