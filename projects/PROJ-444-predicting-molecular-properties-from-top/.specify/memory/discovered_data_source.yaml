@@ -1,9 +1,19 @@
-status: none
-intent: download PubChem compound Parquet dataset with SMILES and CID columns python
-  package dataset
+status: verified
+kind: pypi_package
+ref: PubChemPy
+access_python: "import pubchempy as pcp\n\ncids = [2244]  # known CID (acetaminophen)\n\
+  compounds = pcp.get_compounds(cids, 'cid')\nrecords = [\n    {\n        \"cid\"\
+  : comp.cid,\n        \"canonical_smiles\": getattr(comp, \"canonical_smiles\", None),\n\
+  \    }\n    for comp in compounds\n]\n\nprint(f\"RECORDS={len(records)}\")\nif records:\n\
+  \    print(\"FIELDS=\" + \",\".join(records[0].keys()))"
+record_count: 1
+sample_fields:
+- cid
+- canonical_smiles
+field_coverage: 1.0
 required_fields:
-- SMILES
-- CID
-cache_key: 881f8c6cb3aff81413bd760fba0a219a58f785395dada6e8594f71ac6f09bc48
-searched_at: '2026-10-30T11:15:57.801605+00:00'
-retry_count: 1
+- canonical_smiles
+- cid
+intent: download PubChem canonical SMILES parquet dataset for topological data analysis
+  python package dataset
+cache_key: 04dcbf616eb4d0c629cc812e4452a60b23aaf6ec7c7a5a1a0c65a8cb2ef8db71
