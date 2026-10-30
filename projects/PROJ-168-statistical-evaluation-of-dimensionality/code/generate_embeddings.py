@@ -7,7 +7,10 @@ processed dataset. The script:
 1. Reads ``data/manifest.json`` and selects datasets with status
    ``Available``.
 2. Loads the pre‑processed matrix stored as
-   ``data/processed/<dataset_id>_matrix.parquet``.
+   ``data/processed/<dataset_id>_matrix.parquet``. If the matrix is
+   missing, it is generated on‑the‑fly from the raw ``.h5ad`` file
+   (log‑CPM transformation, highly‑variable gene selection, deterministic
+   subsampling).
 3. Generates:
    * PCA (30 components)
    * t‑SNE (2‑D, perplexity=30, n_iter=1000)
@@ -34,6 +37,7 @@ from pathlib import Path
 
 import pandas as pd
 import numpy as np
+import scanpy as sc
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 import umap
@@ -54,17 +58,95 @@ def _load_manifest() -> list:
     with open(manifest_path, "r", encoding="utf-8") as f:
         return json.load(f)
 
-def _load_processed_matrix(dataset_id: str) -> pd.DataFrame:
-    """Load the processed matrix for a given dataset."""
-    matrix_path = paths.data("processed", f"{dataset_id}_matrix.parquet")
-    if not matrix_path.is_file():
-        log.error(f"Processed matrix not found for {dataset_id} at {matrix_path}")
-        raise FileNotFoundError(f"Processed matrix not found for {dataset_id}")
-    df = pd.read_parquet(matrix_path)
-    if df.empty:
-        log.error(f"Processed matrix for {dataset_id} is empty")
-        raise ValueError(f"Processed matrix for {dataset_id} is empty")
+def _generate_processed_matrix(entry: dict) -> pd.DataFrame:
+    """
+    Generate a processed matrix from the raw ``.h5ad`` file.
+    Steps:
+      * Load raw AnnData.
+      * Log‑CPM transform.
+      * Select highly‑variable genes (Seurat flavor, top 2000).
+      * Deterministically subsample to 5 000 cells if >10 000 cells.
+      * Return a DataFrame with ``cell_id`` and gene columns.
+    """
+    dataset_id = entry["dataset_id"]
+    raw_path = Path(entry["raw_file_path"])
+    if not raw_path.is_file():
+        raise FileNotFoundError(f"Raw file not found for {dataset_id} at {raw_path}")
+
+    log.info(f"Generating processed matrix for {dataset_id} from raw file {raw_path}")
+    adata = sc.read_h5ad(raw_path)
+
+    # Ensure count matrix is in dense format for simple arithmetic
+    if sc.sparse.issparse(adata.X):
+        X = adata.X.toarray()
+    else:
+        X = np.asarray(adata.X)
+
+    # Log‑CPM transformation
+    counts_per_cell = X.sum(axis=1, keepdims=True)
+    # Avoid division by zero
+    counts_per_cell[counts_per_cell == 0] = 1
+    cpm = (X / counts_per_cell) * 1e6
+    log_cpm = np.log1p(cpm)
+
+    # Replace the data matrix in AnnData with the transformed values
+    adata.X = log_cpm
+
+    # Highly‑variable gene selection (Seurat flavor)
+    sc.pp.highly_variable_genes(
+        adata,
+        flavor="seurat",
+        n_top_genes=2000,
+        subset=False,
+    )
+    hvgs = adata.var["highly_variable"]
+    adata = adata[:, hvgs]
+
+    # Deterministic subsampling if needed
+    n_cells = adata.n_obs
+    if n_cells > 10000:
+        rng = np.random.default_rng(42)
+        selected_idx = rng.choice(n_cells, size=5000, replace=False)
+        adata = adata[selected_idx, :]
+
+    # Build DataFrame
+    cell_ids = adata.obs_names if adata.obs_names is not None else [
+        f"cell_{i}" for i in range(adata.n_obs)
+    ]
+    df = pd.DataFrame(
+        adata.X,
+        index=cell_ids,
+        columns=adata.var_names,
+    )
+    df.reset_index(inplace=True)
+    df.rename(columns={"index": "cell_id"}, inplace=True)
+
+    # Write to parquet for downstream reuse
+    processed_path = paths.data("processed", f"{dataset_id}_matrix.parquet")
+    df.to_parquet(processed_path, index=False)
+    log.info(f"Processed matrix written to {processed_path}")
+
     return df
+
+def _load_processed_matrix(dataset_id: str) -> pd.DataFrame:
+    """Load the processed matrix for a given dataset, generating it if necessary."""
+    matrix_path = paths.data("processed", f"{dataset_id}_matrix.parquet")
+    if matrix_path.is_file():
+        df = pd.read_parquet(matrix_path)
+        if df.empty:
+            log.error(f"Processed matrix for {dataset_id} is empty")
+            raise ValueError(f"Processed matrix for {dataset_id} is empty")
+        return df
+
+    # If not present, fall back to generation from raw data
+    log.warning(f"Processed matrix for {dataset_id} not found – attempting on‑the‑fly generation.")
+    # Locate the manifest entry to get raw file path
+    manifest = _load_manifest()
+    entry = next((e for e in manifest if e["dataset_id"] == dataset_id), None)
+    if entry is None:
+        raise KeyError(f"No manifest entry for dataset {dataset_id}")
+
+    return _generate_processed_matrix(entry)
 
 def _ensure_cell_id(df: pd.DataFrame) -> pd.Series:
     """
@@ -118,7 +200,10 @@ def _write_embedding_csv(
     col_prefix: str,
 ) -> None:
     """Write an embedding to CSV with a ``cell_id`` column."""
-    df = pd.DataFrame(embedding, columns=[f"{col_prefix}{i+1}" for i in range(embedding.shape[1])])
+    df = pd.DataFrame(
+        embedding,
+        columns=[f"{col_prefix}{i+1}" for i in range(embedding.shape[1])],
+    )
     df.insert(0, "cell_id", cell_ids.values)
     df.to_csv(output_path, index=False)
     log.info(f"Saved embedding to {output_path}")
@@ -147,7 +232,7 @@ def _process_dataset(entry: dict) -> None:
     dataset_id = entry["dataset_id"]
     log.info(f"Generating embeddings for dataset {dataset_id}")
 
-    # Load matrix
+    # Load (or generate) matrix
     df = _load_processed_matrix(dataset_id)
     cell_ids = _ensure_cell_id(df)
 

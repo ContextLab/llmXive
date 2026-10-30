@@ -1,10 +1,19 @@
 status: none
-intent: GEOparse download NCBI GEO GSE111322 GSE150728 GSE13 series python package
-  dataset
+intent: pysradb download GEO scRNA-seq count matrix GSE111322 GSE150728 GSE13 series
+  python package dataset
 required_fields:
-- cell_barcode
-- gene_symbol
+- cell_id
+- gene_id
 - raw_counts
-cache_key: c609c3147a481e65d42ee291055c472548ba0b5810ac83678c4b5b8b78c3ceac
-searched_at: '2026-10-29T02:11:43.844216+00:00'
+- log_cpm
+- intrinsic_dimensionality
+- local_density
+- pca_1
+- pca_2
+- pca_3
+- tsne_1
+- tsne_2
+- umap_1
+cache_key: 28b6705405687cf261a4519d550db3a1a69aadd87a876dd068e79f24c4d2a41c
+searched_at: '2026-10-30T00:18:48.788106+00:00'
 retry_count: 1

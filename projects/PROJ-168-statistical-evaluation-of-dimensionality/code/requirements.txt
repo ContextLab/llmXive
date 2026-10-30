@@ -9,4 +9,4 @@ statsmodels==0.14.2
 pingouin==0.5.4
 pyyaml==6.0.1
 datasets==2.20.0
-pyarrow
+# Existing standard‑library packages (sys, pathlib, json, logging, etc.) are provided by the environment.

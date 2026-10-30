@@ -6,6 +6,9 @@ optional deterministic subsampling, and calculate geometric diagnostics
 The script iterates over entries in ``data/manifest.json`` with status
 ``Available`` and wraps each dataset's processing with ``ResourceMonitor``
 to record wall‑time and peak RAM in ``results/monitoring.csv``.
+Missing raw files are logged and skipped rather than causing a hard failure,
+allowing the pipeline to continue in environments where the raw GEO files
+have not yet been downloaded.
 """
 
 import json
@@ -22,7 +25,6 @@ from config import Config
 from utils import ResourceMonitor
 
 log = get_logger(__name__)
-
 
 # ----------------------------------------------------------------------
 # Helper functions
@@ -208,13 +210,27 @@ def _process_one_dataset(entry: dict) -> None:
 
     log.info(f"Starting preprocessing for dataset {dataset_id}")
 
-    # 1. Load raw counts
-    adata_raw = _load_raw_h5ad(raw_path)
+    # ------------------------------------------------------------------
+    # 1. Load raw counts (skip gracefully if file is missing)
+    # ------------------------------------------------------------------
+    if not raw_path.is_file():
+        log.warning(f"Raw file for {dataset_id} not found at {raw_path}; skipping.")
+        return
 
+    try:
+        adata_raw = _load_raw_h5ad(raw_path)
+    except Exception as e:
+        log.error(f"Failed to load raw .h5ad for {dataset_id}: {e}")
+        return
+
+    # ------------------------------------------------------------------
     # 2. Export ground‑truth labels
+    # ------------------------------------------------------------------
     _export_labels(adata_raw, dataset_id)
 
+    # ------------------------------------------------------------------
     # 3. Log‑CPM transformation
+    # ------------------------------------------------------------------
     if isinstance(adata_raw.X, np.ndarray):
         counts = adata_raw.X.astype(float)
     else:
@@ -225,7 +241,9 @@ def _process_one_dataset(entry: dict) -> None:
     adata.obs_names = adata_raw.obs_names.astype(str)
     adata.var_names = adata_raw.var_names.astype(str)
 
+    # ------------------------------------------------------------------
     # 4. HVG selection
+    # ------------------------------------------------------------------
     n_hvg = _select_hvgs(adata)
     hvg_path = paths.data("processed", f"{dataset_id}_hvg.txt")
     hvg_path.write_text(str(n_hvg))
@@ -233,10 +251,14 @@ def _process_one_dataset(entry: dict) -> None:
     # Keep only HVGs for downstream steps
     adata = adata[:, adata.var["highly_variable"]].copy()
 
+    # ------------------------------------------------------------------
     # 5. Deterministic subsampling
+    # ------------------------------------------------------------------
     adata = _deterministic_subsample(adata)
 
+    # ------------------------------------------------------------------
     # 6. Geometric diagnostics
+    # ------------------------------------------------------------------
     matrix = adata.X
     if not isinstance(matrix, np.ndarray):
         matrix = matrix.toarray()
@@ -265,7 +287,9 @@ def _process_one_dataset(entry: dict) -> None:
     geom_path = paths.data("processed", f"{dataset_id}_geometric.json")
     geom_path.write_text(json.dumps(geom, indent=2))
 
+    # ------------------------------------------------------------------
     # 7. Write processed matrix
+    # ------------------------------------------------------------------
     matrix_path = paths.data("processed", f"{dataset_id}_matrix.parquet")
     _write_parquet(adata, matrix_path)
 
