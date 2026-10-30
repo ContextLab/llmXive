@@ -5,7 +5,7 @@ This script performs a HEAD request to verify external resources required for th
 pipeline:
 
 * Dataset URL: https://huggingface.co/datasets/omnineura/Omni-Doc-1
-* Model URL:   https://huggingface.co/hf-internal-testing/tiny-vae
+* Model URL:   https://huggingface.co/Qwen/Qwen-Image-VAE-2.0
 
 If both URLs are reachable (HTTP status 2xx) a JSON status file is written to
 ``data/raw/download_status.json`` containing the verification result.
@@ -29,9 +29,8 @@ from llmxive_toolkit import paths, get_logger
 # Configuration
 # --------------------------------------------------------------------------- #
 DATASET_URL = "https://huggingface.co/datasets/omnineura/Omni-Doc-1"
-# The original Qwen model is not publicly reachable without authentication.
-# For a verified, CPU‑compatible fallback we use the tiny‑vae model.
-MODEL_URL = "https://huggingface.co/hf-internal-testing/tiny-vae"
+# The required VAE model URL (CPU‑compatible verification)
+MODEL_URL = "https://huggingface.co/Qwen/Qwen-Image-VAE-2.0"
 
 # Output file (the `paths.data` helper creates the necessary directories)
 OUTPUT_PATH = paths.data("raw", "download_status.json")
@@ -76,8 +75,6 @@ def main() -> None:
     logger.info(f"Wrote verification status to {OUTPUT_PATH}")
 
     # Always exit with code 0; the status JSON records any failures.
-    # This satisfies the verification requirement that the script exits
-    # successfully and produces the expected file.
     sys.exit(0)
 
 if __name__ == "__main__":

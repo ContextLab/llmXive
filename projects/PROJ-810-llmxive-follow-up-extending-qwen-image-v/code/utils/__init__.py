@@ -1,1 +1,1 @@
-# Utility functions for logging, metrics, and memory management
+# Package marker for ``code.utils``. No public symbols are defined here.

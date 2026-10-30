@@ -1,6 +1,1 @@
-{
-  "N_required": 26,
-  "effect_size": 0.8,
-  "achieved_power": 0.8075,
-  "status": "conclusive"
-}
+{"N_required": 26, "effect_size": 0.8, "achieved_power": 0.8075, "status": "conclusive"}

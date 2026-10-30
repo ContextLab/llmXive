@@ -44,11 +44,14 @@ def _initialize_seeds_and_record() -> None:
     torch.manual_seed(_SEED)
     torch.use_deterministic_algorithms(True)
 
-    # Write the seed information to disk. ``paths.data`` creates the
-    # containing folder if it does not already exist.
-    output_path: Path = paths.data("raw", "logger_init.json")
+    # Determine the absolute path for the output JSON file.
+    # ``paths.root`` points to the project root directory.
+    output_path: Path = paths.root / "data" / "raw" / "logger_init.json"
+
+    # Ensure the parent directory exists.
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
+    # Record the seed configuration.
     seed_record = {
         "seed_random": _SEED,
         "seed_numpy": _SEED,
@@ -56,6 +59,7 @@ def _initialize_seeds_and_record() -> None:
         "torch_deterministic_algorithms": True,
     }
 
+    # Write the JSON file with pretty formatting.
     output_path.write_text(json.dumps(seed_record, indent=2))
 
 # Run the initialisation at import time so that any subsequent import of

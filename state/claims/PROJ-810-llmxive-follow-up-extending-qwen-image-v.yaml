@@ -5204,3 +5204,85 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-18T12:36:01Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/quickstart.md
+  attempts: 1
+  canonical: pipeline runs power analysis and runtime feasibility check
+  claim_id: c_4a578bfc
+  context: "Phase\u202F10 runs power analysis and runtime feasibility check."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The pipeline runs power analysis and runtime feasibility check.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-30T21:14:38Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/quickstart.md
+  attempts: 1
+  canonical: model load failure on CPU triggers GPU fallback and sets cpu_feasibility
+    to rejected
+  claim_id: c_b59fdfe5
+  context: "Model cannot load on CPU \u2013 the script logs ModelUnavailableError\
+    \ and automatically triggers the optional GPU escape hatch; cpu_feasibility will\
+    \ be set to 'rejected' in the final JSON."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: If the model cannot load on CPU, the script automatically triggers the
+    optional GPU escape hatch and sets cpu_feasibility to 'rejected' in the final
+    JSON.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-30T21:14:39Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/quickstart.md
+  attempts: 1
+  canonical: missing verified dataset causes DataUnavailableError and abort
+  claim_id: c_201c1d0b
+  context: "Missing verified dataset \u2013 the script logs DataUnavailableError and\
+    \ aborts; no fallback to a non\u2011verified dataset is attempted."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "If the verified dataset is missing, the script logs DataUnavailableError\
+    \ and aborts without falling back to a non\u2011verified dataset."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-30T21:14:40Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/quickstart.md
+  attempts: 1
+  canonical: pipeline streams verified CPU-only benchmark parquet dataset
+  claim_id: c_b679c5e7
+  context: "Phase\u202F1 streams the verified CPU\u2011only benchmark parquet dataset."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The pipeline streams the verified CPU\u2011only benchmark parquet dataset."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-30T21:14:41Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/quickstart.md
+  attempts: 1
+  canonical: experiment_output.json conforms to output schema
+  claim_id: c_3dfb3848
+  context: "experiment_output.json \u2013 conforms to contracts/output.schema.yaml."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The final output file experiment_output.json conforms to contracts/output.schema.yaml.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-30T21:14:42Z'
