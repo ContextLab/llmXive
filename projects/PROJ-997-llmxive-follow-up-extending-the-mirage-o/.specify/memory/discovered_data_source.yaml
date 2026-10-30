@@ -1,15 +1,12 @@
 status: none
-intent: GSM8K gradient norms quantization KL divergence dataset HuggingFace python
-  package dataset
+intent: LLM quantization benchmark dataset with gradient norms curvature divergence
+  GSM8K python package dataset
 required_fields:
 - prompt
 - gradient_norm
 - local_curvature
-- kl_divergence_int8
-- kl_divergence_int4
-- kl_divergence_fp8
-- model_name
-- full_precision_logits
-cache_key: 9cd0840bc41354d9673643789d566af186840c29283bffb907b441cd7b3ffd80
-searched_at: '2026-10-29T21:10:08.624165+00:00'
+- quantization_bitwidth
+- kl_divergence
+cache_key: c79e0292fc153574e75c27aeecb83e8d1ae8fc62541c58015488708461e599ca
+searched_at: '2026-10-30T02:13:15.300382+00:00'
 retry_count: 1
