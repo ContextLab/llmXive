@@ -201,11 +201,11 @@ def fetch_heas() -> Path:
         mapped_row = {}
         for k, v in row.items():
             lk = k.lower()
-            if lk == "alloyid":
+            if lk == "alloyid" or lk == "alloy_id" or lk == "alloy":
                 mapped_row["alloy_id"] = v
             elif lk == "composition":
                 mapped_row["composition"] = v
-            elif lk == "yieldstrength" or lk == "yield_strength":
+            elif lk == "yieldstrength" or lk == "yield_strength" or lk == "ys":
                 mapped_row["yield_strength"] = v
             else:
                 mapped_row[k] = v

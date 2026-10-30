@@ -1,19 +1,11 @@
 status: none
-intent: Zenodo high entropy alloy yield strength dataset and Materials Project elemental
-  properties python package dataset
+intent: high entropy alloy yield strength Zenodo dataset Materials Project periodic
+  table python package dataset
 required_fields:
-- AlloyID
-- ElementSymbol
-- AtomicFraction
-- YieldStrength_MPa
-- PhaseLabel
-- ProcessingMethod
-- TestingTemperature_K
-- ReferenceElementSymbol
-- AtomicNumber
-- AtomicRadius_pm
-- Electronegativity_Pauling
-- ValenceElectronCount
-cache_key: e7e4124a1be9453937de11eb00ecbca98677e4b8ffe9fe066ceaa99a5751c7f0
-searched_at: '2026-10-30T00:22:22.811421+00:00'
+- AlloyID (optional unique identifier)
+- "Element fraction columns for each constituent element (e.g., Al_fraction, Cr_fraction,\
+  \ Fe_fraction, \u2026)"
+- YieldStrength (numeric, e.g., MPa)
+cache_key: 387473e66f73ff01771bdf994314bd387adc5ce5c7d58413a7f3bdf81558a7f3
+searched_at: '2026-10-30T06:11:45.558342+00:00'
 retry_count: 1
