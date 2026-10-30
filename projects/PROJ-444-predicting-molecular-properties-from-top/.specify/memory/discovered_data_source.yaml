@@ -1,19 +1,9 @@
-status: verified
-kind: pypi_package
-ref: datasets
-access_python: 'import datasets
-
-  ds = datasets.load_dataset(''sagawa/pubchem-10m-canonicalized'', split=''train'')
-
-  print(f''RECORDS={len(ds)}'')
-
-  print(''FIELDS='' + '',''.join(ds.column_names))'
-record_count: 8999964
-sample_fields:
-- smiles
-field_coverage: 0.5
+status: none
+intent: download PubChem compound Parquet dataset with SMILES and CID columns python
+  package dataset
 required_fields:
-- smiles
-- molecule_id
-intent: download PubChem canonical SMILES parquet dataset python package dataset
-cache_key: 0abf359ad6f989f23d76174b45e82248c0f24e50c7b83a5c91c20703a614c5eb
+- SMILES
+- CID
+cache_key: 881f8c6cb3aff81413bd760fba0a219a58f785395dada6e8594f71ac6f09bc48
+searched_at: '2026-10-30T11:15:57.801605+00:00'
+retry_count: 1
