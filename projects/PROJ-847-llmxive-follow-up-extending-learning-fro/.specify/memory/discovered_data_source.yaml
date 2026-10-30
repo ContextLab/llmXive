@@ -1,10 +1,33 @@
-status: none
-intent: download GSM8K parquet and BIG-Bench logical subset as python package dataset
-required_fields:
-- id
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: 'import sys
+
+  from datasets import load_dataset
+
+
+  # Load the GSM8K training split with the required config
+
+  ds = load_dataset(''openai/gsm8k'', ''main'', split=''train'')
+
+
+  records = len(ds)
+
+  print(f''RECORDS={records}'')
+
+
+  fields = ds.column_names
+
+  print(''FIELDS='' + '',''.join(fields))'
+record_count: 7473
+sample_fields:
 - question
 - answer
-- split
-cache_key: 882a12740eb870d05c74238afb78bb504aebb812cdbb46d171e0a12b073e24d7
-searched_at: '2026-10-30T00:13:42.565945+00:00'
-retry_count: 1
+field_coverage: 0.5
+required_fields:
+- question
+- answer
+- solution
+- category
+intent: download GSM8K dataset and BigBench logical deduction python package dataset
+cache_key: cf3e3ad6ecf90e8aca25a855797d04f833c9e31aaa980e1cf99e7f93b95856aa
