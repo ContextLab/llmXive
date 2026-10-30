@@ -1,14 +1,7 @@
-last_used: dan-rockmore
-last_used_at: '2026-10-29T20:06:47.306594+00:00'
-last_outcome: model_error
+last_used: daniel-kahneman
+last_used_at: '2026-10-30T00:05:58.926855+00:00'
+last_outcome: abstained
 history:
-- slug: linus-pauling
-  started_at: '2026-06-30T16:52:21.348737+00:00'
-  ended_at: '2026-06-30T18:46:20.643081+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-037-investigating-the-correlation-between-gu/reviews/research/linus-pauling-simulated__2026-06-30__research.md
 - slug: marie-curie
   started_at: '2026-06-30T18:46:20.643081+00:00'
   ended_at: '2026-06-30T20:46:35.913197+00:00'
@@ -1276,3 +1269,7 @@ history:
   started_at: '2026-10-29T18:05:56.268172+00:00'
   ended_at: '2026-10-29T20:06:47.306594+00:00'
   outcome: model_error
+- slug: daniel-kahneman
+  started_at: '2026-10-29T20:06:47.306594+00:00'
+  ended_at: '2026-10-30T00:05:58.926855+00:00'
+  outcome: abstained
