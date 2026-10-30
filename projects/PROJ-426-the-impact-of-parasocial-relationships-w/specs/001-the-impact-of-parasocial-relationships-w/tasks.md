@@ -31,7 +31,7 @@ Tasks are ordered by scientific data‑flow; tasks that can run in parallel are 
 
 ## Phase 1 – Data ingestion & user matching  
 
-- [ ] T003 [P] Implement `src/ingest/download_loneliness.py` to fetch the **Reddit Loneliness Longitudinal Dataset** from its Zenodo DOI, validate required columns (`username_hash`, `UCLA_Loneliness_Score`, `timestamp`, `baseline_text`, `age`, `gender`), enforce ≥ 6 months of non‑null scores per user, and write `data/raw/loneliness_dataset.parquet`.   <!-- FAILED-IN-EXECUTION: code/src/main.py exit=1 -->
+- [ ] T003 [P] Implement `src/ingest/download_loneliness.py` to fetch the **Reddit Loneliness Longitudinal Dataset** from its Zenodo DOI, validate required columns (`username_hash`, `UCLA_Loneliness_Score`, `timestamp`, `baseline_text`, `age`, `gender`), enforce ≥ 6 months of non‑null scores per user, and write `data/raw/loneliness_dataset.parquet`.   <!-- FAILED-IN-EXECUTION: code/src/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/main.py exit=1 -->
   - **Verification**: Unit test `tests/unit/test_download_loneliness.py` asserts the parquet contains ≥ 600 rows, all required columns, and that each user has ≥ 6 distinct months with non‑null loneliness scores.
 
 - [~] T004 [P] Implement `src/ingest/fetch_pushshift.py` to retrieve AI‑companion interaction logs from the Pushshift API for subreddits `r/Replika`, `r/characterAI`, and `r/AICompanions`.  

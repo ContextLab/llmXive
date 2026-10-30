@@ -2,27 +2,13 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 command(s) failed: python code/src/main.py --mode ingest_and_match (rc=1); python code/src/main.py --mode fit_model (rc=1); 7 declared deliverable(s) absent: data/lexicons/ecar_lexicon.csv; data/processed/attachment_scores.parquet; data/processed/matched_users.parquet
+**Summary**: 1 command(s) failed: python code/src/main.py --mode ingest_and_match (rc=1); 7 declared deliverable(s) absent: data/lexicons/ecar_lexicon.csv; data/processed/attachment_scores.parquet; data/processed/matched_users.parquet
 
 ## Failing / missing run-book commands
 
 - python code/src/main.py --mode ingest_and_match -> rc=1
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-426-the-impact-of-parasocial-relationships-w/code/src/main.py", line 23, in <module>
-    from src.ingest.download_loneliness import main as download_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-426-the-impact-of-parasocial-relationships-w/code/src/ingest/download_loneliness.py", line 28, in <module>
-    import zenodo_get as _zenodo_get
-ModuleNotFoundError: No module named 'zenodo_get'
-
-- python code/src/main.py --mode fit_model -> rc=1
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-426-the-impact-of-parasocial-relationships-w/code/src/main.py", line 23, in <module>
-    from src.ingest.download_loneliness import main as download_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-426-the-impact-of-parasocial-relationships-w/code/src/ingest/download_loneliness.py", line 28, in <module>
-    import zenodo_get as _zenodo_get
-ModuleNotFoundError: No module named 'zenodo_get'
+Error during ingest_and_match: log_stage_start() missing 1 required positional argument: 'stage_name'
 
 
 ## Declared deliverables still missing

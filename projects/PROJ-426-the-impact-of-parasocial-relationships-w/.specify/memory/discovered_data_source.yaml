@@ -1,13 +1,16 @@
 status: none
-intent: download Reddit Loneliness Longitudinal dataset Zenodo and Pushshift Reddit
-  logs python package dataset
+intent: Pushshift Reddit comments archive dataset Zenodo Reddit Loneliness longitudinal
+  python package dataset
 required_fields:
-- hashed_username
+- hashed_user_id
 - loneliness_score
-- loneliness_timestamp
-- post_text
-- subreddit
-- demographics
-cache_key: 6d6ea2717ea404a7544a03c4f9c3d5d42b2feb96daca56c1f6e9764b4243a914
-searched_at: '2026-10-30T01:14:50.521921+00:00'
+- survey_timestamp
+- baseline_post_text
+- age
+- gender
+- comment_count
+- post_count
+- upvote_sum
+cache_key: 595a8cf51dec7374df72eff374a09ebf95695a5640b84800f08fe05dc0a54805
+searched_at: '2026-10-30T07:09:23.665454+00:00'
 retry_count: 1
