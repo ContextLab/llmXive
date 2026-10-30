@@ -1,12 +1,12 @@
 status: none
-intent: synthetic matrices python package dataset
+intent: synthetic matrices perturbation patterns reference arXiv 0812.2602 python
+  package dataset
 required_fields:
 - matrix_id
-- dimensions
-- generation_method
+- matrix_values
 - perturbation_pattern
-- reference_constant
-- source
-cache_key: b5c2f20207ec87a952e403343b69acdaf030f8b4d4297e5c4165df767f78b045
-searched_at: '2026-10-30T03:16:03.624792+00:00'
+- perturbation_parameters
+- reference_semicircle_edge
+cache_key: 599c34419281505d10962055529ed94672611b5733dacf50e4861a73c9705314
+searched_at: '2026-10-30T03:16:38.933234+00:00'
 retry_count: 1
