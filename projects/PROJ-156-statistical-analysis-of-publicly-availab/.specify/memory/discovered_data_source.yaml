@@ -1,15 +1,14 @@
 status: none
-intent: Speedrun.com run data Kaggle dataset and speedrun.com API pip python package
-  dataset
+intent: speedrun.com run records speedrun.com API speedrun.com data dump Kaggle speedrun.com
+  leaderboard dataset python package dataset
 required_fields:
-- game_id
 - run_time_seconds
 - runner_id
 - attempt_number
 - category
 - submission_date
-- total_prior_runs
-- time_since_first_run
-cache_key: 254f49ee01a643621dce453d970014e87bc9ccf81606754846812c516e2c96ce
-searched_at: '2026-10-29T10:09:29.299124+00:00'
+- game_id
+- run_id
+cache_key: 3fb38d24c707b972249ec55c62e1d1916eef6bec131276c01f7f44ae6743fe1e
+searched_at: '2026-10-30T08:08:51.526819+00:00'
 retry_count: 1
