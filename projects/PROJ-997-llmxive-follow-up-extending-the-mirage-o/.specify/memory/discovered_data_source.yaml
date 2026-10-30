@@ -1,19 +1,15 @@
 status: none
-intent: GSM8K Llama-2-3B-4bit-GGUF quantization divergence gradient norms curvature
-  dataset python package dataset
+intent: quantization gap dataset gradient norms local curvature KL divergence CPU
+  inference python package dataset
 required_fields:
 - prompt_text
-- full_precision_logits
-- int8_logits
-- int4_logits
-- fp8_logits
-- kl_divergence_int8
-- kl_divergence_int4
-- kl_divergence_fp8
+- model_name
+- quantization_level
 - gradient_norm
 - local_curvature
-- model_identifier
-- quantization_method
-cache_key: 6e60140e2d1c106e87e50e402df6c95be79eec100a6bc53ea55395abec024e65
-searched_at: '2026-10-30T10:11:15.356734+00:00'
+- kl_divergence
+- full_precision_logits
+- quantized_logits
+cache_key: 6a32c63852a0b093de0566a51effc9f82e7aa0f10625a862e97e87e652849381
+searched_at: '2026-10-30T21:08:44.157301+00:00'
 retry_count: 1
