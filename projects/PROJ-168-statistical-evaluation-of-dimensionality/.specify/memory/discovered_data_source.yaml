@@ -1,11 +1,9 @@
 status: none
-intent: pysradb python package dataset GEO GSE13 series GSE111322 GSE150728 python
-  package dataset
+intent: GEO scRNA-seq count matrices GSE13 GSE111322 GSE150728 python package dataset
 required_fields:
-- gene_id
-- gene_symbol
 - cell_barcode
-- raw_counts
-cache_key: f3491482211e37c691a05fbf87606c2451988b0ef301b951730fb5330163d174
-searched_at: '2026-10-30T22:12:58.447130+00:00'
+- gene_symbol
+- raw_count
+cache_key: 5fc33106f9f95ea78e343291d7aa1c9380359e992b6201d3041805cd3a9a5ddb
+searched_at: '2026-10-30T22:18:33.640084+00:00'
 retry_count: 1
