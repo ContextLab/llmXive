@@ -34,7 +34,7 @@ Tasks are ordered by scientific data‑flow; tasks that can run in parallel are 
 - [ ] T003 [P] Implement `src/ingest/download_loneliness.py` to fetch the **Reddit Loneliness Longitudinal Dataset** from its Zenodo DOI, validate required columns (`username_hash`, `UCLA_Loneliness_Score`, `timestamp`, `baseline_text`, `age`, `gender`), enforce ≥ 6 months of non‑null scores per user, and write `data/raw/loneliness_dataset.parquet`.   <!-- FAILED-IN-EXECUTION: code/src/main.py exit=1 -->
   - **Verification**: Unit test `tests/unit/test_download_loneliness.py` asserts the parquet contains ≥ 600 rows, all required columns, and that each user has ≥ 6 distinct months with non‑null loneliness scores.
 
-- [ ] T004 [P] Implement `src/ingest/fetch_pushshift.py` to retrieve AI‑companion interaction logs from the Pushshift API for subreddits `r/Replika`, `r/characterAI`, and `r/AICompanions`.  
+- [~] T004 [P] Implement `src/ingest/fetch_pushshift.py` to retrieve AI‑companion interaction logs from the Pushshift API for subreddits `r/Replika`, `r/characterAI`, and `r/AICompanions`.  
   - **Requirements**:  
     1. Use the earliest and latest survey timestamps (from `loneliness_dataset.parquet`) to define the exact calendar window (strictly preceding each survey).  
     2. Apply exponential back‑off (max 5 retries, 30 s timeout) via `src/utils/retry_policy.py`.  
@@ -43,10 +43,10 @@ Tasks are ordered by scientific data‑flow; tasks that can run in parallel are 
   - **Output**: `data/raw/pushshift_logs.parquet`.  
   - **Verification**: Integration test `tests/integration/test_fetch_pushshift.py` checks that the file exists, contains ≥ 1 M rows, that all timestamps lie inside the defined window, and that the request URLs contain `size=500` with correct `before`/`after` parameters.
 
-- [ ] T016 [P] Verify that the Pushshift API calls made by `fetch_pushshift.py` conform to the required parameters (`size=500`, proper `before`/`after`).  
+- [~] T016 [P] Verify that the Pushshift API calls made by `fetch_pushshift.py` conform to the required parameters (`size=500`, proper `before`/`after`).  
   - **Verification**: `src/validation/validate_pushshift_params.py` intercepts the request log, parses query strings, and aborts with “Pushshift Parameter Mismatch” if any deviation is found.
 
-- [ ] T005 [P] Implement `src/match/user_match.py` to:  
+- [~] T005 [P] Implement `src/match/user_match.py` to:  
   1. Load `loneliness_dataset.parquet` and `pushshift_logs.parquet`.  
   2. Hash raw Reddit usernames with SHA‑256 (UTF‑8, no salt) **in memory only**; never write the raw names to disk or logs.  
   3. Perform an inner join on the hashed IDs, dropping unmatched users.  
@@ -54,10 +54,10 @@ Tasks are ordered by scientific data‑flow; tasks that can run in parallel are 
   5. Write the anonymised, matched dataset to `data/processed/matched_users.parquet`.  
   - **Verification**: `tests/unit/test_user_match.py` asserts that the output file contains a `user_id` column matching the 64‑character hex pattern, that the match rate is ≥ 80 % of the original loneliness cohort, and that no record has a null `baseline_text`.
 
-- [ ] T019 [P] Verify deterministic matching: ensure the hashing step is fully deterministic and that no random sampling occurs.  
+- [~] T019 [P] Verify deterministic matching: ensure the hashing step is fully deterministic and that no random sampling occurs.  
   - **Verification**: `src/validation/verify_deterministic_match.py` runs the matching twice on the same inputs and asserts identical outputs; any divergence fails the pipeline.
 
-- [ ] T006 [P] Validate the match result and perform a power check.  
+- [~] T006 [P] Validate the match result and perform a power check.  
   - **Steps**:  
     1. `src/validation/validate_match.py` reads `matched_users.parquet`, computes `match_rate` and total matched users `N`.  
     2. If `match_rate < 0.80` **or** `N < 600`, abort with a *“Power Insufficient”* error.  
@@ -70,15 +70,15 @@ Tasks are ordered by scientific data‑flow; tasks that can run in parallel are 
 
 ## Phase 2 – Feature engineering  
 
-- [ ] T007 [P] Implement `src/ingest/download_ecar_lexicon.py` to download the **ECAR Lexicon** from its public repository, validate the `keyword`, `anxiety_weight`, `avoidance_weight` columns against an expected schema, and store it as `data/lexicons/ecar_lexicon.csv`.  
+- [~] T007 [P] Implement `src/ingest/download_ecar_lexicon.py` to download the **ECAR Lexicon** from its public repository, validate the `keyword`, `anxiety_weight`, `avoidance_weight` columns against an expected schema, and store it as `data/lexicons/ecar_lexicon.csv`.  
   - **Verification**: Unit test `tests/unit/test_download_ecar_lexicon.py` confirms the file exists, contains ≥ 500 rows, and passes schema validation; if validation fails the script aborts with “Lexicon Missing”.
 
-- [ ] T008 [P] Implement `src/features/usage_metrics.py` to aggregate weekly AI‑companion usage per matched user:  
+- [~] T008 [P] Implement `src/features/usage_metrics.py` to aggregate weekly AI‑companion usage per matched user:  
   - Compute `usage_frequency` (count of interactions) and `session_duration` (minutes between first and last timestamp of consecutive activities, capped at 24 h per session).  
   - Write `data/processed/usage_metrics.parquet`.  
   - **Verification**: `tests/unit/test_usage_metrics.py` checks that each user‑week record has non‑negative integers and that the sum of `session_duration` does not exceed 24 h per session.
 
-- [ ] T009 [P] Implement `src/features/attachment_proxy.py` to:  
+- [~] T009 [P] Implement `src/features/attachment_proxy.py` to:  
   1. Load the ECAR lexicon and the baseline‑window config (`config/baseline_window_config.yaml`, `baseline_days_preceding = 30`).  
   2. Identify each user’s baseline posts (within 30 days before their first survey timestamp).  
   3. Count anxiety and avoidance keywords, normalize by total baseline tokens to produce `attachment_anxiety_score` and `attachment_avoidance_score` (range 0‑1).  
@@ -86,13 +86,13 @@ Tasks are ordered by scientific data‑flow; tasks that can run in parallel are 
   - **Output**: `data/processed/attachment_scores.parquet`.  
   - **Verification**: `tests/unit/test_attachment_proxy.py` validates that all retained users have scores in the 0‑1 range and that the excluded‑user count matches expectations from a manually curated small set.
 
-- [ ] T015 [P] Validate attachment‑proxy extraction accuracy against a manually annotated validation set of 20 users. Compute Cohen’s κ; abort with “Attachment Proxy Validation Failed” if κ < 0.8.  
+- [~] T015 [P] Validate attachment‑proxy extraction accuracy against a manually annotated validation set of 20 users. Compute Cohen’s κ; abort with “Attachment Proxy Validation Failed” if κ < 0.8.  
   - **Verification**: `src/validation/validate_attachment_proxy.py` outputs `data/validation/attachment_proxy_kappa.yaml` containing the κ value and pass/fail flag.
 
-- [ ] T017 [P] Perform proxy‑construct validation (usage metrics vs. Parasocial Interaction Scale) on a 30‑user subset. Compute Pearson r; abort with “Proxy Validation Failed” if r < 0.6 (p < 0.05).  
+- [~] T017 [P] Perform proxy‑construct validation (usage metrics vs. Parasocial Interaction Scale) on a 30‑user subset. Compute Pearson r; abort with “Proxy Validation Failed” if r < 0.6 (p < 0.05).  
   - **Verification**: `src/validation/validate_proxy_construct.py` writes `data/validation/proxy_construct_report.yaml` with r, p‑value, and pass/fail status.
 
-- [ ] T010 [P] Implement `src/features/integrate_features.py` to merge `matched_users.parquet`, `usage_metrics.parquet`, and `attachment_scores.parquet` into a single longitudinal dataset `data/processed/unified_dataset.parquet`.  
+- [ ] T010 [P] Implement `src/features/integrate_features.py` to merge `matched_users.parquet`, `usage_metrics.parquet`, and `attachment_scores.parquet` into a single longitudinal dataset `data/processed/unified_dataset.parquet`.   <!-- FAILED-IN-EXECUTION: code/src/features/integrate_features.py exit=1 -->
   - **Verification**: Run `src/utils/data_validation.py` against `contracts/unified_dataset.schema.yaml`; the script must produce `logs/unified_dataset_validation.log` with “validation passed”.
 
 ---

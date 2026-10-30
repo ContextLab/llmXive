@@ -1,13 +1,18 @@
 """
-Fetch AI interaction logs from Pushshift for matched users.
+Fetch AI companion interaction logs from the Pushshift API.
 
-This script retrieves Reddit comments/posts from specific subreddits
-(r/Replika, r/characterAI, r/AICompanions) for users identified in the
-matched dataset, strictly within the survey window defined in the
-survey_window_final.json file.
+This script retrieves Reddit comments from the subreddits
+r/Replika, r/characterAI, and r/AICompanions for the time window
+defined by the earliest and latest timestamps present in the
+loneliness dataset. The window is **strictly preceding** each
+survey timestamp, i.e. it spans from the earliest survey date to the
+latest survey date (both inclusive). The script respects the
+project‑wide retry policy (exponential back‑off, max 5 retries) and
+the rate‑limit of ≤ 100 requests per minute.
 
-It implements exponential backoff and rate limit handling as specified
-in the project's retry and rate limit utilities.
+Output:
+    data/raw/pushshift_logs.parquet
+    data/raw/pushshift_request_params.json   # log of request parameters for validation
 """
 
 import json
@@ -15,276 +20,356 @@ import logging
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 
 import pandas as pd
 import requests
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
 
-# Project imports
-from src.utils.logging import get_logger, log_stage_start, log_stage_end, log_error_context
-from src.utils.retry_policy import retry_with_backoff, RetryConfig
-from src.utils.rate_limit_handler import RateLimitError, handle_429_response, is_rate_limited
-
-# Constants
-PUSHSHIFT_API_URL = "https://api.pushshift.io/reddit/search/comment/"
-# Subreddits of interest for AI companion interactions
-TARGET_SUBREDDITS = ["Replika", "characterAI", "AICompanions"]
-
-# Retry configuration matching project standards
-RETRY_CONFIG = RetryConfig(
-    max_retries=3,
-    base_delay=1.0,
-    max_delay=60.0,
-    backoff_factor=2.0
+# Project utilities
+from src.utils.logging import (
+    get_logger,
+    log_stage_start,
+    log_stage_end,
+    log_error_context,
 )
+from src.utils.retry_policy import retry_with_backoff, RetryConfig
+from src.utils.rate_limit_handler import (
+    RateLimitError,
+    is_rate_limited,
+    handle_429_response,
+)
+
+# ----------------------------------------------------------------------
+# Configuration
+# ----------------------------------------------------------------------
+PUSHSHIFT_API_URL = "https://api.pushshift.io/reddit/search/comment/"
+TARGET_SUBREDDITS = ["Replika", "characterAI", "AICompanions"]
+# Pushshift allows at most 500 items per request; the task explicitly
+# requires `size=500`.
+REQUEST_SIZE = 500
+
+# Retry policy required by the task (max 5 retries, 30 s timeout)
+RETRY_CONFIG = RetryConfig(
+    max_retries=5,
+    base_delay=1.0,
+    max_delay=30.0,
+    exponential_base=2.0,
+    jitter=True,
+    exceptions=(requests.exceptions.RequestException,),
+)
+
+# Rate‑limit handling – ≤ 100 requests/min ⇒ at least 0.6 s between calls
+MIN_SECONDS_BETWEEN_REQUESTS = 0.6
 
 logger = get_logger(__name__)
 
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
 
-def load_survey_window(window_path: Path) -> Dict[str, datetime]:
+
+def _load_loneliness_window(loneliness_path: Path) -> Dict[str, datetime]:
     """
-    Load the survey window boundaries from the JSON file.
-    
-    Args:
-        window_path: Path to survey_window_final.json
-        
-    Returns:
-        Dictionary with 'start_date' and 'end_date' as datetime objects.
-        
+    Load the earliest and latest timestamps from the loneliness dataset.
+
+    The dataset is expected to contain a column named ``timestamp`` that can
+    be parsed by ``pandas.to_datetime``.  The function returns a dict with
+    ``start_date`` and ``end_date`` as ``datetime`` objects (UTC).
+
     Raises:
-        FileNotFoundError: If the window file does not exist.
-        ValueError: If the file format is invalid or dates are missing.
+        FileNotFoundError: If the parquet file does not exist.
+        ValueError: If the ``timestamp`` column is missing.
     """
-    if not window_path.exists():
-        raise FileNotFoundError(f"Survey window file not found: {window_path}")
-        
-    with open(window_path, 'r') as f:
-        data = json.load(f)
-        
-    if 'start_date' not in data or 'end_date' not in data:
-        raise ValueError("Survey window file must contain 'start_date' and 'end_date' keys")
-        
-    # Parse ISO format dates
-    try:
-        start_date = datetime.fromisoformat(data['start_date'].replace('Z', '+00:00'))
-        end_date = datetime.fromisoformat(data['end_date'].replace('Z', '+00:00'))
-    except (ValueError, AttributeError) as e:
-        raise ValueError(f"Invalid date format in survey window file: {e}")
-        
-    return {
-        'start_date': start_date,
-        'end_date': end_date
-    }
+    if not loneliness_path.exists():
+        raise FileNotFoundError(f"Loneliness dataset not found at {loneliness_path}")
+
+    df = pd.read_parquet(loneliness_path, columns=["timestamp"])
+    if "timestamp" not in df.columns:
+        raise ValueError("Loneliness dataset missing required column 'timestamp'")
+
+    # Ensure timestamps are timezone‑aware UTC
+    timestamps = pd.to_datetime(df["timestamp"], utc=True, errors="coerce")
+    if timestamps.isna().any():
+        raise ValueError("Loneliness dataset contains unparsable timestamps")
+
+    start_date = timestamps.min().to_pydatetime()
+    end_date = timestamps.max().to_pydatetime()
+
+    logger.info(
+        f"Derived survey window from loneliness data: "
+        f"{start_date.isoformat()} → {end_date.isoformat()}"
+    )
+    return {"start_date": start_date, "end_date": end_date}
 
 
-def load_matched_users(matched_path: Path) -> pd.DataFrame:
+@retry_with_backoff(retry_config=RETRY_CONFIG)
+def _make_pushshift_request(params: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Load the matched users dataset.
-    
-    Args:
-        matched_path: Path to matched_users.parquet
-        
-    Returns:
-        DataFrame with user data including hashed usernames.
-        
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If required columns are missing.
+    Perform a single GET request to the Pushshift API with retry logic.
+
+    The decorator handles exponential back‑off for network‑related
+    exceptions.  Rate‑limit (HTTP 429) responses are translated into a
+    ``RateLimitError`` so that the outer loop can pause appropriately.
     """
-    if not matched_path.exists():
-        raise FileNotFoundError(f"Matched users file not found: {matched_path}")
-        
-    df = pd.read_parquet(matched_path)
-    
-    # Validate required columns
-    required_cols = ['user_id', 'username_hash']
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Matched users file missing required columns: {missing_cols}")
-        
-    logger.info(f"Loaded {len(df)} matched users")
-    return df
+    response = requests.get(PUSHSHIFT_API_URL, params=params, timeout=30)
+
+    # Detect explicit rate‑limit status code
+    if is_rate_limited(response):
+        raise RateLimitError(
+            f"Rate limited: {response.status_code}",
+            retry_after=handle_429_response(
+                response.status_code,
+                response.headers,
+                RETRY_CONFIG,
+                attempt=0,  # the decorator will handle further attempts
+            ),
+        )
+
+    response.raise_for_status()
+    return response.json()
 
 
-def fetch_pushshift_logs_for_user(
-    user_id: str,
-    username_hash: str,
-    start_date: datetime,
-    end_date: datetime,
-    subreddits: List[str]
+def _fetch_subreddit_logs(
+    subreddit: str,
+    start_ts: int,
+    end_ts: int,
 ) -> List[Dict[str, Any]]:
     """
-    Fetch Reddit comments for a specific user from Pushshift API.
-    
-    Args:
-        user_id: The user identifier
-        username_hash: The hashed username to search for
-        start_date: Start of the search window
-        end_date: End of the search window
-        subreddits: List of subreddits to search in
-        
+    Retrieve all comments from a single subreddit within the given time
+    window using pagination.
+
+    The API returns results sorted by ``created_utc`` ascending.  We
+    paginate by repeatedly advancing the ``after`` parameter to the
+    highest timestamp seen so far plus one second.
+
     Returns:
-        List of comment dictionaries matching the criteria.
+        List of comment objects (raw JSON dicts) enriched with a few
+        metadata fields.
     """
-    all_logs = []
-    
-    for subreddit in subreddits:
-        # Construct search parameters
+    logs: List[Dict[str, Any]] = []
+    after = start_ts
+
+    while after < end_ts:
         params = {
-            'author': username_hash,
-            'subreddit': subreddit,
-            'after': int(start_date.timestamp()),
-            'before': int(end_date.timestamp()),
-            'limit': 1000,  # Pushshift max per request
-            'sort': 'created_utc'
+            "subreddit": subreddit,
+            "size": REQUEST_SIZE,
+            "after": after,
+            "before": end_ts,
+            "sort": "asc",  # ascending to make pagination straightforward
+            "sort_type": "created_utc",
         }
-        
-        logger.debug(f"Fetching logs for user {user_id} in r/{subreddit}")
-        
-        # Use retry logic with backoff for API calls
-        @retry_with_backoff(retry_config=RETRY_CONFIG)
-        def make_request():
-            response = requests.get(PUSHSHIFT_API_URL, params=params, timeout=60)
-            
-            if is_rate_limited(response):
-                raise RateLimitError(f"Rate limited for user {user_id} in r/{subreddit}")
-            
-            response.raise_for_status()
-            return response.json()
-        
+
+        logger.debug(
+            f"Requesting {subreddit}: after={after}, before={end_ts}, size={REQUEST_SIZE}"
+        )
+
         try:
-            result = make_request()
-            
-            if 'data' in result and result['data']:
-                for comment in result['data']:
-                    # Add metadata
-                    comment['user_id'] = user_id
-                    comment['source_subreddit'] = subreddit
-                    comment['fetched_at'] = datetime.now().isoformat()
-                    all_logs.append(comment)
-                    
-                logger.debug(f"Found {len(result['data'])} comments for user {user_id} in r/{subreddit}")
-            else:
-                logger.debug(f"No comments found for user {user_id} in r/{subreddit}")
-                
+            result = _make_pushshift_request(params)
         except RateLimitError as e:
-            logger.warning(f"Rate limit hit for user {user_id} in r/{subreddit}: {e}")
-            # Continue to next subreddit rather than failing entirely
+            # Respect the Retry‑After value if supplied; otherwise fall back
+            # to the exponential back‑off delay calculated by the retry
+            # decorator.
+            wait_seconds = e.retry_after or 5
+            logger.warning(
+                f"Rate limit encountered for subreddit {subreddit}. "
+                f"Sleeping for {wait_seconds}s before retry."
+            )
+            time.sleep(wait_seconds)
             continue
-        except Exception as e:
-            logger.error(f"Error fetching logs for user {user_id} in r/{subreddit}: {e}")
-            continue
-        
-        # Rate limiting between requests to be respectful
-        time.sleep(0.5)
-        
-    return all_logs
+        except Exception as exc:
+            logger.error(
+                f"Failed to fetch logs for subreddit {subreddit}: {exc}"
+            )
+            # Abort fetching this subreddit; the outer caller will decide
+            # whether to continue with other subreddits.
+            break
+
+        # Record the parameters used for this request for later validation
+        _record_request_params(subreddit, params)
+
+        data = result.get("data", [])
+        if not data:
+            logger.debug(
+                f"No more data returned for subreddit {subreddit} (after={after})."
+            )
+            break
+
+        for comment in data:
+            # Enrich with additional fields useful downstream
+            comment["source_subreddit"] = subreddit
+            comment["fetched_at"] = datetime.utcnow().isoformat()
+            logs.append(comment)
+
+        # Update the cursor – the newest timestamp in this batch
+        latest_ts = max(item["created_utc"] for item in data)
+        after = int(latest_ts) + 1  # move past the last seen record
+
+        logger.debug(
+            f"Fetched {len(data)} comments from {subreddit}; "
+            f"advancing cursor to {after}"
+        )
+
+        # Respect the global rate‑limit
+        time.sleep(MIN_SECONDS_BETWEEN_REQUESTS)
+
+    return logs
+
+# ----------------------------------------------------------------------
+# Request‑parameter logging
+# ----------------------------------------------------------------------
+_request_log: List[Dict[str, Any]] = []  # module‑level accumulator
+
+
+def _record_request_params(subreddit: str, params: Dict[str, Any]) -> None:
+    """
+    Store a shallow copy of the request parameters for later validation.
+    Only the keys relevant to the task are retained.
+    """
+    _request_log.append(
+        {
+            "subreddit": subreddit,
+            "size": params.get("size"),
+            "before": params.get("before"),
+            "after": params.get("after"),
+        }
+    )
+
+
+def _write_request_log(output_dir: Path) -> None:
+    """
+    Write the accumulated request‑parameter log to JSON.
+    The file is written alongside the Pushshift Parquet output.
+    """
+    output_path = output_dir / "pushshift_request_params.json"
+    try:
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(_request_log, f, indent=2)
+        logger.info(f"Pushshift request parameter log written to {output_path}")
+    except Exception as exc:
+        logger.error(f"Failed to write request parameter log: {exc}")
+        # Not fatal for the main data collection; continue silently.
 
 
 def fetch_all_pushshift_logs(
-    matched_users_path: Path,
-    window_path: Path,
-    output_path: Path
+    loneliness_path: Path,
+    output_path: Path,
 ) -> None:
     """
-    Main function to fetch Pushshift logs for all matched users.
-    
+    Orchestrates the full Pull‑Shift download.
+
     Args:
-        matched_users_path: Path to matched_users.parquet
-        window_path: Path to survey_window_final.json
-        output_path: Path where the output parquet file will be saved
+        loneliness_path: Path to ``data/raw/loneliness_dataset.parquet``.
+        output_path: Desired location for the aggregated Parquet file
+                     (``data/raw/pushshift_logs.parquet``).
+
+    The function writes a Parquet file containing all retrieved comment
+    objects.  If no comments are found, an empty Parquet file with the
+    expected schema is still created.
     """
     log_stage_start(logger, "Pushshift Log Fetching")
-    
-    # Load dependencies
-    window = load_survey_window(window_path)
-    matched_users = load_matched_users(matched_users_path)
-    
-    logger.info(f"Survey window: {window['start_date']} to {window['end_date']}")
-    logger.info(f"Fetching logs for {len(matched_users)} users across {len(TARGET_SUBREDDITS)} subreddits")
-    
-    all_logs = []
-    
-    # Process each user
-    for idx, row in matched_users.iterrows():
-        user_id = row['user_id']
-        username_hash = row['username_hash']
-        
-        logs = fetch_pushshift_logs_for_user(
-            user_id=user_id,
-            username_hash=username_hash,
-            start_date=window['start_date'],
-            end_date=window['end_date'],
-            subreddits=TARGET_SUBREDDITS
+
+    # ------------------------------------------------------------------
+    # Determine the survey window
+    # ------------------------------------------------------------------
+    window = _load_loneliness_window(loneliness_path)
+    start_ts = int(window["start_date"].timestamp())
+    end_ts = int(window["end_date"].timestamp())
+
+    logger.info(
+        f"Fetching Pushshift comments for window "
+        f"{window['start_date'].isoformat()} – {window['end_date'].isoformat()}"
+    )
+
+    # ------------------------------------------------------------------
+    # Retrieve logs for each target subreddit
+    # ------------------------------------------------------------------
+    all_logs: List[Dict[str, Any]] = []
+    for subreddit in TARGET_SUBREDDITS:
+        subreddit_logs = _fetch_subreddit_logs(subreddit, start_ts, end_ts)
+        all_logs.extend(subreddit_logs)
+        logger.info(
+            f"Subreddit r/{subreddit}: retrieved {len(subreddit_logs)} comments"
         )
-        
-        all_logs.extend(logs)
-        
-        # Progress logging
-        if (idx + 1) % 100 == 0:
-            logger.info(f"Processed {idx + 1}/{len(matched_users)} users. Total logs: {len(all_logs)}")
-    
-    # Create output DataFrame
+
+    # ------------------------------------------------------------------
+    # Persist results
+    # ------------------------------------------------------------------
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
     if all_logs:
-        logs_df = pd.DataFrame(all_logs)
-        
-        # Standardize column names and types
-        # Ensure timestamp columns are datetime
-        if 'created_utc' in logs_df.columns:
-            logs_df['created_utc'] = pd.to_datetime(logs_df['created_utc'], unit='s')
-        
-        # Sort by user and timestamp
-        logs_df = logs_df.sort_values(by=['user_id', 'created_utc'])
-        
-        # Save to parquet
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        logs_df.to_parquet(output_path, index=False)
-        
-        logger.info(f"Saved {len(logs_df)} log entries to {output_path}")
+        df = pd.DataFrame(all_logs)
+
+        # Convert the epoch‑seconds field to a proper datetime column
+        if "created_utc" in df.columns:
+            df["created_utc"] = pd.to_datetime(df["created_utc"], unit="s", utc=True)
+
+        # Normalise column order (optional but helpful for downstream tests)
+        desired_order = [
+            "author",          # raw Reddit username (may be None for deleted)
+            "body",
+            "created_utc",
+            "score",
+            "subreddit",
+            "source_subreddit",
+            "id",
+            "parent_id",
+            "link_id",
+            "fetched_at",
+        ]
+        existing = [col for col in desired_order if col in df.columns]
+        df = df[existing + [c for c in df.columns if c not in existing]]
+
+        df.to_parquet(output_path, index=False)
+        logger.info(
+            f"Saved {len(df)} Pushshift comment records to {output_path}"
+        )
     else:
-        logger.warning("No logs found for any users. Creating empty DataFrame with expected schema.")
-        # Create empty DataFrame with expected schema
-        empty_df = pd.DataFrame(columns=[
-            'user_id', 'username_hash', 'created_utc', 'subreddit', 'body',
-            'score', 'source_subreddit', 'fetched_at'
-        ])
-        output_path.parent.mkdir(parents=True, exist_ok=True)
+        # Create an empty DataFrame with the minimal expected schema
+        empty_df = pd.DataFrame(
+            columns=[
+                "author",
+                "body",
+                "created_utc",
+                "score",
+                "subreddit",
+                "source_subreddit",
+                "id",
+                "parent_id",
+                "link_id",
+                "fetched_at",
+            ]
+        )
         empty_df.to_parquet(output_path, index=False)
-        logger.info(f"Created empty output file at {output_path}")
-        
+        logger.warning(
+            f"No comments were retrieved; created empty file at {output_path}"
+        )
+
+    # Write the request‑parameter log for validation (T016)
+    _write_request_log(output_path.parent)
+
     log_stage_end(logger, "Pushshift Log Fetching", success=True)
 
 
-def main():
-    """Entry point for the script."""
-    # Setup logging
-    setup_logging_level = logging.INFO
-    logging.basicConfig(level=setup_logging_level)
-    
-    # Define paths relative to project root
-    project_root = Path(__file__).parent.parent.parent
-    matched_users_path = project_root / "data" / "processed" / "matched_users.parquet"
-    window_path = project_root / "data" / "processed" / "survey_window_final.json"
-    output_path = project_root / "data" / "processed" / "pushshift_logs_refined.parquet"
-    
-    # Validate input files exist
-    if not matched_users_path.exists():
-        logger.error(f"Required input file not found: {matched_users_path}")
-        logger.error("Please ensure T014 (user_match.py) has been completed successfully.")
-        raise FileNotFoundError(f"Missing matched users file: {matched_users_path}")
-        
-    if not window_path.exists():
-        logger.error(f"Required input file not found: {window_path}")
-        logger.error("Please ensure T012.6 (calculate_matched_window.py) has been completed successfully.")
-        raise FileNotFoundError(f"Missing survey window file: {window_path}")
-    
+def main() -> None:
+    """
+    Entry‑point used by the test suite and by developers.
+
+    The script assumes it is executed from the repository root (the same
+    directory that contains the ``code`` folder).  All paths are built
+    relative to that root using ``Path(__file__)`` navigation.
+    """
+    # Configure a simple console logger if the application hasn't set one
+    logging.basicConfig(level=logging.INFO)
+
+    project_root = Path(__file__).resolve().parents[2]  # code/src/ingest/… → project root
+    loneliness_path = project_root / "data" / "raw" / "loneliness_dataset.parquet"
+    output_path = project_root / "data" / "raw" / "pushshift_logs.parquet"
+
     try:
-        fetch_all_pushshift_logs(matched_users_path, window_path, output_path)
-        logger.info("Pushshift log fetching completed successfully.")
-    except Exception as e:
-        log_error_context(logger, "Pushshift log fetching failed", error=e)
+        fetch_all_pushshift_logs(loneliness_path, output_path)
+        logger.info("Pushshift log collection completed successfully.")
+    except Exception as exc:
+        log_error_context(logger, "Pushshift log collection failed", error=exc)
         raise
 
 

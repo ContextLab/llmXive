@@ -3,16 +3,17 @@ User Matching Module for Parasocial Relationships Research
 
 This module handles the matching of users between the loneliness dataset
 and Pushshift logs by hashing usernames to create deterministic, anonymized IDs.
+It also enforces the requirement that each matched user must have a non‑empty
+``baseline_text`` field (FR‑009).
 """
 import hashlib
 import logging
 from pathlib import Path
-from typing import Tuple, Optional
+from typing import Tuple
 import pandas as pd
 from src.utils.logging import get_logger, log_stage_start, log_stage_end, log_error_context
 
 logger = get_logger(__name__)
-
 
 def hash_username(username: str) -> str:
     """
@@ -27,16 +28,20 @@ def hash_username(username: str) -> str:
     """
     if not isinstance(username, str) or not username.strip():
         raise ValueError(f"Invalid username provided: {username}")
-    
+
     return hashlib.sha256(username.encode('utf-8')).hexdigest()
 
 
 def load_and_validate_loneliness_data(
     input_path: Path,
-    required_fields: Tuple[str, ...] = ('username',)
+    required_fields: Tuple[str, ...] = ('username', 'baseline_text')
 ) -> pd.DataFrame:
     """
     Load the loneliness dataset from a Parquet file and validate required fields.
+
+    In addition to the generic ``username`` validation, this function also
+    enforces that ``baseline_text`` is present and non‑empty for every row,
+    dropping any rows that violate this rule (fulfilling FR‑009).
 
     Args:
         input_path: Path to the input Parquet file.
@@ -50,27 +55,42 @@ def load_and_validate_loneliness_data(
         ValueError: If required fields are missing.
     """
     logger.info(f"Loading loneliness dataset from {input_path}")
-    
+
     if not input_path.exists():
         raise FileNotFoundError(f"Input file not found: {input_path}")
-    
+
     df = pd.read_parquet(input_path)
     logger.info(f"Loaded {len(df)} rows from loneliness dataset")
-    
+
     # Validate required fields
     missing_fields = [field for field in required_fields if field not in df.columns]
     if missing_fields:
         raise ValueError(f"Missing required fields in loneliness dataset: {missing_fields}")
-    
-    # Validate non-empty usernames
+
+    # Clean usernames
     if 'username' in df.columns:
-        invalid_count = df['username'].isna().sum() + (df['username'] == '').sum()
-        if invalid_count > 0:
-            logger.warning(f"Found {invalid_count} rows with invalid/empty usernames. Dropping them.")
+        invalid_usernames = df['username'].isna().sum() + (df['username'] == '').sum()
+        if invalid_usernames > 0:
+            logger.warning(f"Found {invalid_usernames} rows with invalid/empty usernames. Dropping them.")
             df = df.dropna(subset=['username'])
             df = df[df['username'].astype(str).str.strip() != '']
-            logger.info(f"Remaining {len(df)} rows after cleaning")
-    
+            logger.info(f"{len(df)} rows remain after username cleaning")
+
+    # Enforce non‑empty baseline_text (FR‑009)
+    if 'baseline_text' in df.columns:
+        before = len(df)
+        df = df.dropna(subset=['baseline_text'])
+        df = df[df['baseline_text'].astype(str).str.strip() != '']
+        after = len(df)
+        dropped = before - after
+        if dropped > 0:
+            logger.warning(f"Dropped {dropped} rows with missing or empty baseline_text.")
+            logger.info(f"{after} rows remain after baseline_text cleaning")
+    else:
+        # This should never happen because of the required_fields check,
+        # but we keep a defensive guard.
+        raise ValueError("baseline_text column is missing despite being required.")
+
     return df
 
 
@@ -80,10 +100,6 @@ def load_pushshift_data(
 ) -> pd.DataFrame:
     """
     Load Pushshift logs from a Parquet file.
-    
-    Note: In the actual pipeline, Pushshift data is fetched AFTER matching.
-    This function is provided for testing and future integration when Pushshift
-    data becomes available.
 
     Args:
         input_path: Path to the Pushshift logs Parquet file.
@@ -93,18 +109,18 @@ def load_pushshift_data(
         DataFrame containing the Pushshift logs.
     """
     logger.info(f"Loading Pushshift data from {input_path}")
-    
+
     if not input_path.exists():
         # Return empty DataFrame with expected structure for testing
         logger.warning(f"Pushshift data file not found: {input_path}. Returning empty DataFrame.")
         return pd.DataFrame(columns=[id_column])
-    
+
     df = pd.read_parquet(input_path)
     logger.info(f"Loaded {len(df)} rows from Pushshift data")
-    
+
     if id_column not in df.columns:
         raise ValueError(f"Pushshift data missing required column: {id_column}")
-    
+
     return df
 
 
@@ -116,7 +132,8 @@ def perform_matching(
 ) -> pd.DataFrame:
     """
     Perform matching between loneliness dataset and Pushshift logs.
-    
+
+    Steps:
     1. Hash usernames in the loneliness dataset to create anonymized IDs.
     2. Join with Pushshift logs on the hashed ID.
     3. Drop unmatched rows (users with no Pushshift logs).
@@ -130,92 +147,96 @@ def perform_matching(
     Returns:
         DataFrame containing matched users with anonymized IDs.
     """
-    logger.info(f"Starting matching process between {len(loneliness_df)} loneliness users and {len(pushshift_df)} Pushshift logs")
-    
+    logger.info(
+        f"Starting matching process between {len(loneliness_df)} loneliness users "
+        f"and {len(pushshift_df)} Pushshift logs"
+    )
+
     # Create anonymized ID column in loneliness dataset
     loneliness_df = loneliness_df.copy()
     loneliness_df['user_id'] = loneliness_df[loneliness_user_col].apply(hash_username)
-    
+
     logger.info(f"Created anonymized IDs for {len(loneliness_df)} users")
-    
+
     # Perform inner join to keep only matched users
     if pushshift_df.empty:
         logger.warning("Pushshift data is empty. Returning empty matched dataset.")
         return pd.DataFrame(columns=['user_id', loneliness_user_col])
-    
+
     matched_df = loneliness_df.merge(
         pushshift_df[[pushshift_id_col]].drop_duplicates(),
         left_on='user_id',
         right_on=pushshift_id_col,
         how='inner'
     )
-    
-    # Drop the duplicate column from Pushshift
+
+    # Drop the duplicate column from Pushshift if present
     if pushshift_id_col in matched_df.columns and pushshift_id_col != 'user_id':
         matched_df = matched_df.drop(columns=[pushshift_id_col])
-    
-    # Keep only necessary columns
+
+    # Remove the raw username column (no PII should persist)
     matched_df = matched_df.drop(columns=[loneliness_user_col])
-    
-    logger.info(f"Matching complete: {len(matched_df)} users matched out of {len(loneliness_df)} total")
-    
+
+    logger.info(
+        f"Matching complete: {len(matched_df)} users matched out of {len(loneliness_df)} total"
+    )
+
     return matched_df
 
 
 def main():
     """
     Main entry point for the user matching pipeline.
-    
+
     This function:
-    1. Loads the loneliness dataset from data/raw/loneliness_dataset.parquet
-    2. Loads Pushshift data (placeholder for now, will be filled by T013)
-    3. Performs matching
-    4. Saves the result to data/processed/matched_users.parquet
+    1. Loads the loneliness dataset from ``data/raw/loneliness_dataset.parquet``.
+    2. Loads Pushshift data from ``data/raw/pushshift_logs.parquet`` (the
+       standard location produced by ``src.ingest.fetch_pushshift``).
+    3. Performs matching while ensuring ``baseline_text`` is present.
+    4. Saves the result to ``data/processed/matched_users.parquet``.
     """
     log_stage_start("User Matching")
-    
+
     try:
-        # Define paths
+        # Define paths relative to the project root
         base_dir = Path(__file__).resolve().parent.parent.parent
         loneliness_input = base_dir / "data" / "raw" / "loneliness_dataset.parquet"
-        pushshift_input = base_dir / "data" / "processed" / "pushshift_logs_refined.parquet"
+        # Updated to the correct location where fetch_pushshift writes its output
+        pushshift_input = base_dir / "data" / "raw" / "pushshift_logs.parquet"
         output_path = base_dir / "data" / "processed" / "matched_users.parquet"
-        
+
         # Ensure output directory exists
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        # Load loneliness data
+
+        # Load and clean loneliness data (enforces baseline_text non‑empty)
         loneliness_df = load_and_validate_loneliness_data(loneliness_input)
-        
-        # Load Pushshift data (will be populated by T013)
-        # For now, we handle the case where it doesn't exist yet
-        if pushshift_input.exists():
-            pushshift_df = load_pushshift_data(pushshift_input)
-        else:
-            logger.warning(f"Pushshift data not yet available at {pushshift_input}. "
-                         "This is expected if T013 has not run. "
-                         "Creating empty matched dataset.")
-            pushshift_df = pd.DataFrame(columns=['author_hash'])
-        
+
+        # Load Pushshift data (may be empty if fetch step hasn't run yet)
+        pushshift_df = load_pushshift_data(pushshift_input)
+
         # Perform matching
         matched_df = perform_matching(loneliness_df, pushshift_df)
-        
+
         # Save results
         matched_df.to_parquet(output_path, index=False)
         logger.info(f"Saved {len(matched_df)} matched users to {output_path}")
-        
+
         # Log match statistics
         match_rate = len(matched_df) / len(loneliness_df) if len(loneliness_df) > 0 else 0.0
-        logger.info(f"Match rate: {match_rate:.2%} ({len(matched_df)}/{len(loneliness_df)})")
-        
+        logger.info(
+            f"Match rate: {match_rate:.2%} ({len(matched_df)}/{len(loneliness_df)})"
+        )
+
         log_stage_end("User Matching", success=True)
         return matched_df
-        
+
     except Exception as e:
         log_error_context("User Matching", e)
         raise
-    
+
     finally:
+        # If an exception was raised, the finally block will still execute.
+        # The success flag is set to False to indicate failure.
         log_stage_end("User Matching", success=False)
 
 

@@ -18,6 +18,8 @@ T008:
 T009:
   task: 22f89371e5256e56a23b7271813f5852cc17651f3ad345a7203477d2eb8e6c52
 T010:
+  reason: 'Requested task execution failed; rerun successfully: code/src/features/integrate_features.py
+    exit=1'
   task: 2f064c3175a8ea259454eece4d78e2cf7592784c6ed3a917d1a712f40fbe2824
 T011:
   task: 0cc2b0fecb77eab7ad2b9d4b1e4b08c9fc8f77d76cbfa386fec0a9787313ddcd
