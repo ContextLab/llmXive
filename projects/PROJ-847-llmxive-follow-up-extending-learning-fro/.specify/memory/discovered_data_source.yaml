@@ -1,30 +1,10 @@
-status: verified
-kind: pypi_package
-ref: datasets
-access_python: 'import os
-
-  from datasets import load_dataset
-
-
-  dataset_dict = load_dataset("openai/gsm8k", "main")
-
-  total_records = sum(len(split) for split in dataset_dict.values())
-
-  first_split = next(iter(dataset_dict.values()))
-
-  print(f"RECORDS={total_records}")
-
-  print("FIELDS=" + ",".join(first_split.column_names))'
-record_count: 8792
-sample_fields:
-- question
-- answer
-field_coverage: 0.5
+status: none
+intent: download GSM8K parquet and BIG-Bench logical subset as python package dataset
 required_fields:
+- id
 - question
 - answer
-- id
-- metadata
-intent: download GSM8K train test parquet and BigBench logical subset python package
-  dataset
-cache_key: f5358f67f9789da0cfb16e438b4c6b256305b8b02c63c3f3a6ead02c3b57ecfe
+- split
+cache_key: 882a12740eb870d05c74238afb78bb504aebb812cdbb46d171e0a12b073e24d7
+searched_at: '2026-10-30T00:13:42.565945+00:00'
+retry_count: 1
