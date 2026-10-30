@@ -107,7 +107,7 @@
 ### Implementation for User Story 3
 
 - [ ] T028 [P] [US3] Implement `analysis/stats.py` with Pearson correlation and linear regression functions
-- [ ] T029 [US3] Implement block-bootstrapping logic in `analysis/stats.py` to handle spatially correlated data ({{claim:c_1fc05abe}} (pi, https://en.wikipedia.org/wiki/Pi))
+- [ ] T029 [US3] Implement block-bootstrapping logic in `analysis/stats.py` to handle spatially correlated data (n=1000 (2402.03491, https://arxiv.org/abs/2402.03491) resamples (pi, https://en.wikipedia.org/wiki/Pi))
 - [ ] T030 [US3] Implement family-wise error correction (Bonferroni or Benjamini-Hochberg) in `analysis/stats.py`
 - [ ] T030B [P] [US3] Implement logic in `analysis/stats.py` to compute/estimate integral length scale (λ) from velocity field (PREREQUISITE for T031)
 - [ ] T031 [US3] **DEPENDS ON: T030B**. Implement logic to Implement logic to select spatial subdomains separated by ≥10 integral length scales [UNRESOLVED-CLAIM: c_7c2dbe9e — status=not_enough_info] (λ) using the computed λ from T030B
