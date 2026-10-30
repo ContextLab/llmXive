@@ -7,25 +7,24 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/data/download.py --dataset <dataset-name> -> rc=1
-e/llmXive/.llmxive-venvs/PROJ-290-the-impact-of-visual-search-strategies-o/lib/python3.11/site-packages/datasets/__init__.py", line 17, in <module>
-    from .arrow_dataset import Column, Dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-290-the-impact-of-visual-search-strategies-o/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 59, in <module>
-    import pyarrow as pa
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-290-the-impact-of-visual-search-strategies-o/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
-ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+.py", line 89, in _inner_fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-290-the-impact-of-visual-search-strategies-o/lib/python3.11/site-packages/huggingface_hub/hf_api.py", line 3285, in dataset_info
+    hf_raise_for_status(r)
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-290-the-impact-of-visual-search-strategies-o/lib/python3.11/site-packages/huggingface_hub/utils/_http.py", line 953, in hf_raise_for_status
+    raise _format(RepositoryNotFoundError, message, response, repo_type=repo_type, repo_id=repo_id) from e
+huggingface_hub.errors.RepositoryNotFoundError: 401 Client Error. (Request ID: Root=1-6ae506e3-39e53bf500fd4c871fbdd8f7;9e03715a-4268-4d31-b874-9d1e8bc6063d)
 
-The above exception was the direct cause of the following exception:
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-290-the-impact-of-visual-search-strategies-o/code/data/download.py", line 19, in <module>
-    raise ImportError("The 'datasets' library is required. Install it via pip.") from e
-ImportError: The 'datasets' library is required. Install it via pip.
+Repository Not Found for url: https://huggingface.co/api/datasets/eyetracking-emotion-face-search/revision/main.
+Please make sure you specified the correct `repo_id` and `repo_type`.
+If you are trying to access a private or gated repo, make sure you are authenticated and your token has the required permissions.
+For more details, see https://huggingface.co/docs/huggingface_hub/authentication
+Invalid username or password.
 
 - python code/data/validate.py -> rc=1
 
-Failed to load dataset: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+Failed to load dataset: No module named 'datasets'
 
 - python code/features/classification.py -> rc=1
 ocessed_features(logger)
