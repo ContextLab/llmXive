@@ -28700,7 +28700,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-30T02:06:47.214202+00:00",
+  "generated_at": "2026-10-30T02:08:17.975143+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -41917,6 +41917,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 4.837563,
+          "ended_at": "2026-10-30T02:07:01.382347Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-30T02:06:56.544784Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 4.539062,
           "ended_at": "2026-10-29T23:06:58.888977Z",
           "model": "zai-org.glm-5.3",
@@ -41986,14 +41994,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-23T23:11:17.378227Z"
-        },
-        {
-          "agent": "personality",
-          "duration_s": 19.230435,
-          "ended_at": "2026-10-22T04:05:15.500592+00:00",
-          "model": "zai-org.glm-5.3",
-          "outcome": "librarian_held",
-          "started_at": "2026-10-22T04:04:56.270157+00:00"
         }
       ],
       "paper_status": null,
@@ -90654,6 +90654,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 3.940241,
+          "ended_at": "2026-10-30T02:07:33.258295Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-30T02:07:29.318054Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 4.343906,
           "ended_at": "2026-10-29T04:07:40.039920Z",
           "model": "zai-org.glm-5.3",
@@ -90723,14 +90731,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-23T16:42:09.768451Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 24.912329,
-          "ended_at": "2026-10-23T16:42:09.765180Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-23T16:41:44.852851Z"
         }
       ],
       "paper_status": null,
@@ -175697,6 +175697,30 @@
   ],
   "recent_activity": [
     {
+      "agent": "implementer",
+      "duration_s": 3.940241,
+      "ended_at": "2026-10-30T02:07:33.258295Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-317-the-impact-of-visual-detail-on-false-mem",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-10-30T02:07:29.318054Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 4.837563,
+      "ended_at": "2026-10-30T02:07:01.382347Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-069-statistical-analysis-of-sentiment-drift-",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-10-30T02:06:56.544784Z"
+    },
+    {
       "agent": "personality",
       "display_name": "David Krakauer (simulated)",
       "duration_s": 12.222023,
@@ -181743,30 +181767,6 @@
       "project_stage": "clarified",
       "severity": "hard",
       "started_at": "2026-10-27T08:08:33.909848Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 3.54074,
-      "ended_at": "2026-10-27T08:08:59.437816Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-936-llmxive-follow-up-extending-a-matter-of",
-      "project_stage": "planned",
-      "severity": "hard",
-      "started_at": "2026-10-27T08:08:55.897076Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 2.42839,
-      "ended_at": "2026-10-27T08:08:46.159413Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-097-predicting-corrosion-rates-of-common-met",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-10-27T08:08:43.731023Z"
     }
   ],
   "reviewed_preprints": [
