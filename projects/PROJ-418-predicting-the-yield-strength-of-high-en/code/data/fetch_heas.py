@@ -143,9 +143,10 @@ def _download_from_zenodo(search_query: str = "high entropy alloy yield strength
 
 def _parse_composition(comp_str: str) -> Dict[str, float]:
     """
-    Parse composition strings such as `Al0.3Co0.3Cr0.3` into a dictionary.
+    Parse composition strings such as `Al0.3Co0.3Cr0.3` or `CoCrFeMnNi` into a dictionary.
     """
     comp_str = comp_str.replace(" ", "")
+    # Pattern: Element symbol followed by optional fraction in parens or plain digits
     pattern = r"([A-Z][a-z]?)(?:\(?([0-9]*\.?[0-9]+)\)?)"
     matches = re.findall(pattern, comp_str)
     if not matches:
@@ -154,10 +155,14 @@ def _parse_composition(comp_str: str) -> Dict[str, float]:
         )
     composition = {}
     for element, fraction in matches:
-        composition[element] = float(fraction)
+        # Handle equiatomic case where fraction is omitted
+        composition[element] = float(fraction) if fraction else 1.0
+    
     total = sum(composition.values())
     if total == 0:
         raise ValueError("Composition fractions sum to zero")
+    
+    # Normalize to ensure sum is 1.0
     for k in composition:
         composition[k] /= total
     return composition
@@ -189,35 +194,47 @@ def fetch_heas() -> Path:
     schema = _load_schema()
 
     # 3. Validate each row and normalize
+    validated_rows = []
     for idx, row in enumerate(rows, start=1):
-        # Normalise column names
-        if "Composition" in row and "composition" not in row:
-            row["composition"] = row.pop("Composition")
-        if "AlloyID" in row and "alloy_id" not in row:
-            row["alloy_id"] = row.pop("AlloyID")
-        if "YieldStrength" in row and "yield_strength" not in row:
-            row["yield_strength"] = row.pop("YieldStrength")
+        # Normalise column names to match schema
+        # Case-insensitive mapping of common column names
+        mapped_row = {}
+        for k, v in row.items():
+            lk = k.lower()
+            if lk == "alloyid":
+                mapped_row["alloy_id"] = v
+            elif lk == "composition":
+                mapped_row["composition"] = v
+            elif lk == "yieldstrength" or lk == "yield_strength":
+                mapped_row["yield_strength"] = v
+            else:
+                mapped_row[k] = v
 
         # Convert composition to a dict
-        if "composition" in row and isinstance(row["composition"], str):
+        if "composition" in mapped_row and isinstance(mapped_row["composition"], str):
+            comp_val = mapped_row["composition"]
             try:
-                comp_dict = json.loads(row["composition"])
+                # Try JSON first
+                comp_dict = json.loads(comp_val)
             except json.JSONDecodeError:
-                comp_dict = _parse_composition(row["composition"])
-            row["composition"] = comp_dict
+                # Fallback to regex parsing
+                comp_dict = _parse_composition(comp_val)
+            mapped_row["composition"] = comp_dict
 
         # Ensure numeric yield_strength
-        if "yield_strength" in row:
+        if "yield_strength" in mapped_row:
             try:
-                row["yield_strength"] = float(row["yield_strength"])
+                mapped_row["yield_strength"] = float(mapped_row["yield_strength"])
             except (TypeError, ValueError):
                 raise ValueError(
                     f"Row {idx}: yield_strength must be numeric"
                 )
 
         try:
-            _validate_row(row, schema)
+            _validate_row(mapped_row, schema)
+            validated_rows.append(mapped_row)
         except ValueError as exc:
+            # FR-009: Abort with clear error if required field is missing
             raise ValueError(
                 f"Validation failed for row {idx}: {exc}"
             ) from exc
@@ -227,11 +244,19 @@ def fetch_heas() -> Path:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     logger.info(f"Writing validated dataset to {output_path}")
 
-    fieldnames = rows[0].keys()
+    if not validated_rows:
+        raise RuntimeError("No rows passed validation")
+
+    fieldnames = ["alloy_id", "composition", "yield_strength"]
+    # Add any other columns that were present in the first row
+    for k in validated_rows[0].keys():
+        if k not in fieldnames:
+            fieldnames.append(k)
+
     with output_path.open("w", newline="", encoding="utf-8") as out_f:
         writer = csv.DictWriter(out_f, fieldnames=fieldnames)
         writer.writeheader()
-        for row in rows:
+        for row in validated_rows:
             # Store composition as a JSON string for CSV compatibility
             if isinstance(row.get("composition"), dict):
                 row["composition"] = json.dumps(row["composition"])

@@ -38,7 +38,7 @@ ERROR tests/test_setup_dirs.py
 ERROR tests/unit/test_preprocess.py
 ERROR tests/unit/test_report_generator.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 8 errors during collection !!!!!!!!!!!!!!!!!!!!
-1 warning, 8 errors in 1.12s
+1 warning, 8 errors in 1.58s
 
 
 

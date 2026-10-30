@@ -1,19 +1,19 @@
 status: none
-intent: download high entropy alloy yield strength dataset Zenodo and Materials Project
-  elemental properties python package dataset
+intent: Zenodo high entropy alloy yield strength dataset and Materials Project elemental
+  properties python package dataset
 required_fields:
-- alloy_identifier
-- element_symbols
-- element_fractions
-- yield_strength_MPa
-- processing_temperature_C
-- processing_time_s
-- phase_information
-- reference_dataset_identifier
-- validation_alloy_identifier
-- validation_element_symbols
-- validation_element_fractions
-- validation_yield_strength_MPa
-cache_key: 08eb39ed0ff7ad39c1bda36c2650208d144b3e509d6888698d73d2d7392f4cc2
-searched_at: '2026-10-29T21:09:57.978976+00:00'
+- AlloyID
+- ElementSymbol
+- AtomicFraction
+- YieldStrength_MPa
+- PhaseLabel
+- ProcessingMethod
+- TestingTemperature_K
+- ReferenceElementSymbol
+- AtomicNumber
+- AtomicRadius_pm
+- Electronegativity_Pauling
+- ValenceElectronCount
+cache_key: e7e4124a1be9453937de11eb00ecbca98677e4b8ffe9fe066ceaa99a5751c7f0
+searched_at: '2026-10-30T00:22:22.811421+00:00'
 retry_count: 1
