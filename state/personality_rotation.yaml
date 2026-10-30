@@ -1,14 +1,7 @@
 last_used: david-krakauer
-last_used_at: '2026-10-30T08:05:55.601448+00:00'
+last_used_at: '2026-10-30T12:06:06.695470+00:00'
 last_outcome: model_error
 history:
-- slug: rosalind-franklin
-  started_at: '2026-07-01T05:41:39.555187+00:00'
-  ended_at: '2026-07-01T07:41:28.572483+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-413-predicting-molecular-interactions-in-pol/reviews/research/rosalind-franklin-simulated__2026-07-01__research.md
 - slug: stephen-wolfram
   started_at: '2026-07-01T07:41:28.572483+00:00'
   ended_at: '2026-07-01T09:18:30.477803+00:00'
@@ -1264,4 +1257,8 @@ history:
 - slug: eric-kandel
   started_at: '2026-10-30T06:06:29.098418+00:00'
   ended_at: '2026-10-30T08:05:55.601448+00:00'
+  outcome: model_error
+- slug: eric-kandel
+  started_at: '2026-10-30T08:05:55.601448+00:00'
+  ended_at: '2026-10-30T12:06:06.695470+00:00'
   outcome: model_error
