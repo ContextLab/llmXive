@@ -28700,7 +28700,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-30T22:34:46.236635+00:00",
+  "generated_at": "2026-10-30T23:06:23.786303+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -108883,6 +108883,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 4.410761,
+          "ended_at": "2026-10-30T23:05:43.130397Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-30T23:05:38.719636Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 4.026045,
           "ended_at": "2026-10-30T01:07:44.577229Z",
           "model": "zai-org.glm-5.3",
@@ -108952,14 +108960,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-23T11:26:16.839938Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 17.964506,
-          "ended_at": "2026-10-23T11:26:16.836552Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-23T11:25:58.872046Z"
         }
       ],
       "paper_status": null,
@@ -175705,6 +175705,18 @@
   ],
   "recent_activity": [
     {
+      "agent": "implementer",
+      "duration_s": 4.410761,
+      "ended_at": "2026-10-30T23:05:43.130397Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-424-investigating-the-predictive-power-of-mo",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-10-30T23:05:38.719636Z"
+    },
+    {
       "agent": "planner",
       "duration_s": 316.271178,
       "ended_at": "2026-10-30T22:18:34.255496Z",
@@ -181760,18 +181772,6 @@
       "project_stage": "planned",
       "severity": "hard",
       "started_at": "2026-10-28T06:08:21.600771Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 1072.010234,
-      "ended_at": "2026-10-28T06:26:17.841434Z",
-      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-950-llmxive-follow-up-extending-tua-bench-a",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-10-28T06:08:25.831200Z"
     }
   ],
   "reviewed_preprints": [
