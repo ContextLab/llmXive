@@ -6,18 +6,31 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 ## Failing / missing run-book commands
 
+- python -c "import datasets; d = datasets.load_dataset('openai/openai_humaneval', split='test'); print(f'Loaded {len(d)} tasks')" -> rc=1
+
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-090-evaluating-the-robustness-of-llm-generat/lib/python3.11/site-packages/datasets/__init__.py", line 17, in <module>
+    from .arrow_dataset import Dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-090-evaluating-the-robustness-of-llm-generat/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 60, in <module>
+    import pyarrow as pa
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-090-evaluating-the-robustness-of-llm-generat/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+
 - python code/main.py -> rc=1
 
-2026-10-09 23:32:53,209 - llmXive.budget - INFO - Starting Budget Cap Enforcer (T029b)...
-2026-10-09 23:32:53 - llmXive.budget - INFO - Starting Budget Cap Enforcer (T029b)...
-2026-10-09 23:32:53,209 - llmXive.budget - INFO - Loading feasibility config from data/config/feasibility.json
-2026-10-09 23:32:53 - llmXive.budget - INFO - Loading feasibility config from data/config/feasibility.json
-2026-10-09 23:32:53,210 - llmXive.budget - INFO - Budget cap determined: 4 samples
-2026-10-09 23:32:53 - llmXive.budget - INFO - Budget cap determined: 4 samples
-2026-10-09 23:32:53,210 - llmXive.budget - INFO - Loading original HumanEval tasks...
-2026-10-09 23:32:53 - llmXive.budget - INFO - Loading original HumanEval tasks...
-2026-10-09 23:32:53,210 - llmXive.budget - ERROR - Data file missing: Original HumanEval data not found at data/raw/humaneval.json. Ensure T010 (download) has been executed.
-2026-10-09 23:32:53 - llmXive.budget - ERROR - Data file missing: Original HumanEval data not found at data/raw/humaneval.json. Ensure T010 (download) has been executed.
+2026-10-30 18:24:23,650 - llmXive.budget - INFO - Starting Budget Cap Enforcer (T029b)...
+2026-10-30 18:24:23 - llmXive.budget - INFO - Starting Budget Cap Enforcer (T029b)...
+2026-10-30 18:24:23,650 - llmXive.budget - INFO - Loading feasibility config from data/config/feasibility.json
+2026-10-30 18:24:23 - llmXive.budget - INFO - Loading feasibility config from data/config/feasibility.json
+2026-10-30 18:24:23,650 - llmXive.budget - INFO - Budget cap determined: 4 samples
+2026-10-30 18:24:23 - llmXive.budget - INFO - Budget cap determined: 4 samples
+2026-10-30 18:24:23,650 - llmXive.budget - INFO - Loading original HumanEval tasks...
+2026-10-30 18:24:23 - llmXive.budget - INFO - Loading original HumanEval tasks...
+2026-10-30 18:24:23,650 - llmXive.budget - ERROR - Data file missing: Original HumanEval data not found at data/raw/humaneval.json. Ensure T010 (download) has been executed.
+2026-10-30 18:24:23 - llmXive.budget - ERROR - Data file missing: Original HumanEval data not found at data/raw/humaneval.json. Ensure T010 (download) has been executed.
 
 
 ## Declared deliverables still missing

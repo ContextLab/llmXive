@@ -13,7 +13,7 @@ import sys
 from pathlib import Path
 
 try:
-    import yaml  # PyYAML
+    import yaml  # PyYAML is available in the base environment
 except ImportError as exc:
     print(
         "PyYAML is required to run this script. Install it via the project requirements.",
@@ -25,8 +25,10 @@ def _project_root() -> Path:
     """
     Return the absolute path to the project root directory.
 
-    The script lives in ``code/utils``; the project root is two levels up.
+    The script lives in ``code/utils``; the project root is three levels up:
+    code/utils/generate_perturbation_schema.py -> utils -> code -> root.
     """
+    # __file__ points to this script; parents[0]=utils, [1]=code, [2]=root
     return Path(__file__).resolve().parents[2]
 
 def main() -> None:
@@ -41,10 +43,16 @@ def main() -> None:
 
     # Load YAML safely
     with yaml_path.open("r", encoding="utf-8") as f:
-        schema_data = yaml.safe_load(f)
+        try:
+            schema_data = yaml.safe_load(f)
+        except yaml.YAMLError as e:
+            print(f"Error parsing YAML file {yaml_path}: {e}", file=sys.stderr)
+            sys.exit(1)
+
+    # Ensure the target directory exists
+    json_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Write JSON with pretty formatting
-    json_path.parent.mkdir(parents=True, exist_ok=True)
     with json_path.open("w", encoding="utf-8") as f:
         json.dump(schema_data, f, indent=2, ensure_ascii=False)
 
