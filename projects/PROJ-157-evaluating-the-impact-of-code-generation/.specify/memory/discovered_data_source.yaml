@@ -3,13 +3,14 @@ intent: Codeforces C++ reference solutions dataset python package dataset
 required_fields:
 - problem_id
 - contest_id
-- title
-- statement
-- time_limit
-- memory_limit
-- tags
-- reference_solution_code
-- language
-cache_key: 1d3983a6294a8cf0a35ca157e852c11d2efabd1ce1ce4928b310b9d0b1dfdaf4
-searched_at: '2026-10-24T21:19:28.231026+00:00'
+- problem_title
+- problem_statement
+- problem_tags
+- difficulty_rating
+- human_solution_code
+- solution_language
+- solution_id
+- submission_timestamp
+cache_key: 23ee9dff23a7e57133aecf54ad95f67a715c3d589a4a49816ebfae0a2822a25c
+searched_at: '2026-10-30T19:12:43.991414+00:00'
 retry_count: 1
