@@ -1,0 +1,7 @@
+{
+  "task_id": "T003",
+  "fingerprint": "ecfb50e89f3f1ed3ce3ecb307df7478cd2f1c395f0ba9f94adab1aad36a21872",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'src/ingest/download_loneliness.py': imports nonexistent names from sibling files: `from src.utils.logging import log_stage_end, log_stage_start` (available: Any, DEFAULT_LOG_LEVEL, Dict, JSONFormatter, LOG_FORMAT_JSON, LOG_FORMAT_TEXT, Optional, _logger...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}
