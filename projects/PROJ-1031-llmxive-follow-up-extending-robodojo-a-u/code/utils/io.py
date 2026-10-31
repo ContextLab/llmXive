@@ -14,8 +14,7 @@ failure to fetch the dataset or a checksum mismatch raises an exception,
 causing a non‑zero exit status as required by the verification step.
 
 The ``--verify-checksums`` flag performs a full stream over the entire
-real split, validating checksums for every record.  It is the CLI entry
-used by the quickstart verification step.
+real split, validating checksums for every record.
 """
 import argparse
 import json
@@ -71,7 +70,7 @@ def _load_dataset_with_fallback() -> Any:
 
     Returns:
         A ``datasets`` ``Dataset`` object with ``streaming=True``.
-    
+
     Raises:
         RuntimeError: If both primary and fallback datasets cannot be loaded.
     """

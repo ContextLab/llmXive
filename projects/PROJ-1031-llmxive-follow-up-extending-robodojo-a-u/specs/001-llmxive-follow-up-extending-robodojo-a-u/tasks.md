@@ -8,15 +8,15 @@ The following checklist implements the smallest complete study that satisfies ev
 
 ## Phase 0 – Project Setup & Tooling
 
-- [X] T001a **Install linting and formatting tools**  
+- [~] T001a **Install linting and formatting tools**  
   - **File**: `requirements.txt` – add `ruff` and `black` (pinned versions).  
   - **Verification**: After `pip install -r requirements.txt`, `ruff --version` and `black --version` succeed.
 
-- [ ] T001 **Create project‑wide configuration and environment**  
+- [~] T001 **Create project‑wide configuration and environment**  
   - **File**: `code/config.py` – defines random seeds, data paths, CPU‑memory limits, and the list of RoboDojo task IDs (18 real‑world tasks).  
   - **Verification**: Running `python -c "import code.config as cfg; assert cfg.SEED == 42"` succeeds; `cfg.TASK_IDS` contains 18 entries.
 
-- [ ] T002 **Add linting and formatting configuration** *(required – previously missing)*  
+- [~] T002 **Add linting and formatting configuration** *(required – previously missing)*  
   - **Files**: `code/pyproject.toml`, `code/.ruff.toml`, `code/.black.toml`.  
   - **Verification**: `ruff --config code/.ruff.toml .` returns no errors; `black --check code/` exits with status 0.
 
@@ -24,7 +24,7 @@ The following checklist implements the smallest complete study that satisfies ev
   - **Paths**: `data/raw/`, `data/interim/`, `data/processed/`, `data/final/`.  
   - **Verification**: `tree -d data` lists the four sub‑folders; no files are placed outside `data/`.
 
-- [ ] T004 **Add verified RoboDojo dataset download script**   <!-- FAILED-IN-EXECUTION: code/utils/io.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/utils/io.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/utils/run_io_test.sh exit=1 -->
+- [ ] T004 **Add verified RoboDojo dataset download script**   <!-- FAILED-IN-EXECUTION: code/utils/io.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/utils/io.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/utils/run_io_test.sh exit=1 --> <!-- FAILED-IN-EXECUTION: code/utils/io.py exit=1; code/utils/run_io_test.sh exit=1 -->
   - **File**: `code/utils/io.py` – uses `datasets.load_dataset("robodojo", split="real", streaming=True)` with checksum validation.  
   - **Verification**: Executing `python -m code.utils.io --test` streams at least one record and raises on any fetch error (no silent fallback).
 

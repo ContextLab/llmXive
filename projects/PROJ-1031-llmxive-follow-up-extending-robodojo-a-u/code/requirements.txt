@@ -1,6 +1,23 @@
-# Project dependencies
-# Existing dependencies are retained; add linting/formatting tools below.
+# Core scientific Python stack (already available in the base environment)
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
+statsmodels
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil
 
-# Linting and formatting tools (required for T002)
-ruff==0.6.3
-black==24.8.0
+# Additional packages required for the RoboDojo extension
+datasets>=2.0.0
+pyarrow>=12.0.0
+# The vision encoder uses torchvision; a CPU‑only version is sufficient.
+torch==2.3.0+cpu
+torchvision==0.18.0+cpu
+# Linting / formatting tools (pinned for reproducibility)
+ruff==0.4.2
+black==24.4.2

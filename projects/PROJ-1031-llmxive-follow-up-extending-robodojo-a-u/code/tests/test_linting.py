@@ -1,29 +1,29 @@
 """
-Test that the project's linting and formatting configuration passes.
+Integration test that verifies the project's linting and formatting configuration.
 
-This test runs the ruff and black commands with the project's configuration
-files and asserts that they exit with a zero status code, indicating no
-linting errors and that the code is properly formatted.
+The test runs the following commands:
+  - ruff --config code/.ruff.toml .
+  - black --check code/
+
+Both commands must exit with status code 0, indicating that there are no linting
+or formatting violations according to the repository's configuration.
 """
+
 import subprocess
 import sys
-from pathlib import Path
+import pathlib
 
 import pytest
 
-# Resolve the project root (the directory containing this test file's parent)
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
-@pytest.mark.parametrize(
-    "command, cwd, expected_returncode",
-    [
-        (["ruff", "--config", str(PROJECT_ROOT / "code" / ".ruff.toml"), "."], PROJECT_ROOT, 0),
-        (["black", "--check", str(PROJECT_ROOT / "code")], PROJECT_ROOT, 0),
-    ],
-)
-def test_linting_and_formatting(command, cwd, expected_returncode):
-    """Run the given command and ensure it exits successfully."""
-    # Use the same Python interpreter's environment to ensure the tools are found
+@pytest.fixture(scope="module")
+def project_root():
+    """Return the absolute path to the repository root (the directory containing this file's grand‑parent)."""
+    return pathlib.Path(__file__).resolve().parents[2]
+
+
+def run_command(command, cwd):
+    """Run a command via subprocess and return its CompletedProcess."""
     result = subprocess.run(
         command,
         cwd=cwd,
@@ -31,9 +31,18 @@ def test_linting_and_formatting(command, cwd, expected_returncode):
         stderr=subprocess.STDOUT,
         text=True,
     )
-    # Print output for debugging in case of failure
-    print(f"Command: {' '.join(command)}\nReturn code: {result.returncode}\nOutput:\n{result.stdout}")
-    assert result.returncode == expected_returncode, (
-        f"Command {' '.join(command)} failed with return code {result.returncode}. "
-        f"Output:\n{result.stdout}"
-    )
+    return result
+
+
+def test_ruff_lints_successfully(project_root):
+    """Ruff must finish with exit code 0."""
+    command = [sys.executable, "-m", "ruff", "--config", "code/.ruff.toml", "."]
+    result = run_command(command, cwd=project_root)
+    assert result.returncode == 0, f"Ruff failed with output:\\n{result.stdout}"
+
+
+def test_black_formats_successfully(project_root):
+    """Black must finish with exit code 0."""
+    command = [sys.executable, "-m", "black", "--check", "code/"]
+    result = run_command(command, cwd=project_root)
+    assert result.returncode == 0, f"Black failed with output:\\n{result.stdout}"

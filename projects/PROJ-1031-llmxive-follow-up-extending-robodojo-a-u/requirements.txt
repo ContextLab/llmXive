@@ -1,0 +1,18 @@
+# Existing dependencies (pinned versions where applicable)
+# Core scientific stack (already available in the environment)
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
+statsmodels
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil
+
+# Additional packages required for the RoboDojo data pipeline
+datasets==2.20.0
+pyarrow==15.0.0

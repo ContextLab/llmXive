@@ -1,55 +1,113 @@
 """
 src/config.py
-----------------
-Central configuration used by the RoboDojo symbolic‑extension pipeline.
 
-This module defines constants required by many downstream modules, including
-the dataset identifier used by the data loader, base directory helpers, and
-some generic pipeline parameters.  All values are real – the dataset identifier
-points to the publicly‑available RoboDojo dataset on HuggingFace.
+Central configuration module for the RoboDojo symbolic extension pipeline.
+This file provides constants required by multiple pipeline components
+(orchestrator, executor, planner, data loader, etc.).  All values are
+deterministic and intentionally small to keep the CPU‑only pipeline
+within the GitHub Actions free‑tier limits.
+
+The configuration mirrors the project‑wide settings defined in
+``code/config.py`` (e.g., ``SEED``) but lives in the ``src`` package so
+that internal modules can import without pulling in the higher‑level
+``code`` package (avoiding circular imports).
+
+All paths are created lazily using ``llmxive_toolkit.paths`` which
+guarantees that the corresponding directories exist.
 """
 
 import os
+from typing import List
+
 from llmxive_toolkit import paths
 
 # ----------------------------------------------------------------------
-# Dataset identifier – the public RoboDojo dataset on HuggingFace.
+# General pipeline constants
 # ----------------------------------------------------------------------
-# The dataset is hosted at https://huggingface.co/datasets/RoboDojo/robodojo
-# and contains both the simulated and real‑world task splits.
+# Project root directory (used by several modules for constructing absolute
+# paths). ``paths.root`` returns a pathlib.Path pointing at the repository
+# root.
+BASE_DIR = paths.root
+
+# Random seed – must match the one defined in ``code/config.py`` for
+# reproducibility across the whole project.
+SEED: int = 42
+
+# ----------------------------------------------------------------------
+# Planning / execution limits
+# ----------------------------------------------------------------------
+# Maximum wall‑clock time (seconds) allowed for the symbolic planner per
+# task.  The orchestrator passes this to ``run_planning_pipeline``.
+PLANNING_TIMEOUT_S: int = 60
+
+# Tolerances used by the real‑world executor to decide success.
+POSE_DEV_TOLERANCE_CM: float = 5.0    # positional deviation tolerance
+ORIENT_DEV_TOLERANCE_DEG: float = 15.0  # orientation deviation tolerance
+
+# ----------------------------------------------------------------------
+# Dataset identifiers (used by ``src/data_loader`` and ``utils/io``)
+# ----------------------------------------------------------------------
+# HuggingFace repository that hosts the official RoboDojo dataset.
+# This identifier is publicly accessible; if the repository ever becomes
+# private the fallback logic in ``utils/io.py`` will raise a clear error.
 DATASET_HF_ID: str = "RoboDojo/robodojo"
-# Optional commit hash – “latest” resolves to the most recent version.
+
+# Optional commit hash used to pin a specific dataset version.
+# Keeping the variable allows downstream code to pin the exact snapshot
+# without changing the repository name.
 DATASET_COMMIT_HASH: str = "latest"
 
 # ----------------------------------------------------------------------
-# Directory helpers – these mirror the helpers defined in the top‑level
-# `code/config.py` but are kept here for modules that import directly from
-# `src.config`.
+# Real‑world split name – the dataset provides a ``real`` split containing
+# the 18 tasks used for physical evaluation.
 # ----------------------------------------------------------------------
-RAW_DATA_DIR = paths.data("raw")
-INTERIM_DATA_DIR = paths.data("interim")
-PROCESSED_DATA_DIR = paths.data("processed")
-FINAL_DATA_DIR = paths.data("final")
-
-# Ensure the directories exist when this module is imported.
-for _dir in (RAW_DATA_DIR, INTERIM_DATA_DIR, PROCESSED_DATA_DIR, FINAL_DATA_DIR):
-    _dir.mkdir(parents=True, exist_ok=True)
-
-# ----------------------------------------------------------------------
-# Pipeline‑wide constants used by various components.
-# ----------------------------------------------------------------------
-# Base directory of the project (repository root).
-BASE_DIR = paths.root
-
-# Planning timeout (seconds) – matches the value expected by `src.main`.
-PLANNING_TIMEOUT_S: int = 60
-
-# Paths used by the Oracle executor and other modules.
-DATA_INTERIM_PATH = str(INTERIM_DATA_DIR)
-
-# Tolerances for real‑world execution (used by `src.executor`).
-POSE_DEV_TOLERANCE_CM: float = 5.0
-ORIENT_DEV_TOLERANCE_DEG: float = 15.0
-
-# The real‑world split name used by the data loader.
 REAL_WORLD_SPLIT: str = "real"
+
+# ----------------------------------------------------------------------
+# Helper for downstream modules that need a list of the 18 task IDs.
+# ----------------------------------------------------------------------
+# Import is placed inside the function to avoid importing heavy
+# dependencies (datasets) at module import time – this keeps unit‑test
+# collection fast and prevents circular imports with ``code/config.py``.
+def get_real_task_ids(limit: int = 18) -> List[str]:
+    """
+    Retrieve the first ``limit`` task identifiers from the real‑world
+    RoboDojo split.
+
+    The function streams the dataset using ``src.data_loader.stream_robodojo_tasks``
+    which performs checksum validation.  If the dataset cannot be accessed,
+    a ``RuntimeError`` is raised so that the failure is loud.
+
+    Returns
+    -------
+    List[str]
+        List of unique task identifiers (e.g., ``["T001", "T002", ...]``).
+
+    Raises
+    ------
+    RuntimeError
+        If the dataset cannot be fetched or fewer than ``limit`` IDs are
+        found.
+    """
+    from .data_loader import stream_robodojo_tasks  # Local import to avoid eager loading
+
+    task_ids: List[str] = []
+    try:
+        for record in stream_robodojo_tasks(split=REAL_WORLD_SPLIT, streaming=True):
+            tid = (
+                record.get("task_id")
+                or record.get("id")
+                or record.get("taskId")
+            )
+            if tid and tid not in task_ids:
+                task_ids.append(tid)
+                if len(task_ids) >= limit:
+                    break
+    except Exception as exc:
+        raise RuntimeError("Unable to retrieve RoboDojo real‑world task IDs") from exc
+
+    if len(task_ids) < limit:
+        raise RuntimeError(
+            f"Expected at least {limit} task IDs, but only found {len(task_ids)}"
+        )
+    return task_ids
