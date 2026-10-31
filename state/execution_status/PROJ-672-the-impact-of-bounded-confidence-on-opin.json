@@ -1,6 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-13T00:50:58Z",
-  "project_id": "PROJ-672-the-impact-of-bounded-confidence-on-opin"
+  "updated_at": "2026-10-31T15:18:35Z",
+  "project_id": "PROJ-672-the-impact-of-bounded-confidence-on-opin",
+  "replan_rounds": 1
 }

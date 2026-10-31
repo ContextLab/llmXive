@@ -1,42 +1,55 @@
 status: verified
 kind: pypi_package
 ref: networkx
-access_python: "import itertools\nimport networkx as nx\n\nrecords = []\nseeds = [42,\
-  \ 43, 44]\nprobs = [0.01, 0.05, 0.1]\n\nfor idx, (seed, p) in enumerate(itertools.product(seeds,\
-  \ probs), start=1):\n    G = nx.erdos_renyi_graph(n=500, p=p, seed=seed)\n    record\
-  \ = {\n        \"graph_id\": idx,\n        \"topology_type\": \"erdos_renyi\",\n\
-  \        \"num_nodes\": G.number_of_nodes(),\n        \"parameter_values\": p,\n\
-  \        \"random_seed\": seed,\n        \"edge_list\": list(G.edges()),\n     \
-  \   \"adjacency_dict\": nx.to_dict_of_dicts(G),\n        \"degree_distribution\"\
-  : [d for _, d in G.degree()],\n        \"average_clustering_coefficient\": nx.average_clustering(G),\n\
-  \    }\n    try:\n        record[\"average_path_length\"] = nx.average_shortest_path_length(G)\n\
-  \    except nx.NetworkXError:\n        record[\"average_path_length\"] = float(\"\
-  inf\")\n    records.append(record)\n\nprint(f\"RECORDS={len(records)}\")\nprint(\"\
-  FIELDS=\" + \",\".join(records[0].keys()) if records else \"FIELDS=\")"
-record_count: 9
+access_python: "import networkx as nx\n\ndef make_record(gid, topo, seed, n, params,\
+  \ G):\n    edge_list = list(G.edges())\n    # build adjacency matrix without numpy\n\
+  \    matrix = [[1 if j in G[i] else 0 for j in range(n)] for i in range(n)]\n  \
+  \  degrees = [d for _, d in G.degree()]\n    avg_deg = sum(degrees) / n\n    clustering\
+  \ = nx.average_clustering(G)\n    try:\n        apl = nx.average_shortest_path_length(G)\n\
+  \    except nx.NetworkXError:\n        apl = None\n    return {\n        \"graph_id\"\
+  : gid,\n        \"topology_type\": topo,\n        \"seed\": seed,\n        \"num_nodes\"\
+  : n,\n        \"parameters\": params,\n        \"edge_list\": edge_list,\n     \
+  \   \"adjacency_matrix\": matrix,\n        \"degree_distribution\": degrees,\n \
+  \       \"average_degree\": avg_deg,\n        \"clustering_coefficient\": clustering,\n\
+  \        \"average_path_length\": apl,\n    }\n\ndef generate():\n    records =\
+  \ []\n    seeds = [42, 43, 44, 45, 46]\n    # Erdos\u2011Renyi graphs\n    for i,\
+  \ seed in enumerate(seeds[:2], start=1):\n        n = 100\n        p = 0.05\n  \
+  \      G = nx.erdos_renyi_graph(n, p, seed=seed)\n        records.append(make_record(i,\
+  \ \"erdos_renyi\", seed, n, {\"p\": p}, G))\n    # Barab\xE1si\u2011Albert graphs\n\
+  \    for i, seed in enumerate(seeds[2:4], start=3):\n        n = 100\n        m\
+  \ = 3\n        G = nx.barabasi_albert_graph(n, m, seed=seed)\n        records.append(make_record(i,\
+  \ \"barabasi_albert\", seed, n, {\"m\": m}, G))\n    # Watts\u2011Strogatz graph\n\
+  \    seed = seeds[4]\n    n = 100\n    k = 4\n    p = 0.1\n    G = nx.watts_strogatz_graph(n,\
+  \ k, p, seed=seed)\n    records.append(make_record(5, \"watts_strogatz\", seed,\
+  \ n, {\"k\": k, \"p\": p}, G))\n    return records\n\nrecords = generate()\nprint(f\"\
+  RECORDS={len(records)}\")\nprint(\"FIELDS=graph_id,topology_type,seed,num_nodes,parameters,edge_list,adjacency_matrix,degree_distribution,average_degree,clustering_coefficient,average_path_length\"\
+  )"
+record_count: 5
 sample_fields:
 - graph_id
 - topology_type
+- seed
 - num_nodes
-- parameter_values
-- random_seed
+- parameters
 - edge_list
-- adjacency_dict
+- adjacency_matrix
 - degree_distribution
-- average_clustering_coefficient
+- average_degree
+- clustering_coefficient
 - average_path_length
 field_coverage: 1.0
 required_fields:
 - graph_id
 - topology_type
+- seed
 - num_nodes
-- parameter_values
-- random_seed
+- parameters
 - edge_list
 - adjacency_matrix
 - degree_distribution
-- average_clustering_coefficient
+- average_degree
+- clustering_coefficient
 - average_path_length
-intent: NetworkX synthetic graphs dataset 500 nodes Network Repository python package
-  dataset
-cache_key: e3454a9a186ef1f3470f1ad9a9a313f6d25d4356252288c23d0aa0a882b827c0
+intent: "NetworkX synthetic graph generator functions for Erd\u0151s\u2011R\xE9nyi\
+  \ Barab\xE1si\u2011Albert Watts\u2011Strogatz python package dataset"
+cache_key: 96da414c2ddda3de8b9b6e2d4df5b3b69755e85904bab88e0814fd87187a6ea1

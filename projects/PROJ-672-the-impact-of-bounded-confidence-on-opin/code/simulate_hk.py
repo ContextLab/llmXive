@@ -157,6 +157,8 @@ def _parse_args(argv: List[str] | None = None) -> argparse.Namespace:
                         help="Maximum number of HK iterations per run (default: 10 000).")
     parser.add_argument("--tol", type=float, default=1e-4,
                         help="Convergence tolerance (default: 1e‑4).")
+    parser.add_argument("--max-total-runs", type=int, default=None,
+                        help="Hard limit on total number of simulation runs (useful for quick demos).")
     return parser.parse_args(argv)
 
 def main(argv: List[str] | None = None) -> None:
@@ -181,6 +183,8 @@ def main(argv: List[str] | None = None) -> None:
     )
 
     summary_rows = []
+    run_counter = 0
+    max_total = args.max_total_runs
 
     for net_path in edgelist_files:
         topology = net_path.parent.name.upper()
@@ -192,6 +196,11 @@ def main(argv: List[str] | None = None) -> None:
 
         for epsilon in epsilons:
             for seed in range(args.seeds):
+                # Respect hard limit if set
+                if max_total is not None and run_counter >= max_total:
+                    log.info("Reached max_total_runs limit (%d); stopping early.", max_total)
+                    break
+
                 result = run_simulation(
                     G,
                     epsilon=epsilon,
@@ -231,6 +240,13 @@ def main(argv: List[str] | None = None) -> None:
                         "final_clusters": len(result["final_clusters"]),
                     }
                 )
+                run_counter += 1
+            # Break outer epsilon loop if limit reached
+            if max_total is not None and run_counter >= max_total:
+                break
+        # Break outer network loop if limit reached
+        if max_total is not None and run_counter >= max_total:
+            break
 
     # Write summary CSV
     import pandas as pd

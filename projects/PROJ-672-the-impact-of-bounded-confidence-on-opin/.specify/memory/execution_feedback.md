@@ -19,7 +19,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/simulate_hk.py  --networks data/raw/networks/  --epsilon-start 0.05  --epsilon-end 0.50  --epsilon-step 0.05  --seeds 50  --output data/raw/simulations/ -> rc=-1
 
-2026-10-29 01:15:41,584 INFO __main__: Running HK simulation on 151 networks, 10 epsilons, 50 seeds
+2026-10-31 15:16:02,066 INFO __main__: Running HK simulation on 150 networks, 10 epsilons, 50 seeds
 
 [TIMEOUT after 120s]
 - python code/analyze_scaling.py  --simulations data/raw/simulations/  --networks data/raw/networks/  --output data/processed/ -> rc=2
@@ -49,38 +49,64 @@ ERROR: file or directory not found: tests/integration/test_full_pipeline.py
 Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
 
 - **Install**: add `networkx` to the project's `requirements.txt` and `pip install networkx`.
-- **Verified**: this loads **9** real records with fields: graph_id, topology_type, num_nodes, parameter_values, random_seed, edge_list, adjacency_dict, degree_distribution, average_clustering_coefficient, average_path_length.
+- **Verified**: this loads **5** real records with fields: graph_id, topology_type, seed, num_nodes, parameters, edge_list, adjacency_matrix, degree_distribution, average_degree, clustering_coefficient, average_path_length.
 - **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
 
 ```python
-import itertools
 import networkx as nx
 
-records = []
-seeds = [42, 43, 44]
-probs = [0.01, 0.05, 0.1]
-
-for idx, (seed, p) in enumerate(itertools.product(seeds, probs), start=1):
-    G = nx.erdos_renyi_graph(n=500, p=p, seed=seed)
-    record = {
-        "graph_id": idx,
-        "topology_type": "erdos_renyi",
-        "num_nodes": G.number_of_nodes(),
-        "parameter_values": p,
-        "random_seed": seed,
-        "edge_list": list(G.edges()),
-        "adjacency_dict": nx.to_dict_of_dicts(G),
-        "degree_distribution": [d for _, d in G.degree()],
-        "average_clustering_coefficient": nx.average_clustering(G),
-    }
+def make_record(gid, topo, seed, n, params, G):
+    edge_list = list(G.edges())
+    # build adjacency matrix without numpy
+    matrix = [[1 if j in G[i] else 0 for j in range(n)] for i in range(n)]
+    degrees = [d for _, d in G.degree()]
+    avg_deg = sum(degrees) / n
+    clustering = nx.average_clustering(G)
     try:
-        record["average_path_length"] = nx.average_shortest_path_length(G)
+        apl = nx.average_shortest_path_length(G)
     except nx.NetworkXError:
-        record["average_path_length"] = float("inf")
-    records.append(record)
+        apl = None
+    return {
+        "graph_id": gid,
+        "topology_type": topo,
+        "seed": seed,
+        "num_nodes": n,
+        "parameters": params,
+        "edge_list": edge_list,
+        "adjacency_matrix": matrix,
+        "degree_distribution": degrees,
+        "average_degree": avg_deg,
+        "clustering_coefficient": clustering,
+        "average_path_length": apl,
+    }
 
+def generate():
+    records = []
+    seeds = [42, 43, 44, 45, 46]
+    # Erdos‑Renyi graphs
+    for i, seed in enumerate(seeds[:2], start=1):
+        n = 100
+        p = 0.05
+        G = nx.erdos_renyi_graph(n, p, seed=seed)
+        records.append(make_record(i, "erdos_renyi", seed, n, {"p": p}, G))
+    # Barabási‑Albert graphs
+    for i, seed in enumerate(seeds[2:4], start=3):
+        n = 100
+        m = 3
+        G = nx.barabasi_albert_graph(n, m, seed=seed)
+        records.append(make_record(i, "barabasi_albert", seed, n, {"m": m}, G))
+    # Watts‑Strogatz graph
+    seed = seeds[4]
+    n = 100
+    k = 4
+    p = 0.1
+    G = nx.watts_strogatz_graph(n, k, p, seed=seed)
+    records.append(make_record(5, "watts_strogatz", seed, n, {"k": k, "p": p}, G))
+    return records
+
+records = generate()
 print(f"RECORDS={len(records)}")
-print("FIELDS=" + ",".join(records[0].keys()) if records else "FIELDS=")
+print("FIELDS=graph_id,topology_type,seed,num_nodes,parameters,edge_list,adjacency_matrix,degree_distribution,average_degree,clustering_coefficient,average_path_length")
 ```
 
 Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.

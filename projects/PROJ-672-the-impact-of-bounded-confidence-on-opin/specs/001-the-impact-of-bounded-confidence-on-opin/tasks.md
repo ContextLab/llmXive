@@ -59,7 +59,7 @@
 | Goal | Run the Hegselmann‑Krause model across all networks, sweep ε, record convergence times, and handle non‑convergence. |
 |------|-----------------------------------------------------------------------------------------------|
 
-- [ ] T008 [US2] **Implement HK update rule & convergence detector** – `code/simulate_hk.py` provides `run_simulation(network, epsilon, seed, max_iter=10000, tol=1e-4)` and returns a dict with `convergence_time`, `status`, `final_clusters`.   <!-- FAILED-IN-EXECUTION: code/simulate_hk.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/simulate_hk.py exit=2 --> <!-- FAILED-IN-EXECUTION: code/simulate_hk.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/simulate_hk.py exit=2 -->
+- [ ] T008 [US2] **Implement HK update rule & convergence detector** – `code/simulate_hk.py` provides `run_simulation(network, epsilon, seed, max_iter=10000, tol=1e-4)` and returns a dict with `convergence_time`, `status`, `final_clusters`.   <!-- FAILED-IN-EXECUTION: code/simulate_hk.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/simulate_hk.py exit=2 --> <!-- FAILED-IN-EXECUTION: code/simulate_hk.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/simulate_hk.py exit=2 --> <!-- FAILED-IN-EXECUTION: code/run_simulation_demo.py exit=1 -->
   - **File**: `code/simulate_hk.py` (plus `code/utils/convergence.py`)  
   - **Verification**: Unit test `tests/unit/test_hk_logic.py` on a 50‑node random graph asserts:
     1. `status == "converged"` and `convergence_time <= 200` when ε=0.2;
