@@ -1,12 +1,7 @@
 last_used: geoffrey-west
-last_used_at: '2026-10-31T14:05:54.299823+00:00'
+last_used_at: '2026-10-31T16:06:09.695325+00:00'
 last_outcome: model_error
 history:
-- slug: freeman-dyson
-  started_at: '2026-07-01T22:36:09.926604+00:00'
-  ended_at: '2026-07-02T03:12:29.732378+00:00'
-  outcome: target_missing
-  action: comment
 - slug: freeman-dyson
   started_at: '2026-07-02T03:12:29.732378+00:00'
   ended_at: '2026-07-02T05:26:36.945912+00:00'
@@ -1243,4 +1238,8 @@ history:
 - slug: john-von-neumann
   started_at: '2026-10-31T12:06:09.241556+00:00'
   ended_at: '2026-10-31T14:05:54.299823+00:00'
+  outcome: model_error
+- slug: john-von-neumann
+  started_at: '2026-10-31T14:05:54.299823+00:00'
+  ended_at: '2026-10-31T16:06:09.695325+00:00'
   outcome: model_error
