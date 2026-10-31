@@ -1,24 +1,11 @@
-status: verified
-kind: pypi_package
-ref: ir-datasets
-access_python: "import ir_datasets\n\nds = ir_datasets.load('msmarco-passage/dev')\n\
-  records = [{\n    'query_id': q.query_id,\n    'query_text': q.text,\n    'plan_depth':\
-  \ None,\n    'source_type': 'MSMARCO',\n    'latency_ms': None\n} for q in ds.queries]\n\
-  \nprint(f'RECORDS={len(records)}')\nprint('FIELDS=query_id,query_text,plan_depth,source_type,latency_ms')"
-record_count: 101093
-sample_fields:
-- query_id
-- query_text
-- plan_depth
-- source_type
-- latency_ms
-field_coverage: 1.0
+status: none
+intent: LDBC SNB and TPC-H query latency benchmark python package dataset
 required_fields:
 - query_id
 - query_text
 - plan_depth
 - source_type
 - latency_ms
-intent: download LDBC SNB, TPC-H, and MSMARCO query workloads with plan depth metadata
-  python package dataset
-cache_key: 18b26e2e223f000d4a950da53c46f06f28c3dd6e644d5e7ac38783d159a8b401
+cache_key: f9a3fe854a55073804928a7ebe1abd3c3a7d7dccda92acadfc2dbda68a19cc52
+searched_at: '2026-10-31T09:08:46.858373+00:00'
+retry_count: 1
