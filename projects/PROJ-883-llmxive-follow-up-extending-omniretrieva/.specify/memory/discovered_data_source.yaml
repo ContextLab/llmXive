@@ -1,11 +1,12 @@
 status: none
-intent: LDBC SNB WatDiv LUBM TPC-H TPC-DS Graph500 query workload python package dataset
+intent: LDBC SNB Interactive workload query set plan depth csv download GitHub python
+  package dataset
 required_fields:
 - query_id
 - query_text
-- depth
+- plan_depth
 - source_type
 - latency_ms
-cache_key: a79273d89c85978c9ef732926dd85f1c2744d05bff40a9c90d57e0d1aae8be09
-searched_at: '2026-10-31T10:06:28.462121+00:00'
+cache_key: e6cdb6af85ec393b7f7c5000a3b69f302c15ba20e4513a5f9e499ac297494f42
+searched_at: '2026-10-31T17:07:32.010692+00:00'
 retry_count: 1
