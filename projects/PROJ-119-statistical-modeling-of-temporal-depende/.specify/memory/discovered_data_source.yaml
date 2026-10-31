@@ -1,32 +1,14 @@
-status: verified
-kind: pypi_package
-ref: pycoingecko
-access_python: 'from pycoingecko import CoinGeckoAPI
-
-
-  cg = CoinGeckoAPI()
-
-  # Fetch OHLC data for Bitcoin (USD) for the last 30 days
-
-  data = cg.get_coin_ohlc_by_id(id=''bitcoin'', vs_currency=''usd'', days=30)
-
-  # data is a list of [timestamp, open, high, low, close]
-
-  records = len(data)
-
-  print(f"RECORDS={records}")
-
-  print("FIELDS=timestamp,open,high,low,close")'
-record_count: 180
-sample_fields:
-- timestamp
+status: none
+intent: CoinGecko API daily OHLCV BTC ETH dataset HuggingFace tner/btc python package
+  dataset
+required_fields:
+- date
 - open
 - high
 - low
 - close
-field_coverage: 0.5
-required_fields:
-- date
-- close
-intent: CoinGecko API Bitcoin Ethereum OHLCV dataset tner/btc python package dataset
-cache_key: 65460e9d7bf57e1fdde7a97e6c95d95c9eb80042004605dd898d41b766c8316c
+- volume
+- asset
+cache_key: c8d78f88aeba397434bf06838fdac599b11f05b3500d62728707dd2ea3b83251
+searched_at: '2026-10-31T22:08:20.399112+00:00'
+retry_count: 1
