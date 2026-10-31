@@ -28700,7 +28700,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-31T11:14:42.398715+00:00",
+  "generated_at": "2026-10-31T12:06:45.566932+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -86609,6 +86609,14 @@
       "keywords": [],
       "last_run_log": [
         {
+          "agent": "personality",
+          "duration_s": 14.524238,
+          "ended_at": "2026-10-31T12:06:09.241556+00:00",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "model_error",
+          "started_at": "2026-10-31T12:05:54.717318+00:00"
+        },
+        {
           "agent": "planner",
           "duration_s": 190.209423,
           "ended_at": "2026-10-31T06:17:42.614849Z",
@@ -86679,14 +86687,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-15T12:32:56.763503Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 40.172933,
-          "ended_at": "2026-10-15T12:32:56.759984Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-15T12:32:16.587051Z"
         }
       ],
       "paper_status": null,
@@ -125763,6 +125763,14 @@
       "keywords": [],
       "last_run_log": [
         {
+          "agent": "planner",
+          "duration_s": 275.71099,
+          "ended_at": "2026-10-31T11:10:34.711917Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-31T11:05:59.000927Z"
+        },
+        {
           "agent": "clarifier",
           "duration_s": 815.306282,
           "ended_at": "2026-10-25T00:56:43.960583Z",
@@ -125833,14 +125841,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-20T01:19:50.624785Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 27.314705,
-          "ended_at": "2026-10-20T00:12:09.606798Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-20T00:11:42.292093Z"
         }
       ],
       "paper_status": null,
@@ -175721,6 +175721,33 @@
   ],
   "recent_activity": [
     {
+      "agent": "personality",
+      "display_name": "John von Neumann (simulated)",
+      "duration_s": 14.524238,
+      "ended_at": "2026-10-31T12:06:09.241556+00:00",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "model_kind": "personality_simulator",
+      "outcome": "model_error",
+      "personality_slug": "john-von-neumann",
+      "project_id": "PROJ-293-predicting-the-impact-of-laser-surface-t",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-10-31T12:05:54.717318+00:00"
+    },
+    {
+      "agent": "planner",
+      "duration_s": 275.71099,
+      "ended_at": "2026-10-31T11:10:34.711917Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-524-the-impact-of-nostalgia-on-cognitive-fle",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-10-31T11:05:59.000927Z"
+    },
+    {
       "agent": "implementer",
       "duration_s": 3.168046,
       "ended_at": "2026-10-31T11:06:27.111911Z",
@@ -181764,33 +181791,6 @@
       "project_stage": "in_progress",
       "severity": "hard",
       "started_at": "2026-10-28T20:08:47.954502Z"
-    },
-    {
-      "agent": "personality",
-      "display_name": "Stephen Wolfram (simulated)",
-      "duration_s": 2.463146,
-      "ended_at": "2026-10-28T20:07:53.260810+00:00",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "model_kind": "personality_simulator",
-      "outcome": "abstained",
-      "personality_slug": "stephen-wolfram",
-      "project_id": "PROJ-880-llmxive-follow-up-extending-your-unembed",
-      "project_stage": "tasked",
-      "severity": "soft",
-      "started_at": "2026-10-28T20:07:50.797664+00:00"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 3.687295,
-      "ended_at": "2026-10-28T19:32:28.622926Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-918-llmxive-follow-up-extending-agentic-abst",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-10-28T19:32:24.935631Z"
     }
   ],
   "reviewed_preprints": [
