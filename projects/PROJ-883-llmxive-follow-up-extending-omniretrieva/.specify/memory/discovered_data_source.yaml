@@ -1,11 +1,11 @@
 status: none
-intent: LDBC SNB and TPC-H query latency benchmark python package dataset
+intent: LDBC SNB WatDiv LUBM TPC-H TPC-DS Graph500 query workload python package dataset
 required_fields:
 - query_id
 - query_text
-- plan_depth
+- depth
 - source_type
 - latency_ms
-cache_key: f9a3fe854a55073804928a7ebe1abd3c3a7d7dccda92acadfc2dbda68a19cc52
-searched_at: '2026-10-31T09:08:46.858373+00:00'
+cache_key: a79273d89c85978c9ef732926dd85f1c2744d05bff40a9c90d57e0d1aae8be09
+searched_at: '2026-10-31T10:06:28.462121+00:00'
 retry_count: 1
