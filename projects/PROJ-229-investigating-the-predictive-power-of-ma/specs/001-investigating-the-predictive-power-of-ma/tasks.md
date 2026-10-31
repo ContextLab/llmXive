@@ -8,7 +8,7 @@ The checklist follows the platform’s canonical format. Each task states the fu
 
 ## Phase 0 – Contracts & infrastructure (fulfills Constitution I)
 
-- [ ] T001 [P] Add and version all JSON‑schema contracts required by the pipeline, **including** `contracts/target_decision.schema.yaml`.  
+- [~] T001 [P] Add and version all JSON‑schema contracts required by the pipeline, **including** `contracts/target_decision.schema.yaml`.  
   *Path*: `contracts/dataset.schema.yaml`, `contracts/material_compound.schema.yaml`, `contracts/model_result.schema.yaml`, `contracts/target_decision.schema.yaml`, `contracts/validation_result.schema.yaml`  
   *Verification*: `tests/contract/test_all_schemas.py` loads each schema and validates a representative example file; the suite fails if any schema is missing, malformed, or does not match the specification.  
 
