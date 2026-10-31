@@ -28700,7 +28700,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-31T00:06:22.907617+00:00",
+  "generated_at": "2026-10-31T00:09:57.468999+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -74223,7 +74223,7 @@
           ]
         },
         {
-          "contributions": 81,
+          "contributions": 82,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -74253,6 +74253,14 @@
       "id": "PROJ-229-investigating-the-predictive-power-of-ma",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 3512.342922,
+          "ended_at": "2026-10-31T00:04:44.850790Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-30T23:06:12.507868Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 3475.9317,
@@ -74324,14 +74332,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "failed",
           "started_at": "2026-10-07T20:09:11.521946Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 37.060735,
-          "ended_at": "2026-10-03T22:49:51.445711Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-03T22:49:14.384976Z"
         }
       ],
       "paper_status": null,
@@ -90654,6 +90654,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 4.154484,
+          "ended_at": "2026-10-31T00:09:15.842629Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-31T00:09:11.688145Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 3.940241,
           "ended_at": "2026-10-30T02:07:33.258295Z",
           "model": "zai-org.glm-5.3",
@@ -90723,14 +90731,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-10-27T04:09:25.234293Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 24.825906,
-          "ended_at": "2026-10-23T16:42:34.594357Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-23T16:42:09.768451Z"
         }
       ],
       "paper_status": null,
@@ -175705,6 +175705,18 @@
   ],
   "recent_activity": [
     {
+      "agent": "implementer",
+      "duration_s": 4.154484,
+      "ended_at": "2026-10-31T00:09:15.842629Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-317-the-impact-of-visual-detail-on-false-mem",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-10-31T00:09:11.688145Z"
+    },
+    {
       "agent": "personality",
       "display_name": "Freeman Dyson (simulated)",
       "duration_s": 10.784615,
@@ -175718,6 +175730,18 @@
       "project_stage": "clarified",
       "severity": "hard",
       "started_at": "2026-10-31T00:05:49.590212+00:00"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 3512.342922,
+      "ended_at": "2026-10-31T00:04:44.850790Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-229-investigating-the-predictive-power-of-ma",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-30T23:06:12.507868Z"
     },
     {
       "agent": "clarifier",
@@ -181751,30 +181775,6 @@
       "project_stage": "planned",
       "severity": "hard",
       "started_at": "2026-10-28T07:08:13.260389Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 1079.214463,
-      "ended_at": "2026-10-28T07:25:54.616538Z",
-      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-200-the-impact-of-incidental-music-on-autobi",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-10-28T07:07:55.402075Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 1078.797027,
-      "ended_at": "2026-10-28T07:25:42.409532Z",
-      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-424-investigating-the-predictive-power-of-mo",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-10-28T07:07:43.612505Z"
     }
   ],
   "reviewed_preprints": [
