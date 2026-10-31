@@ -122,7 +122,6 @@ def fetch_hcp_data(subject_id: str) -> Path:
     target_dir.mkdir(parents=True, exist_ok=True)
 
     # Base URL for the OpenNeuro HCP S1200 dataset
-    # Removed /versions/1.0.0/ as it caused 404s in previous runs
     base_url = "https://openneuro.org/crn/datasets/ds003189/files"
 
     # Expected relative paths inside the BIDS hierarchy
@@ -140,14 +139,15 @@ def fetch_hcp_data(subject_id: str) -> Path:
                         f.write(chunk)
         log.info(f"Finished downloading {dest.name}")
 
-    # Download fMRI file
-    fmri_url = f"{base_url}/{fmri_rel_path}"
-    fmri_dest = target_dir / Path(fmri_rel_path).name
-    _download(fmri_url, fmri_dest)
+    # Append download query parameter required by OpenNeuro to trigger raw file download
+    fmri_url = f"{base_url}/{fmri_rel_path}?download=1"
+    behav_url = f"{base_url}/{behav_rel_path}?download=1"
 
-    # Download behavioral JSON
-    behav_url = f"{base_url}/{behav_rel_path}"
+    fmri_dest = target_dir / Path(fmri_rel_path).name
     behav_dest = target_dir / Path(behav_rel_path).name
+
+    # Perform downloads (will raise if HTTP error)
+    _download(fmri_url, fmri_dest)
     _download(behav_url, behav_dest)
 
     # Verify CAQ availability immediately after download

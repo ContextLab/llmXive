@@ -27,22 +27,22 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 Starting Brain Dynamics and Creativity Pipeline...
 CRITICAL ERROR: Behavioral JSON file not found in raw data.
 
-2026-10-18 15:50:56,569 INFO root: Pipeline execution started.
-2026-10-18 15:50:56,569 ERROR root: CRITICAL ERROR: Behavioral JSON file not found in raw data.
+2026-10-31 07:07:07,155 INFO root: Pipeline execution started.
+2026-10-31 07:07:07,156 ERROR root: CRITICAL ERROR: Behavioral JSON file not found in raw data.
 
 - python code/main.py --window-length 30 --permutations 10000 -> rc=1
 Starting Brain Dynamics and Creativity Pipeline...
 CRITICAL ERROR: Behavioral JSON file not found in raw data.
 
-2026-10-18 15:50:56,976 INFO root: Pipeline execution started.
-2026-10-18 15:50:56,977 ERROR root: CRITICAL ERROR: Behavioral JSON file not found in raw data.
+2026-10-31 07:07:07,482 INFO root: Pipeline execution started.
+2026-10-31 07:07:07,482 ERROR root: CRITICAL ERROR: Behavioral JSON file not found in raw data.
 
 - python code/main.py --sweep-windows -> rc=1
 Starting Brain Dynamics and Creativity Pipeline...
 CRITICAL ERROR: Behavioral JSON file not found in raw data.
 
-2026-10-18 15:50:57,383 INFO root: Pipeline execution started.
-2026-10-18 15:50:57,383 ERROR root: CRITICAL ERROR: Behavioral JSON file not found in raw data.
+2026-10-31 07:07:07,804 INFO root: Pipeline execution started.
+2026-10-31 07:07:07,804 ERROR root: CRITICAL ERROR: Behavioral JSON file not found in raw data.
 
 
 ## Declared deliverables still missing

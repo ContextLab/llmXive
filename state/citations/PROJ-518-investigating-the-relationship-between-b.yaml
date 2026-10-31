@@ -20,7 +20,7 @@
   verification_status: verified
   verified_against_url: https://openneuro.org/datasets/ds000224/versions/1.0.0/file_display/ds000224/phenotype/
   verified_at: '2026-06-30T18:45:29.900929Z'
-- artifact_hash: 84a293f1c48875595fe6e5ff8b950baa68d42d33ffaa62b083b896ef662d9ade
+- artifact_hash: 2092efcac3b730eea2a5987d7339e10b3a3b3bf7e0519458b7ab4d4e19c76ffe
   artifact_path: projects/PROJ-518-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,4 +30,4 @@
   value: https://openneuro.org/datasets/ds003189`
   verification_status: pending
   verified_against_url: https://openneuro.org/datasets/ds003189
-  verified_at: '2026-10-18T15:50:55.864775Z'
+  verified_at: '2026-10-31T07:07:06.637073Z'

@@ -1,12 +1,14 @@
 status: none
-intent: Human Connectome Project OpenNeuro ds000224 resting-state fMRI CAQ divergent
-  thinking python package dataset
+intent: download HCP S1200 resting state fMRI OpenNeuro ds000224 CAQ scores python
+  package dataset
 required_fields:
-- resting-state fMRI
-- CAQ score
+- subject_id
+- run
+- rfMRI_file_path
+- caq_total_score
 - age
 - sex
 - education
-cache_key: 10e30cd5d76e0fd526bdf0e0408821b798c93faac89750954b5877f351e904ac
-searched_at: '2026-10-18T15:53:12.701721+00:00'
+cache_key: d3dcc654e14db559c18bb09be796857922ec7e2a3356494ac3844f401ddfc339
+searched_at: '2026-10-31T07:07:48.010558+00:00'
 retry_count: 1
