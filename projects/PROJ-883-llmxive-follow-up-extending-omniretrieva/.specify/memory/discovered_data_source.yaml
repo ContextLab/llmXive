@@ -1,12 +1,11 @@
 status: none
-intent: LDBC SNB Interactive workload query set plan depth csv download GitHub python
-  package dataset
+intent: LDBC Social Network Benchmark query latency dataset python package dataset
 required_fields:
 - query_id
 - query_text
 - plan_depth
 - source_type
 - latency_ms
-cache_key: e6cdb6af85ec393b7f7c5000a3b69f302c15ba20e4513a5f9e499ac297494f42
-searched_at: '2026-10-31T17:07:32.010692+00:00'
+cache_key: 5331f2cbfd5d0e79681d7ef13534970bbe3a36e57b774b49b84b5ddfb410d675
+searched_at: '2026-10-31T23:08:32.880646+00:00'
 retry_count: 1
