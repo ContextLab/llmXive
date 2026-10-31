@@ -1,14 +1,7 @@
-last_used: freeman-dyson
-last_used_at: '2026-10-31T04:06:50.792698+00:00'
-last_outcome: model_error
+last_used: geoffrey-west
+last_used_at: '2026-10-31T06:05:33.936736+00:00'
+last_outcome: abstained
 history:
-- slug: daniel-kahneman
-  started_at: '2026-07-01T16:54:28.048837+00:00'
-  ended_at: '2026-07-01T18:48:31.315055+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-239-evaluating-the-statistical-significance-/reviews/research/daniel-kahneman-simulated__2026-07-01__research.md
 - slug: david-krakauer
   started_at: '2026-07-01T18:48:31.315055+00:00'
   ended_at: '2026-07-01T20:41:54.656859+00:00'
@@ -1251,3 +1244,7 @@ history:
   started_at: '2026-10-31T02:06:13.414525+00:00'
   ended_at: '2026-10-31T04:06:50.792698+00:00'
   outcome: model_error
+- slug: geoffrey-west
+  started_at: '2026-10-31T04:06:50.792698+00:00'
+  ended_at: '2026-10-31T06:05:33.936736+00:00'
+  outcome: abstained
