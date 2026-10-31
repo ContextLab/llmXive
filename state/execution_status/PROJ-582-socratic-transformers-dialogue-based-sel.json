@@ -1,6 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-29T05:14:13Z",
-  "project_id": "PROJ-582-socratic-transformers-dialogue-based-sel"
+  "updated_at": "2026-10-31T02:11:19Z",
+  "project_id": "PROJ-582-socratic-transformers-dialogue-based-sel",
+  "replan_rounds": 1
 }

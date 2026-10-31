@@ -1,13 +1,14 @@
 status: none
-intent: Self-Refine dataset critique revised answer SocraticQA Evol-Instruct python
+intent: SocraticQA Self-Refine Evol-Instruct critique dialogue QA dataset pip python
   package dataset
 required_fields:
 - question
 - answer
 - critique
 - revised_answer
+- condition
+- tuple_type
 - source_dataset
-- split
-cache_key: ce77cdd6f6b06304285fe0a665b3ea4539f9d4bcdc49af57b052459f20d6369b
-searched_at: '2026-10-29T08:13:56.786555+00:00'
+cache_key: 4f323baa81f96d571f8f63c9eaa112fb78ebc04bd13c65bdddd34c546b1280f7
+searched_at: '2026-10-31T02:11:18.553509+00:00'
 retry_count: 1
