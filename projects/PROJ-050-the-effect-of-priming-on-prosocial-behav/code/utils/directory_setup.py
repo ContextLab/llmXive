@@ -1,64 +1,85 @@
 """
-Directory setup utility for the llmXive research pipeline.
-Creates the required data directory structure as per task T004.
+Utility module to create the required data directory structure for the project.
+
+This module defines the list of required directories and provides a function
+to create them under the project root. It also creates the legacy ``results``
+directory as well as the newer ``data/results`` directory required by the
+specification and tests.
 """
-import logging
+
 import sys
 from pathlib import Path
-from code.config import PROJECT_ROOT
-from code.utils.logger import setup_logger
 
+from llmxive_toolkit import paths, get_logger
 
-def create_directory_structure(logger: logging.Logger) -> bool:
+# ----------------------------------------------------------------------
+# Project root (can be monkey‑patched in tests)
+# ----------------------------------------------------------------------
+PROJECT_ROOT: Path = paths.root
+
+# ----------------------------------------------------------------------
+# Required directories (as strings relative to PROJECT_ROOT)
+# ----------------------------------------------------------------------
+# The test suite expects the following entries:
+#   - "data/raw"
+#   - "data/processed"
+#   - "data/validation"
+#   - "results"               (legacy top‑level folder)
+REQUIRED_DIRS = [
+    "data/raw",
+    "data/processed",
+    "data/validation",
+    "results",
+]
+
+def create_directory_structure(logger: None | object = None) -> bool:
     """
-    Creates the required data directory structure:
-    - data/raw/
-    - data/processed/
-    - data/validation/
-    - results/
+    Create the directory hierarchy defined in ``REQUIRED_DIRS`` and also
+    ``data/results`` (the new location for result artefacts).
 
-    Args:
-        logger: The logger instance to use for logging.
+    Parameters
+    ----------
+    logger : optional
+        A ``logging.Logger`` instance. If ``None`` the module‑level
+        ``get_logger`` is used.
 
-    Returns:
-        True if all directories were created successfully, False otherwise.
+    Returns
+    -------
+    bool
+        ``True`` if all directories were created (or already existed);
+        ``False`` otherwise.
     """
-    # Define the directories to create relative to PROJECT_ROOT
-    directories = [
-        "data/raw",
-        "data/processed",
-        "data/validation",
-        "results",
-    ]
+    if logger is None:
+        logger = get_logger(__name__)
 
     success = True
-    for dir_path_str in directories:
-        dir_path = PROJECT_ROOT / dir_path_str
+
+    # Create each required directory
+    for rel_path in REQUIRED_DIRS:
+        dir_path = PROJECT_ROOT / rel_path
         try:
-            if not dir_path.exists():
-                dir_path.mkdir(parents=True, exist_ok=True)
-                logger.info(f"Created directory: {dir_path}")
-            else:
-                logger.debug(f"Directory already exists: {dir_path}")
-        except OSError as e:
-            logger.error(f"Failed to create directory {dir_path}: {e}")
+            dir_path.mkdir(parents=True, exist_ok=True)
+            logger.info("Created directory %s", dir_path)
+        except Exception as exc:  # pragma: no cover – unexpected OS errors
+            logger.error("Failed to create %s: %s", dir_path, exc)
             success = False
+
+    # Ensure the newer ``data/results`` location exists as well
+    data_results_path = PROJECT_ROOT / "data" / "results"
+    try:
+        data_results_path.mkdir(parents=True, exist_ok=True)
+        logger.info("Created directory %s", data_results_path)
+    except Exception as exc:  # pragma: no cover
+        logger.error("Failed to create %s: %s", data_results_path, exc)
+        success = False
 
     return success
 
-
 def main() -> None:
-    """Main entry point for directory setup."""
-    logger = setup_logger()
-    logger.info("Starting directory structure setup...")
-
-    if create_directory_structure(logger):
-        logger.info("Directory structure setup completed successfully.")
-        sys.exit(0)
-    else:
-        logger.error("Directory structure setup failed.")
+    """
+    CLI entry point. Exits with a non‑zero status code if any directory
+    could not be created.
+    """
+    logger = get_logger(__name__)
+    if not create_directory_structure(logger):
         sys.exit(1)
-
-
-if __name__ == "__main__":
-    main()

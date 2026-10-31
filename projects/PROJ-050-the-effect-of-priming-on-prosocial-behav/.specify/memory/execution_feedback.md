@@ -35,8 +35,8 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 datasets.exceptions.DatasetNotFoundError: Dataset 'pushshift/reddit' doesn't exist on the Hub or cannot be accessed. If the dataset is private or gated, make sure to log in with `huggingface-cli login` or visit the dataset page at https://huggingface.co/datasets/pushshift/reddit to ask for access.
 
 - python code/01_ingest.py -> rc=1
-2026-10-19 14:46:36 - ingest_feasibility - INFO - === Starting T015b: Feasibility Check for FR-002c ===
-2026-10-19 14:46:36 - ingest_feasibility - ERROR - Feasibility check failed: get_logger() missing 1 required positional argument: 'name'
+2026-10-31 07:07:39 - ingest_feasibility - INFO - === Starting T015b: Feasibility Check for FR-002c ===
+2026-10-31 07:07:39 - ingest_feasibility - ERROR - Feasibility check failed: get_logger() missing 1 required positional argument: 'name'
 
 
 - python code/02_score.py -> rc=1
@@ -57,8 +57,8 @@ TypeError: log_abort_condition() missing 2 required positional arguments: 'reaso
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-050-the-effect-of-priming-on-prosocial-behav/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/code/04_analyze.py': [Errno 2] No such file or directory
 
 - python -m pytest tests/unit/ -> rc=2
-RS
-E   ImportError: cannot import name 'REQUIRED_DIRS' from 'code.utils.directory_setup' (/home/runner/work/llmXive/llmXive/projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/code/utils/directory_setup.py)
+ers, paths
+E   ImportError: cannot import name 'paths' from 'code.create_data_folders' (/home/runner/work/llmXive/llmXive/projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/code/create_data_folders.py)
 ______________ ERROR collecting tests/unit/test_power_analysis.py ______________
 ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/tests/unit/test_power_analysis.py'.
 Hint: make sure your test modules/packages have valid Python names.
@@ -69,10 +69,10 @@ tests/unit/test_power_analysis.py:18: in <module>
     import code._00_power_analysis as power_module
 E   ModuleNotFoundError: No module named 'code._00_power_analysis'
 =========================== short test summary info ============================
-ERROR tests/unit/test_directory_setup.py
+ERROR tests/unit/test_create_data_folders.py
 ERROR tests/unit/test_power_analysis.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 0.63s ===============================
+============================== 2 errors in 0.90s ===============================
 
 
 

@@ -1,88 +1,49 @@
 """
-create_data_folders.py
+Script to create the project's data folders.
 
-Script to create the required data directory structure for the project:
-- data/raw/
-- data/processed/
-- data/validation/
-- data/results/      (under the ``data`` folder)
-- results/           (legacy top‑level results folder used by some existing scripts)
-
-The script uses the llmxive_toolkit `paths` helper which creates the parent
-directories automatically when constructing a Path. We explicitly call
-``mkdir`` with ``parents=True`` and ``exist_ok=True`` to make the operation
-idempotent.
-
-It can be run directly (`python code/create_data_folders.py`) or imported
-and the ``create_folders`` function called from tests or other code.
+This script is the public entry‑point used by the pipeline and the test
+suite. It delegates the actual creation work to
+``code.utils.directory_setup.create_directory_structure`` and returns a
+list of the primary Path objects for convenience.
 """
 
+import sys
 from pathlib import Path
-from llmxive_toolkit import paths, get_logger
 
-log = get_logger(__name__)
-
-def _ensure_dir(p: Path) -> Path:
-    """
-    Ensure that the directory ``p`` exists.
-
-    Parameters
-    ----------
-    p : Path
-        Directory path to create.
-
-    Returns
-    -------
-    Path
-        The same Path instance (for convenience).
-    """
-    try:
-        p.mkdir(parents=True, exist_ok=True)
-        log.info(f"Created/verified directory: {p}")
-    except Exception as exc:
-        log.error(f"Failed to create directory {p}: {exc}")
-        raise
-    return p
+from llmxive_toolkit import get_logger
+from code.utils.directory_setup import create_directory_structure, PROJECT_ROOT
 
 def create_folders() -> list[Path]:
     """
-    Create the required data directories (including the legacy ``results/``).
+    Create the required data folders and return their Path objects.
 
     Returns
     -------
     list[Path]
-        List of the directory Paths that were created or verified.
-        The returned list matches the set expected by the unit test
-        (raw, processed, validation, and the top‑level ``results`` folder).
-        The ``data/results`` folder is also created as a side‑effect but
-        intentionally not returned, because the existing test checks for
-        the legacy location only.
+        Paths for ``data/raw``, ``data/processed``, ``data/validation``,
+        and the legacy top‑level ``results`` directory.
     """
-    # Directories that the test expects to be returned
-    return_dirs = [
-        paths.data("raw"),
-        paths.data("processed"),
-        paths.data("validation"),
-        paths.results(""),  # legacy top‑level results folder
-    ]
+    logger = get_logger(__name__)
+    if not create_directory_structure(logger):
+        logger.error("Directory creation failed")
+        sys.exit(1)
 
-    # Create the expected directories
-    created = [_ensure_dir(d) for d in return_dirs]
+    # Use the llmxive ``paths`` helpers for consistency with the rest of
+    # the codebase. They automatically create the parent directories.
+    from llmxive_toolkit import paths  # local import to avoid circularity
 
-    # Additionally ensure the ``data/results`` folder exists (required by the task)
-    # but do not include it in the returned list to keep test expectations unchanged.
-    _ensure_dir(paths.data("results"))
+    raw_path = paths.data("raw")
+    processed_path = paths.data("processed")
+    validation_path = paths.data("validation")
+    results_path = paths.results()  # legacy top‑level folder
 
-    return created
+    return [raw_path, processed_path, validation_path, results_path]
 
 def main() -> None:
     """
-    Entry point for the script when executed from the command line.
+    CLI entry point – simply invoke ``create_folders``.
     """
-    created_dirs = create_folders()
-    log.info("Data directory structure ready.")
-    for d in created_dirs:
-        log.debug(f"Directory: {d}")
+    create_folders()
 
 if __name__ == "__main__":
     main()
