@@ -8,10 +8,10 @@ The checklist implements a reproducible end‑to‑end pipeline that respects al
 
 ## Phase 0️⃣ – Resource Guardrails & Reproducibility  
 
-- [ ] T001 Configure CI timeout – Add `timeout-minutes: 360` to `.github/workflows/ci.yml` to enforce a hard 6‑hour limit on the entire workflow.   <!-- FAILED-IN-EXECUTION: code/ingest.py exit=1 -->
+- [ ] T001 Configure CI timeout – Add `timeout-minutes: 360` to `.github/workflows/ci.yml` to enforce a hard 6‑hour limit on the entire workflow.   <!-- FAILED-IN-EXECUTION: code/ingest.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/ingest.py exit=1 -->
   - **Verification**: CI logs contain `Job timed out after 6 hours` when the limit is hit; otherwise the job completes normally.  
 
-- [X] T002 Implement pre‑run size check – In `code/utils.py` compute the total size of `data/raw/`.  
+- [~] T002 Implement pre‑run size check – In `code/utils.py` compute the total size of `data/raw/`.  
   *If size > 7 GB, set mode to `"streaming"` and log `resource_guard: mode=streaming`; else set mode to `"full"` and log `resource_guard: mode=full`.*  
   - **Verification**: `outputs/logs/guard_log.txt` contains the chosen mode; downstream scripts read this flag before loading data.  
 

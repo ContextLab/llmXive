@@ -20,7 +20,7 @@
   verification_status: pending
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/64a1c9f90d99521d90bda5ab/1f644aeca22ddbc282e8ec0b66215818838783811fb4c1b3fb99dd6937d8a28e?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27everything-00000-of-00009-42e3f6f9da399cf0.parquet%3B+filename%3D%22everything-00000-of-00009-42e3f6f9da399cf0.parquet%22%3B&user_id=public&xip=xijShU64asU&X-Xet-Cas-Uid=public&Expires=1791781921&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjRhMWM5ZjkwZDk5NTIxZDkwYmRhNWFiLzFmNjQ0YWVjYTIyZGRiYzI4MmU4ZWMwYjY2MjE1ODE4ODM4NzgzODExZmI0YzFiM2ZiOTlkZDY5MzdkOGEyOGVcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZXZlcnl0aGluZy0wMDAwMC1vZi0wMDAwOS00MmUzZjZmOWRhMzk5Y2YwLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJldmVyeXRoaW5nLTAwMDAwLW9mLTAwMDA5LTQyZTNmNmY5ZGEzOTljZjAucGFycXVldCUyMiUzQiZ1c2VyX2lkPXB1YmxpYyZ4aXA9eGlqU2hVNjRhc1UmWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc5MTc4MTkyMX19fV19&Signature=MEYCIQDh7DJknNpLhHTgOsK6CQcIJlh3mrlHKGLVeU7Ixf99vAIhAO0dHPBMPl6G7knQBwJEJjaB6Lul%7EkDvs69n3Me1MMhU&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
   verified_at: '2026-10-12T04:11:58.801918Z'
-- artifact_hash: ac71a5689b036e2b73af9d835e4e7cd54551aa25a8f4e12d7e3b6e20a47453ed
+- artifact_hash: e69b5d5b9f662cbe57fa3e068bca92717b42f48a6829f1749bf85abb719d0e80
   artifact_path: projects/PROJ-323-predicting-glass-transition-temperature-/specs/001-predicting-glass-transition-temperature/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,8 +30,8 @@
   value: https://polymergenome.org/api/v1/tg_dataset.csv`
   verification_status: mismatch
   verified_against_url: https://polymergenome.org/api/v1/tg_dataset.csv
-  verified_at: '2026-10-20T17:41:22.595811Z'
-- artifact_hash: ac71a5689b036e2b73af9d835e4e7cd54551aa25a8f4e12d7e3b6e20a47453ed
+  verified_at: '2026-10-31T03:07:58.873773Z'
+- artifact_hash: e69b5d5b9f662cbe57fa3e068bca92717b42f48a6829f1749bf85abb719d0e80
   artifact_path: projects/PROJ-323-predicting-glass-transition-temperature-/specs/001-predicting-glass-transition-temperature/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -41,8 +41,8 @@
   value: https://webbook.nist.gov/cgi/cgi2/chemistry/chemistry-download?type=tg&format=csv`
   verification_status: mismatch
   verified_against_url: https://webbook.nist.gov/cgi/cgi2/chemistry/chemistry-download?type=tg&format=csv
-  verified_at: '2026-10-20T17:41:22.595811Z'
-- artifact_hash: ac71a5689b036e2b73af9d835e4e7cd54551aa25a8f4e12d7e3b6e20a47453ed
+  verified_at: '2026-10-31T03:07:58.873773Z'
+- artifact_hash: e69b5d5b9f662cbe57fa3e068bca92717b42f48a6829f1749bf85abb719d0e80
   artifact_path: projects/PROJ-323-predicting-glass-transition-temperature-/specs/001-predicting-glass-transition-temperature/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -52,8 +52,8 @@
   value: https://doi.org/10.1021/acs.jcim.0c00523/fragment_contributions.csv`
   verification_status: mismatch
   verified_against_url: https://doi.org/10.1021/acs.jcim.0c00523/fragment_contributions.csv
-  verified_at: '2026-10-20T17:41:22.595811Z'
-- artifact_hash: ac71a5689b036e2b73af9d835e4e7cd54551aa25a8f4e12d7e3b6e20a47453ed
+  verified_at: '2026-10-31T03:07:58.873773Z'
+- artifact_hash: e69b5d5b9f662cbe57fa3e068bca92717b42f48a6829f1749bf85abb719d0e80
   artifact_path: projects/PROJ-323-predicting-glass-transition-temperature-/specs/001-predicting-glass-transition-temperature/tasks.md
   cite_id: c-004
   cited_authors: []
@@ -63,8 +63,8 @@
   value: https://doi.org/10.1016/j.polymer.2021.123456/wlf_constants.csv`
   verification_status: mismatch
   verified_against_url: https://doi.org/10.1016/j.polymer.2021.123456/wlf_constants.csv
-  verified_at: '2026-10-20T17:41:22.595811Z'
-- artifact_hash: ac71a5689b036e2b73af9d835e4e7cd54551aa25a8f4e12d7e3b6e20a47453ed
+  verified_at: '2026-10-31T03:07:58.873773Z'
+- artifact_hash: e69b5d5b9f662cbe57fa3e068bca92717b42f48a6829f1749bf85abb719d0e80
   artifact_path: projects/PROJ-323-predicting-glass-transition-temperature-/specs/001-predicting-glass-transition-temperature/tasks.md
   cite_id: c-005
   cited_authors: []
@@ -74,8 +74,8 @@
   value: 10.1021/acs.jcim.0c00523/fragment_contributions.csv
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.1021/acs.jcim.0c00523/fragment_contributions.csv
-  verified_at: '2026-10-20T17:41:22.595811Z'
-- artifact_hash: ac71a5689b036e2b73af9d835e4e7cd54551aa25a8f4e12d7e3b6e20a47453ed
+  verified_at: '2026-10-31T03:07:58.873773Z'
+- artifact_hash: e69b5d5b9f662cbe57fa3e068bca92717b42f48a6829f1749bf85abb719d0e80
   artifact_path: projects/PROJ-323-predicting-glass-transition-temperature-/specs/001-predicting-glass-transition-temperature/tasks.md
   cite_id: c-006
   cited_authors: []
@@ -85,4 +85,4 @@
   value: 10.1016/j.polymer.2021.123456/wlf_constants.csv
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.1016/j.polymer.2021.123456/wlf_constants.csv
-  verified_at: '2026-10-20T17:41:22.595811Z'
+  verified_at: '2026-10-31T03:07:58.873773Z'

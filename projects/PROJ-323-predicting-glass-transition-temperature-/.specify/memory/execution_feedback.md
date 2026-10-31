@@ -7,21 +7,8 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m code.ingest --check -> rc=1
-ive/llmXive/projects/PROJ-323-predicting-glass-transition-temperature-/code/ingest.py", line 52, in _main
-    _verify_checksums()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-323-predicting-glass-transition-temperature-/code/ingest.py", line 47, in _verify_checksums
-    original_verify()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-323-predicting-glass-transition-temperature-/code/ingest.py", line 47, in _verify_checksums
-    original_verify()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-323-predicting-glass-transition-temperature-/code/ingest.py", line 47, in _verify_checksums
-    original_verify()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-323-predicting-glass-transition-temperature-/code/ingest.py", line 47, in _verify_checksums
-    original_verify()
-  [Previous line repeated 989 more times]
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-323-predicting-glass-transition-temperature-/code/ingest.py", line 45, in _verify_checksums
-    from .ingest import _verify_checksums as original_verify
-  File "<frozen importlib._bootstrap>", line 409, in parent
-RecursionError: maximum recursion depth exceeded while calling a Python object
+
+2026-10-31 03:08:00,304 ERROR __main__: Checksums file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-323-predicting-glass-transition-temperature-/data/checksums.json
 
 - python -m pytest -m contract -> rc=5
 ======================
@@ -40,7 +27,7 @@ tests/test_memory_usage.py:20
     @pytest.mark.timeout(300)
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-====================== 7 deselected, 2 warnings in 0.24s =======================
+====================== 7 deselected, 2 warnings in 0.30s =======================
 
 
 
