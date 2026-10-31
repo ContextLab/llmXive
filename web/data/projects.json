@@ -28700,7 +28700,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-31T18:18:50.569068+00:00",
+  "generated_at": "2026-10-31T18:35:01.740357+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -96182,6 +96182,14 @@
       "last_run_log": [
         {
           "agent": "project_initializer",
+          "duration_s": 2.90434,
+          "ended_at": "2026-10-31T18:14:02.227985Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-31T18:13:59.323645Z"
+        },
+        {
+          "agent": "project_initializer",
           "duration_s": 4.040003,
           "ended_at": "2026-10-30T21:12:54.606014Z",
           "model": "zai-org.glm-5.3",
@@ -96251,14 +96259,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-08-03T22:10:37.528878Z"
-        },
-        {
-          "agent": "flesh_out",
-          "duration_s": 66.233957,
-          "ended_at": "2026-08-03T22:10:37.415588Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-08-03T22:09:31.181631Z"
         }
       ],
       "paper_status": null,
@@ -175721,6 +175721,18 @@
   ],
   "recent_activity": [
     {
+      "agent": "project_initializer",
+      "duration_s": 2.90434,
+      "ended_at": "2026-10-31T18:14:02.227985Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-348-exploring-the-validity-of-the-weak-equiv",
+      "project_stage": "validated",
+      "severity": "hard",
+      "started_at": "2026-10-31T18:13:59.323645Z"
+    },
+    {
       "agent": "planner",
       "duration_s": 110.797661,
       "ended_at": "2026-10-31T18:08:08.621436Z",
@@ -181782,18 +181794,6 @@
       "project_stage": "clarified",
       "severity": "ok",
       "started_at": "2026-10-29T01:11:47.151796Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 69.690008,
-      "ended_at": "2026-10-29T01:11:47.147629Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-320-evaluating-the-impact-of-code-generation",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-29T01:10:37.457621Z"
     }
   ],
   "reviewed_preprints": [
