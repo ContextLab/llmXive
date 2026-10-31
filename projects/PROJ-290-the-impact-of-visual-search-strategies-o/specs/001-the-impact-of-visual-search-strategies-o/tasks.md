@@ -6,7 +6,7 @@
 ## Phase 0 – Project scaffolding (already completed)
 
 - [~] T001 Establish the project directory layout (`projects/PROJ-290-the-impact-of-visual-search-strategies-o/`) and create core files (`code/__init__.py`, `requirements.txt`, `pyproject.toml`, `README.md`, `code/config.py`).  
-- [X] T002 Set up logging infrastructure (`code/utils/logging.py`) with file handlers for `logs/`.  
+- [~] T002 Set up logging infrastructure (`code/utils/logging.py`) with file handlers for `logs/`.  
 - [~] T003 Implement `code/utils/hash_artifacts.py` to generate SHA‑256 hashes for all files under `data/` and `code/` (Constitution Principle V).  
 - [~] T035 Implement `code/validation/reference_validator.py` to enforce citation‑title overlap ≥ 0.7.  
 
@@ -14,7 +14,7 @@
 
 ## Phase 1 – Data acquisition & verification (User Story 1 – P1)
 
-- [ ] T010 [US1] **Download eye‑tracking dataset**   <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 -->
+- [ ] T010 [US1] **Download eye‑tracking dataset**   <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 -->
   *Implement `code/data/download.py` to search HuggingFace Datasets for a dataset containing `gaze_coordinates`, `response_times`, `emotion_labels` (e.g., `eyetracking-emotion-face-search`).*  
   • Apply retry logic with exponential back‑off (1 s, 2 s, 4 s) and abort after 3 attempts (FR‑002).  
   • Save the raw archive under `data/raw/` and write a SHA‑256 checksum to `data/raw/checksum.txt`.  

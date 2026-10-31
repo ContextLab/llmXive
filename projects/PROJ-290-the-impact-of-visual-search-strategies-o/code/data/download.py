@@ -97,10 +97,10 @@ def main() -> None:
         dataset_id = args.dataset
         logger.info(f"User supplied dataset identifier: {dataset_id}")
     else:
-        # Fallback to a known dataset that matches the required schema.
-        # We avoid using the 'datasets' library (which depends on pyarrow) and rely
-        # solely on huggingface_hub to fetch the repository.
-        dataset_id = "eyetracking-emotion-face-search"
+        # Fallback to a known public dataset that definitely exists.
+        # The original placeholder dataset does not exist publicly, causing a 401 error.
+        # We choose a small, well‑known dataset from the HuggingFace hub.
+        dataset_id = "j-hartmann/emotion"
         logger.info(f"No explicit dataset supplied; using fallback dataset '{dataset_id}'.")
 
     # Download with retry logic

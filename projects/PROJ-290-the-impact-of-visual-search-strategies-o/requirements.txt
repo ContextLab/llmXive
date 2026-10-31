@@ -1,8 +1,4 @@
-# Existing dependencies are pre‑installed (numpy, pandas, scipy, matplotlib, scikit-learn,
-# statsmodels, seaborn, pytest, PyYAML, requests, jsonschema, psutil).
-# Add any additional third‑party packages required by the project below.
-
+# Project dependencies
+# Existing dependencies (numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests, jsonschema, psutil) are pre‑installed in the runner.
+# Add the HuggingFace Hub library required for dataset download.
 huggingface_hub>=0.23.0
-# Note: The 'datasets' library is intentionally omitted because it depends on pyarrow,
-# which requires NumPy 2.x and is unavailable in the execution environment. All
-# dataset interactions are performed via huggingface_hub snapshot_download.

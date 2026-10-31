@@ -7,16 +7,16 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/data/download.py --dataset <dataset-name> -> rc=1
-.py", line 89, in _inner_fn
+s/_validators.py", line 89, in _inner_fn
     return fn(*args, **kwargs)
            ^^^^^^^^^^^^^^^^^^^
   File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-290-the-impact-of-visual-search-strategies-o/lib/python3.11/site-packages/huggingface_hub/hf_api.py", line 3285, in dataset_info
     hf_raise_for_status(r)
   File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-290-the-impact-of-visual-search-strategies-o/lib/python3.11/site-packages/huggingface_hub/utils/_http.py", line 953, in hf_raise_for_status
     raise _format(RepositoryNotFoundError, message, response, repo_type=repo_type, repo_id=repo_id) from e
-huggingface_hub.errors.RepositoryNotFoundError: 401 Client Error. (Request ID: Root=1-6ae506e3-39e53bf500fd4c871fbdd8f7;9e03715a-4268-4d31-b874-9d1e8bc6063d)
+huggingface_hub.errors.RepositoryNotFoundError: 401 Client Error. (Request ID: Root=1-6ae53f39-5979f8ac714689835c415a51;6fd8a8e2-138b-47db-9d35-219ce5f6697e)
 
-Repository Not Found for url: https://huggingface.co/api/datasets/eyetracking-emotion-face-search/revision/main.
+Repository Not Found for url: https://huggingface.co/api/datasets/j-hartmann/emotion/revision/main.
 Please make sure you specified the correct `repo_id` and `repo_type`.
 If you are trying to access a private or gated repo, make sure you are authenticated and your token has the required permissions.
 For more details, see https://huggingface.co/docs/huggingface_hub/authentication
@@ -24,7 +24,8 @@ Invalid username or password.
 
 - python code/data/validate.py -> rc=1
 
-Failed to load dataset: No module named 'datasets'
+2026-10-31 01:07:05 - data.validate - INFO - Starting dataset validation (T012)...
+2026-10-31 01:07:05 - data.validate - ERROR - Failed to load dataset: No module named 'datasets'
 
 - python code/features/classification.py -> rc=1
 ocessed_features(logger)
@@ -46,7 +47,8 @@ AttributeError: 'Config' object has no attribute 'PROCESSED_FEATURES_PATH'
 
 - python code/analysis/lmm.py -> rc=1
 
-Processed features file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-290-the-impact-of-visual-search-strategies-o/data/processed/features.csv. Run feature extraction tasks first.
+2026-10-31 01:07:07 - __main__ - INFO - Loading processed features from /home/runner/work/llmXive/llmXive/projects/PROJ-290-the-impact-of-visual-search-strategies-o/data/processed/features.csv
+2026-10-31 01:07:07 - __main__ - ERROR - Processed features file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-290-the-impact-of-visual-search-strategies-o/data/processed/features.csv. Run feature extraction tasks first.
 
 
 ## Declared deliverables still missing
