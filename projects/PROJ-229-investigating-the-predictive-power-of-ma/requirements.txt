@@ -1,8 +1,13 @@
-# Project dependencies (additions for T002)
-mp-api>=0.32.0
-datasets>=2.19.0
-pyarrow>=15.0.0
-# Existing dependencies are already provided by the platform:
-# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
-# seaborn, pytest, PyYAML, requests, jsonschema, psutil, llmxive_toolkit
-# No version pins needed for those as they are part of the base environment.
+# Project dependencies
+pymatgen==2024.5.1
+torch==2.2.0
+scikit-learn==1.5.0
+xgboost==2.0.3
+shap==0.45.0
+pysr==0.14.0
+datasets==2.19.0
+pandas==2.2.2
+numpy==1.26.4
+pyyaml==6.0.1
+pyarrow==15.0.0
+# Core libraries already available in the environment are omitted

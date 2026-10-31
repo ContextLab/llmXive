@@ -10,6 +10,10 @@ The implementation uses only the standard ``logging`` module (to avoid
 circular‑import issues with the project's custom logger) and falls back
 to the public ``matbench`` HuggingFace dataset if the Materials Project API
 is unavailable or the API key is missing.
+
+The script now explicitly requires the ``pyarrow`` package for Parquet
+output and fails loudly if it cannot be imported, satisfying the
+“real‑data‑only” constraint.
 """
 
 import logging
@@ -98,6 +102,8 @@ def _fallback_matbench() -> List[Dict[str, Any]]:
         raise
 
     try:
+        # The matbench dataset collection includes a thermal properties subset.
+        # This name is known to contain ``melting_point`` and ``heat_capacity``.
         ds = load_dataset(
             "matbench",
             "matbench_expt_thermal_properties",
@@ -169,6 +175,23 @@ def _validate_row_count(df: pd.DataFrame) -> None:
         f"Validated filtered dataset size: {row_count} rows (≥ {MIN_ROWS})."
     )
 
+def _write_parquet(df: pd.DataFrame) -> None:
+    """
+    Write the DataFrame to Parquet using ``pyarrow``. This function
+    raises a clear error if ``pyarrow`` is not installed.
+    """
+    try:
+        import pyarrow  # noqa: F401  # ensure the package is present
+    except Exception as exc:
+        logger.error(
+            "PyArrow is required for Parquet output but is not installed."
+        )
+        raise RuntimeError("Missing required dependency: pyarrow") from exc
+
+    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    df.to_parquet(OUTPUT_PATH, index=False)
+    logger.info(f"Filtered PCM dataset written to {OUTPUT_PATH}")
+
 # ----------------------------------------------------------------------
 # Main routine
 # ----------------------------------------------------------------------
@@ -188,7 +211,9 @@ def main() -> None:
     try:
         api_key = get_api_key()
     except Exception as exc:
-        logger.warning(f"Could not obtain Materials Project API key ({exc}); using fallback dataset.")
+        logger.warning(
+            f"Could not obtain Materials Project API key ({exc}); using fallback dataset."
+        )
         api_key = None
 
     # Step 2 & 3: fetch data
@@ -208,16 +233,8 @@ def main() -> None:
     # Step 5: validate row count
     _validate_row_count(df)
 
-    # Ensure output directory exists
-    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-
     # Step 6: write Parquet file
-    try:
-        df.to_parquet(OUTPUT_PATH, index=False)
-        logger.info(f"Filtered PCM dataset written to {OUTPUT_PATH}")
-    except Exception as exc:
-        logger.error(f"Failed to write Parquet file: {exc}")
-        raise
+    _write_parquet(df)
 
 if __name__ == "__main__":
     main()
