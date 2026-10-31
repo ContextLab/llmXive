@@ -1,13 +1,17 @@
 status: none
-intent: download Codeforces C++ reference solution dataset and HuggingFace model hub
-  python package dataset
+intent: Codeforces C++ benchmark paired with CodeLlama-7B-Instruct and StarCoder-15B
+  LLM variants HuggingFace python package dataset
 required_fields:
 - problem_id
-- contest_id
 - problem_name
 - problem_url
-- human_solution_code
+- difficulty_rating
+- tags
 - language
-cache_key: d43e5b2468e192ca8b3cb3bd780fc1a1886acef22ae6e1748db0990256190db8
-searched_at: '2026-10-31T08:10:37.091178+00:00'
+- human_solution_code
+- llm_model_name
+- llm_generated_code
+- generation_timestamp
+cache_key: e670297478252d28daa8341b4a7bff383fb55335afaf718b8f1a3676f7c39fe4
+searched_at: '2026-10-31T16:10:22.600224+00:00'
 retry_count: 1
