@@ -3,24 +3,18 @@ fetch_materials.py
 
 This script streams the Materials Project dataset, filters for entries that
 have both melting point and heat capacity data, computes minimal descriptor
-fields required by ``contracts/dataset.schema.yaml`` and writes the result
+fields required by `contracts/dataset.schema.yaml` and writes the result
 as a Parquet file.
 
-The implementation uses only the standard ``logging`` module (to avoid
-circular‑import issues with the project's custom logger) and falls back
-to the public ``matbench`` HuggingFace dataset if the Materials Project API
+The implementation uses only the standard `logging` module (to avoid
+circular-import issues with the project's custom logger) and falls back
+to the public `matbench` HuggingFace dataset if the Materials Project API
 is unavailable or the API key is missing.
-
-The script now:
-* Generates a synthetic ``material_id`` when the source does not provide one.
-* Guarantees that ``pyarrow`` is present for Parquet output (declared in
-  ``requirements.txt``).
-* Raises clear errors on any failure (no silent synthetic data).
 """
 
 import logging
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, Iterable, List
 
 import pandas as pd
 from pymatgen.core import Composition
@@ -33,7 +27,7 @@ from config import get_api_key
 MIN_ROWS = 5_000  # minimum number of records required after filtering
 OUTPUT_PATH = Path("data/raw/pcm.parquet")
 
-# Set up a simple module‑level logger
+# Set up a simple module-level logger
 logger = logging.getLogger(__name__)
 if not logger.handlers:
     handler = logging.StreamHandler()
@@ -47,20 +41,11 @@ if not logger.handlers:
 # ----------------------------------------------------------------------
 # Helper functions
 # ----------------------------------------------------------------------
-def _fetch_from_mp_api(api_key: str) -> List[Dict[str, Any]]:
+def _fetch_from_mp_api(api_key: str) -> Iterable[Dict[str, Any]]:
     """
     Query the Materials Project REST API for a broad set of materials
     including the required thermodynamic properties.
-
-    Parameters
-    ----------
-    api_key : str
-        The Materials Project API key.
-
-    Returns
-    -------
-    List[Dict[str, Any]]
-        A list of material dictionaries returned by the API.
+    Returns a generator to avoid loading the entire dataset into memory.
     """
     try:
         from mp_api.client import MaterialsProjectRestClient
@@ -78,24 +63,22 @@ def _fetch_from_mp_api(api_key: str) -> List[Dict[str, Any]]:
     ]
 
     try:
+        # Use the context manager to ensure the client is closed
         with MaterialsProjectRestClient(api_key) as client:
             logger.info("Requesting materials from Materials Project ...")
-            records = list(
-                client.query(
-                    criteria={},  # no filter – get everything
-                    properties=properties,
-                )
+            # client.query returns a generator
+            yield from client.query(
+                criteria={},  # no filter – get everything
+                properties=properties,
             )
-            logger.info(f"Retrieved {len(records)} raw records from MP.")
-            return records
     except Exception as exc:
         logger.error(f"Materials Project query failed: {exc}")
         raise
 
-def _fallback_matbench() -> List[Dict[str, Any]]:
+def _fallback_matbench() -> Iterable[Dict[str, Any]]:
     """
-    Load a verified matbench dataset as a fallback source. The selected
-    subset contains the required thermodynamic fields.
+    Load a verified matbench dataset as a fallback source.
+    Returns an iterator over the records.
     """
     try:
         from datasets import load_dataset
@@ -104,27 +87,28 @@ def _fallback_matbench() -> List[Dict[str, Any]]:
         raise
 
     try:
-        # The matbench collection includes a thermal‑properties subset.
+        # The matbench collection includes a thermal-properties subset.
         ds = load_dataset(
             "matbench",
             "matbench_expt_thermal_properties",
             split="train",
         )
-        records = [dict(row) for row in ds]
-        logger.info(f"Loaded {len(records)} records from matbench fallback.")
-        return records
+        logger.info(f"Loaded records from matbench fallback.")
+        yield from ds
     except Exception as exc:
         logger.error(f"Failed to load matbench fallback dataset: {exc}")
         raise
 
-def _filter_and_enrich(records: List[Dict[str, Any]]) -> pd.DataFrame:
+def _filter_and_enrich(records: Iterable[Dict[str, Any]]) -> pd.DataFrame:
     """
     Keep only records that have both melting point and heat capacity,
-    compute ``elemental_count`` from the formula and reshape the data to
-    match ``contracts/dataset.schema.yaml``.
+    compute `elemental_count` from the formula and reshape the data to
+    match `contracts/dataset.schema.yaml`.
     """
     filtered: List[Dict[str, Any]] = []
+    
     for idx, rec in enumerate(records):
+        # Filter for entries that have both melting point and heat capacity
         mp = rec.get("melting_point")
         hc = rec.get("heat_capacity")
         if mp is None or hc is None:
@@ -146,12 +130,13 @@ def _filter_and_enrich(records: List[Dict[str, Any]]) -> pd.DataFrame:
         if not material_id:
             material_id = f"fallback_{idx}"
 
+        # Construct the record to exactly match contracts/dataset.schema.yaml
         enriched = {
-            "material_id": material_id,
-            "composition": formula,
-            "elemental_count": elemental_count,
-            "formation_energy": rec.get("formation_energy_per_atom", 0.0),
-            "density": rec.get("density", float("nan")),
+            "material_id": str(material_id),
+            "composition": str(formula),
+            "elemental_count": int(elemental_count),
+            "formation_energy": float(rec.get("formation_energy_per_atom", 0.0)),
+            "density": float(rec.get("density", float("nan"))),
             # Placeholder empty feature vectors; later steps will fill them.
             "elemental_features": [],
             "graph_features": [],
@@ -163,12 +148,11 @@ def _filter_and_enrich(records: List[Dict[str, Any]]) -> pd.DataFrame:
             "No records with both melting point and heat capacity were found."
         )
 
-    df = pd.DataFrame(filtered)
-    return df
+    return pd.DataFrame(filtered)
 
 def _validate_row_count(df: pd.DataFrame) -> None:
     """
-    Ensure the filtered dataset meets the minimum row‑count requirement.
+    Ensure the filtered dataset meets the minimum row-count requirement.
     """
     row_count = len(df)
     if row_count < MIN_ROWS:
@@ -176,20 +160,17 @@ def _validate_row_count(df: pd.DataFrame) -> None:
             f"Insufficient filtered records: {row_count} < required {MIN_ROWS}"
         )
     logger.info(
-        f"Validated filtered dataset size: {row_count} rows (≥ {MIN_ROWS})."
+        f"Validated filtered dataset size: {row_count} rows (>= {MIN_ROWS})."
     )
 
 def _write_parquet(df: pd.DataFrame) -> None:
     """
-    Write the DataFrame to Parquet using ``pyarrow``. This function
-    raises a clear error if ``pyarrow`` is not installed.
+    Write the DataFrame to Parquet using `pyarrow`.
     """
     try:
-        import pyarrow  # noqa: F401  # ensure the package is present
-    except Exception as exc:
-        logger.error(
-            "PyArrow is required for Parquet output but is not installed."
-        )
+        import pyarrow
+    except ImportError as exc:
+        logger.error("PyArrow is required for Parquet output but is not installed.")
         raise RuntimeError("Missing required dependency: pyarrow") from exc
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -202,14 +183,6 @@ def _write_parquet(df: pd.DataFrame) -> None:
 def main() -> None:
     """
     Entry point for the script.
-
-    Steps:
-    1. Retrieve an API key from the configuration.
-    2. Attempt to fetch the full dataset from Materials Project.
-    3. On any failure, fall back to the public matbench dataset.
-    4. Filter for entries with both melting point and heat capacity.
-    5. Validate that at least ``MIN_ROWS`` records remain.
-    6. Write the resulting DataFrame to ``data/raw/pcm.parquet``.
     """
     # Step 1: obtain API key; if missing, trigger fallback immediately.
     try:
@@ -220,19 +193,19 @@ def main() -> None:
         )
         api_key = None
 
-    # Step 2 & 3: fetch data
+    # Step 2 & 3: fetch data (using generators to stay within memory limits)
     if api_key:
         try:
-            raw_records = _fetch_from_mp_api(api_key)
-            logger.info("Successfully fetched data from Materials Project.")
+            raw_records_gen = _fetch_from_mp_api(api_key)
+            logger.info("Successfully initialized fetch from Materials Project.")
         except Exception:
             logger.warning("Primary MP fetch failed; attempting matbench fallback.")
-            raw_records = _fallback_matbench()
+            raw_records_gen = _fallback_matbench()
     else:
-        raw_records = _fallback_matbench()
+        raw_records_gen = _fallback_matbench()
 
-    # Step 4: filter and enrich
-    df = _filter_and_enrich(raw_records)
+    # Step 4: filter and enrich (consumes the generator)
+    df = _filter_and_enrich(raw_records_gen)
 
     # Step 5: validate row count
     _validate_row_count(df)
