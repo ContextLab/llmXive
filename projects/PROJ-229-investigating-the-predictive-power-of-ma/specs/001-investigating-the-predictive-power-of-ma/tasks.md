@@ -20,7 +20,7 @@ The checklist follows the platform’s canonical format. Each task states the fu
   *Path*: `code/data/fetch_materials.py` → `data/raw/pcm.parquet`  
   *Verification*: `tests/unit/test_fetch_materials.py` checks that the parquet file exists, contains ≥ 5 000 rows, conforms to `contracts/dataset.schema.yaml`, and never exceeds 7 GB RAM (monitored via `psutil`).  
 
-- [ ] T003 [P] [US‑1] Download crystal‑structure CIFs for the compounds listed in `pcm.parquet` from the Open Materials Database (OMDB) HuggingFace dataset.  
+- [ ] T003 [P] [US‑1] Download crystal‑structure CIFs for the compounds listed in `pcm.parquet` from the Open Materials Database (OMDB) HuggingFace dataset.   <!-- FAILED-IN-EXECUTION: code/data/fetch_omdb_structures.py exit=1 -->
   *Path*: `code/data/fetch_omdb_structures.py` → `data/raw/omdb_structures/` (one CIF per `material_id`).  
   *Verification*: `tests/integration/test_fetch_omdb.py` confirms that ≥ 80 % of the material IDs have a corresponding CIF and that the script raises an error (no synthetic fallback) if the remote fetch fails.  
 

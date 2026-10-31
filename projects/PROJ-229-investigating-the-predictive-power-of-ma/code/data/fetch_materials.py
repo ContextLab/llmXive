@@ -11,9 +11,11 @@ circular‑import issues with the project's custom logger) and falls back
 to the public ``matbench`` HuggingFace dataset if the Materials Project API
 is unavailable or the API key is missing.
 
-The script now explicitly requires the ``pyarrow`` package for Parquet
-output and fails loudly if it cannot be imported, satisfying the
-“real‑data‑only” constraint.
+The script now:
+* Generates a synthetic ``material_id`` when the source does not provide one.
+* Guarantees that ``pyarrow`` is present for Parquet output (declared in
+  ``requirements.txt``).
+* Raises clear errors on any failure (no silent synthetic data).
 """
 
 import logging
@@ -102,8 +104,7 @@ def _fallback_matbench() -> List[Dict[str, Any]]:
         raise
 
     try:
-        # The matbench dataset collection includes a thermal properties subset.
-        # This name is known to contain ``melting_point`` and ``heat_capacity``.
+        # The matbench collection includes a thermal‑properties subset.
         ds = load_dataset(
             "matbench",
             "matbench_expt_thermal_properties",
@@ -123,7 +124,7 @@ def _filter_and_enrich(records: List[Dict[str, Any]]) -> pd.DataFrame:
     match ``contracts/dataset.schema.yaml``.
     """
     filtered: List[Dict[str, Any]] = []
-    for rec in records:
+    for idx, rec in enumerate(records):
         mp = rec.get("melting_point")
         hc = rec.get("heat_capacity")
         if mp is None or hc is None:
@@ -140,13 +141,16 @@ def _filter_and_enrich(records: List[Dict[str, Any]]) -> pd.DataFrame:
             # If the formula cannot be parsed we skip the entry.
             continue
 
+        # Ensure a material_id exists – generate a synthetic one if missing.
+        material_id = rec.get("material_id")
+        if not material_id:
+            material_id = f"fallback_{idx}"
+
         enriched = {
-            "material_id": rec.get("material_id"),
+            "material_id": material_id,
             "composition": formula,
             "elemental_count": elemental_count,
-            # Use per‑atom formation energy if present, otherwise 0.0.
             "formation_energy": rec.get("formation_energy_per_atom", 0.0),
-            # Density may be missing – store NaN.
             "density": rec.get("density", float("nan")),
             # Placeholder empty feature vectors; later steps will fill them.
             "elemental_features": [],

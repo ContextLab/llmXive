@@ -11,6 +11,8 @@ T002:
     exit=1'
   task: ab8c6a10708e3891e7e561e6916d6401b35210851ac0fbe4b51dcbca4930ea8b
 T003:
+  reason: 'Requested task execution failed; rerun successfully: code/data/fetch_omdb_structures.py
+    exit=1'
   task: c921d4fba8f1a832920b28503ab579e388c270357406061623ae1836a369ae92
 T004:
   task: 87846c5cd99bc05f45440bdab4cae883c961866c754de368123ed7ce896517d1
