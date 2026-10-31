@@ -1,14 +1,14 @@
 status: none
-intent: SocraticQA Self-Refine Evol-Instruct critique dialogue QA dataset pip python
-  package dataset
+intent: HuggingFace datasets SQuAD Natural Questions CoQA QuAC SocraticQA Self-Refine
+  python package dataset
 required_fields:
 - question
 - answer
 - critique
 - revised_answer
-- condition
-- tuple_type
+- context
 - source_dataset
-cache_key: 4f323baa81f96d571f8f63c9eaa112fb78ebc04bd13c65bdddd34c546b1280f7
-searched_at: '2026-10-31T02:11:18.553509+00:00'
+- dialogue_id
+cache_key: 7031c61f94a291ee73b2e782867ce3ebfa09b3c5c518b1c22167170a99ce111b
+searched_at: '2026-10-31T02:13:13.039040+00:00'
 retry_count: 1
