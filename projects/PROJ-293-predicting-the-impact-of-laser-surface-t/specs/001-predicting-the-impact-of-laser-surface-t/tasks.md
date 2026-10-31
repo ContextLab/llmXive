@@ -6,7 +6,7 @@
 
 ## Phase 1: Setup and first end-to-end analysis
 
-- [ ] T001 [P1] [US1] Establish the runnable pipeline entry point and static source registry. <!-- FAILED-IN-EXECUTION: code/ingest.py exit=1; code/preprocess.py exit=1 --> <!-- FAILED: unspecified -->
+- [ ] T001 [P1] [US1] Establish the runnable pipeline entry point and static source registry. <!-- FAILED-IN-EXECUTION: code/ingest.py exit=1; code/preprocess.py exit=1 --> <!-- FAILED: unspecified --> <!-- FAILED-IN-EXECUTION: code/preprocess.py exit=1 -->
   *Implementation*: `code/main.py` provides subcommands (`ingest`, `preprocess`, `train`, `interpret`, `report`) with a global fixed seed (numpy/random, seed=42) in `code/seed.py`. Write `specs/001-predict-lst-wear/research.md` listing the static, verified data sources (HuggingFace dataset id, OpenML dataset id, and literature-supplement URLs) with `url` and `dataset_id` fields — no dynamic search code. Write `code/config/schema_map.json` mapping source column aliases (e.g., `"power": ["laser_power", "avg_power"]`) to the canonical schema from `data-model.md`.
   *Outputs*: `code/main.py`, `code/seed.py`, `code/config/schema_map.json`, `specs/001-predict-lst-wear/research.md`, `specs/001-predict-lst-wear/quickstart.md` documenting `python -m code.main <subcommand>`.
   *Verification*: `python -m code.main --help` exits 0; `code/tests/test_schema_map.py` asserts every canonical key from `dataset.schema.yaml` appears in `schema_map.json`; `code/tests/test_research.py` asserts each source entry has non-empty `url` and `dataset_id`.

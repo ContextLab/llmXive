@@ -21,9 +21,7 @@ logger = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Constants
 # ----------------------------------------------------------------------
-# Updated path to the research markdown file as per specification
 RESEARCH_MD_PATH = Path("specs/001-predicting-the-impact-of-laser-surface-t/research.md")
-SCHEMA_MAP_PATH = Path("code/config/schema_map.json")
 REQUIRED_COLUMNS = [
     "pulse_duration",
     "power",
@@ -93,7 +91,6 @@ def _download_openml(dataset_id: str) -> pd.DataFrame:
     """
     logger.info(f"Fetching OpenML dataset id={dataset_id}")
     try:
-        # fetch_openml returns a Bunch with data as a DataFrame when as_frame=True
         result = fetch_openml(data_id=int(dataset_id), as_frame=True)
         df = result.frame
         if df is None:
@@ -115,7 +112,6 @@ def _download_huggingface(dataset_id: str) -> pd.DataFrame:
     logger.info(f"Fetching HuggingFace dataset id={dataset_id}")
     try:
         ds = load_dataset(dataset_id, split="train")
-        # Convert to pandas DataFrame
         df = pd.DataFrame(ds)
         return df
     except Exception as e:
@@ -152,6 +148,53 @@ def _apply_schema_mapping(df: pd.DataFrame, schema_map: Dict[str, List[str]]) ->
         df = df.rename(columns=rename_dict)
     return df
 
+def _resolve_source_dataframe(src: Dict[str, Any]) -> pd.DataFrame:
+    """
+    Determine the appropriate download method for a source entry and return the DataFrame.
+    This function now recognises local CSV paths (either via `url` or `dataset_id` that
+    correspond to a file under `data/raw/`) and treats them as raw CSVs.
+    """
+    name = src["name"]
+    src_type = src["type"].lower()
+    url = src.get("url")
+    dataset_id = src.get("dataset_id")
+
+    logger.info(f"Resolving source '{name}' (type={src_type})")
+
+    # Helper to check if a string points to an existing file
+    def _is_existing_file(path_str: str) -> bool:
+        if not path_str:
+            return False
+        p = Path(path_str)
+        return p.is_file()
+
+    # 1. Direct CSV URL or local file
+    if src_type == "tabular" and url:
+        # If the URL looks like an HTTP URL, use pandas read_csv over the web.
+        # Otherwise, treat it as a local path.
+        if url.lower().startswith("http"):
+            return _download_raw_csv(url)
+        elif _is_existing_file(url):
+            return _download_raw_csv(url)
+        else:
+            logger.error(f"URL for source '{name}' does not point to an existing file: {url}")
+            raise FileNotFoundError(f"CSV file not found for source '{name}' at {url}")
+
+    # 2. Dataset ID that points to a local CSV under data/raw/
+    if dataset_id:
+        # Try OpenML if the ID is numeric
+        if dataset_id.isdigit():
+            return _download_openml(dataset_id)
+        # Check for a local CSV file named <dataset_id>.csv inside data/raw/
+        local_path = Path("data") / "raw" / f"{dataset_id}.csv"
+        if local_path.is_file():
+            return _download_raw_csv(str(local_path))
+        # Fallback to HuggingFace loader
+        return _download_huggingface(dataset_id)
+
+    # If we reach this point, we cannot resolve the source.
+    raise RuntimeError(f"Unable to resolve source '{name}'. No valid URL or dataset_id provided.")
+
 def fetch_sources() -> None:
     """
     Core implementation for T002.
@@ -173,29 +216,8 @@ def fetch_sources() -> None:
 
     for src in sources:
         name = src["name"]
-        src_type = src["type"].lower()
-        url = src.get("url")
-        dataset_id = src.get("dataset_id")
-
-        logger.info(f"Processing source '{name}' of type '{src_type}'")
-
-        # Skip entries that lack both URL and dataset_id (cannot be fetched)
-        if not url and not dataset_id:
-            logger.warning(f"Source '{name}' has neither URL nor dataset_id; skipping.")
-            continue
-
-        # Determine download method
-        if src_type == "tabular" and url and url.lower().endswith(".csv"):
-            df = _download_raw_csv(url)
-        elif src_type == "tabular" and dataset_id:
-            # Decide which loader based on known platforms
-            if "openml" in (url or "").lower() or dataset_id.isdigit():
-                df = _download_openml(dataset_id)
-            else:
-                df = _download_huggingface(dataset_id)
-        else:
-            logger.error(f"Unsupported source configuration for '{name}': {src}")
-            raise RuntimeError(f"data_schema_mismatch: unsupported source '{name}'")
+        logger.info(f"Processing source '{name}'")
+        df = _resolve_source_dataframe(src)
 
         # Load schema map and rename columns
         schema_map = load_schema_map()

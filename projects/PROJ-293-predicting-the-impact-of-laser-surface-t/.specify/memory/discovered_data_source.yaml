@@ -1,18 +1,17 @@
 status: none
-intent: Laser surface treatment wear dataset OpenML HuggingFace face-shape-rule-set
+intent: download LST laser surface texturing wear dataset OpenML HuggingFace face-shape-rule-set
   python package dataset
 required_fields:
 - power
-- scanning_speed
-- pulse_frequency
-- gas_flow_rate
-- beam_focus
+- scan_speed
+- frequency
+- pulse_duration
 - material_hardness
 - material_composition
 - geometry_type
 - wear_rate
-- mass_loss
-- surface_roughness
-cache_key: 24ab90d71d866134ac2f0cae08726e75a9a21d93a8e92ce806f395453cff17a9
-searched_at: '2026-10-31T03:14:25.737175+00:00'
+- friction_coefficient
+- source
+cache_key: 93674b1a145a12bd80579220ddddaf8b8800e3a965ef1eaf65a7793e50044ab9
+searched_at: '2026-10-31T06:14:16.792246+00:00'
 retry_count: 1

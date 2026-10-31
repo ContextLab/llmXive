@@ -1,6 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-23T00:44:21Z",
-  "project_id": "PROJ-293-predicting-the-impact-of-laser-surface-t"
+  "updated_at": "2026-10-31T06:14:16Z",
+  "project_id": "PROJ-293-predicting-the-impact-of-laser-surface-t",
+  "replan_rounds": 1
 }
