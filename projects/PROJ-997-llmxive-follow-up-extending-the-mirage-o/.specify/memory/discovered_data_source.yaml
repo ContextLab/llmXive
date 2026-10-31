@@ -1,15 +1,16 @@
 status: none
-intent: quantization gap dataset gradient norms local curvature KL divergence CPU
-  inference python package dataset
+intent: GSM8K Llama2 3B quantization hardware benchmark dataset python package dataset
 required_fields:
-- prompt_text
-- model_name
-- quantization_level
+- prompt
 - gradient_norm
 - local_curvature
-- kl_divergence
 - full_precision_logits
-- quantized_logits
-cache_key: 6a32c63852a0b093de0566a51effc9f82e7aa0f10625a862e97e87e652849381
-searched_at: '2026-10-30T21:08:44.157301+00:00'
+- int8_logits
+- int4_logits
+- fp8_logits
+- kl_divergence_int8
+- kl_divergence_int4
+- kl_divergence_fp8
+cache_key: e969898657433da7d7053632ab84d92d7771de26e488f3bfc2e8c3803236e424
+searched_at: '2026-10-31T19:08:14.222621+00:00'
 retry_count: 1
