@@ -16,7 +16,7 @@ The checklist follows the platform’s canonical format. Each task states the fu
 
 ## Phase 1 – Data acquisition (fulfills FR‑001, FR‑008, SC‑006)
 
-- [ ] T002 [P] [US‑1] Stream the Materials Project dataset, filter for entries that have both melting‑point and heat‑capacity data, and write a parquet file.   <!-- FAILED-IN-EXECUTION: code/data/fetch_materials.py exit=1 -->
+- [ ] T002 [P] [US‑1] Stream the Materials Project dataset, filter for entries that have both melting‑point and heat‑capacity data, and write a parquet file.   <!-- FAILED-IN-EXECUTION: code/data/fetch_materials.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/fetch_materials.py exit=1 -->
   *Path*: `code/data/fetch_materials.py` → `data/raw/pcm.parquet`  
   *Verification*: `tests/unit/test_fetch_materials.py` checks that the parquet file exists, contains ≥ 5 000 rows, conforms to `contracts/dataset.schema.yaml`, and never exceeds 7 GB RAM (monitored via `psutil`).  
 
