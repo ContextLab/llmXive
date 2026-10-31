@@ -28700,7 +28700,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-31T17:08:03.905218+00:00",
+  "generated_at": "2026-10-31T17:14:56.789542+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -158696,6 +158696,14 @@
       "last_run_log": [
         {
           "agent": "planner",
+          "duration_s": 84.402412,
+          "ended_at": "2026-10-31T17:07:32.270793Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-31T17:06:07.868381Z"
+        },
+        {
+          "agent": "planner",
           "duration_s": 102.605337,
           "ended_at": "2026-10-31T10:06:28.645615Z",
           "model": "zai-org.glm-5.3",
@@ -158765,14 +158773,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-24T18:12:26.174575Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 31.183325,
-          "ended_at": "2026-10-24T18:12:26.170690Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-24T18:11:54.987365Z"
         }
       ],
       "paper_status": null,
@@ -175721,6 +175721,18 @@
   ],
   "recent_activity": [
     {
+      "agent": "planner",
+      "duration_s": 84.402412,
+      "ended_at": "2026-10-31T17:07:32.270793Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-883-llmxive-follow-up-extending-omniretrieva",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-10-31T17:06:07.868381Z"
+    },
+    {
       "agent": "implementer",
       "duration_s": 11.405851,
       "ended_at": "2026-10-31T17:06:31.802456Z",
@@ -181779,18 +181791,6 @@
       "project_stage": "clarified",
       "severity": "ok",
       "started_at": "2026-10-29T00:19:03.559132Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 16.943147,
-      "ended_at": "2026-10-29T00:19:03.555413Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-871-llmxive-follow-up-extending-planbench-xl",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-29T00:18:46.612266Z"
     }
   ],
   "reviewed_preprints": [
