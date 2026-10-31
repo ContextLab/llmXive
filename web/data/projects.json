@@ -28700,7 +28700,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-31T19:05:20.201887+00:00",
+  "generated_at": "2026-10-31T19:07:52.674983+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -31476,6 +31476,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 10.849118,
+          "ended_at": "2026-10-31T19:06:35.054094Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-31T19:06:24.204976Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 11.405851,
           "ended_at": "2026-10-31T17:06:31.802456Z",
           "model": "zai-org.glm-5.3",
@@ -31545,14 +31553,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-23T21:34:52.419836Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 40.09535,
-          "ended_at": "2026-10-23T21:34:52.416753Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-23T21:34:12.321403Z"
         }
       ],
       "paper_status": null,
@@ -36931,6 +36931,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 2.996528,
+          "ended_at": "2026-10-31T19:05:53.083060Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-31T19:05:50.086532Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 3.188809,
           "ended_at": "2026-10-31T08:06:29.311657Z",
           "model": "zai-org.glm-5.3",
@@ -37000,14 +37008,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-09-26T07:16:06.789666Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 4.394358,
-          "ended_at": "2026-09-26T07:16:06.786277Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-26T07:16:02.391919Z"
         }
       ],
       "paper_status": null,
@@ -66106,6 +66106,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 3.922542,
+          "ended_at": "2026-10-31T19:06:49.091399Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-31T19:06:45.168857Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 2.633046,
           "ended_at": "2026-10-30T21:06:16.289312Z",
           "model": "zai-org.glm-5.3",
@@ -66175,14 +66183,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-10-27T03:10:02.956156Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 4.069257,
-          "ended_at": "2026-10-27T01:26:21.039025Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-10-27T01:26:16.969768Z"
         }
       ],
       "paper_status": null,
@@ -138834,6 +138834,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 7.066931,
+          "ended_at": "2026-10-31T19:06:38.055347Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-31T19:06:30.988416Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 8.398581,
           "ended_at": "2026-10-31T13:05:56.962227Z",
           "model": "zai-org.glm-5.3",
@@ -138903,14 +138911,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-15T23:23:52.854719Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 8.559885,
-          "ended_at": "2026-10-15T23:23:52.851340Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-15T23:23:44.291455Z"
         }
       ],
       "paper_status": null,
@@ -166697,6 +166697,14 @@
       "last_run_log": [
         {
           "agent": "tasker",
+          "duration_s": 2.899111,
+          "ended_at": "2026-10-31T19:05:49.731261Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-31T19:05:46.832150Z"
+        },
+        {
+          "agent": "tasker",
           "duration_s": 3.276952,
           "ended_at": "2026-10-31T16:06:05.438101Z",
           "model": "zai-org.glm-5.3",
@@ -166766,14 +166774,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "failed",
           "started_at": "2026-10-18T01:46:33.313864Z"
-        },
-        {
-          "agent": "clarifier",
-          "duration_s": 113.362328,
-          "ended_at": "2026-10-18T01:46:21.011341Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-18T01:44:27.649013Z"
         }
       ],
       "paper_status": null,
@@ -175721,6 +175721,66 @@
   ],
   "recent_activity": [
     {
+      "agent": "implementer",
+      "duration_s": 3.922542,
+      "ended_at": "2026-10-31T19:06:49.091399Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-181-predicting-species-distribution-shifts-u",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-10-31T19:06:45.168857Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 7.066931,
+      "ended_at": "2026-10-31T19:06:38.055347Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-710-robustness-of-confidence-intervals-to-di",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-10-31T19:06:30.988416Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 10.849118,
+      "ended_at": "2026-10-31T19:06:35.054094Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-009-build-a-mesh-network-that-forms-the-larg",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-10-31T19:06:24.204976Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 2.996528,
+      "ended_at": "2026-10-31T19:05:53.083060Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-039-investigating-the-relationship-between-g",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-10-31T19:05:50.086532Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 2.899111,
+      "ended_at": "2026-10-31T19:05:49.731261Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-930-llmxive-follow-up-extending-mobileforge",
+      "project_stage": "planned",
+      "severity": "hard",
+      "started_at": "2026-10-31T19:05:46.832150Z"
+    },
+    {
       "agent": "project_initializer",
       "duration_s": 2.90434,
       "ended_at": "2026-10-31T18:14:02.227985Z",
@@ -181734,66 +181794,6 @@
       "project_stage": "clarified",
       "severity": "ok",
       "started_at": "2026-10-29T01:14:45.952502Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 33.976327,
-      "ended_at": "2026-10-29T01:14:45.948948Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-672-the-impact-of-bounded-confidence-on-opin",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-29T01:14:11.972621Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 29.395132,
-      "ended_at": "2026-10-29T01:14:11.969016Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-672-the-impact-of-bounded-confidence-on-opin",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-29T01:13:42.573884Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 202.279277,
-      "ended_at": "2026-10-29T01:13:42.570253Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-672-the-impact-of-bounded-confidence-on-opin",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-29T01:10:20.290976Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 13.426723,
-      "ended_at": "2026-10-29T01:12:43.723083Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-320-evaluating-the-impact-of-code-generation",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-29T01:12:30.296360Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 43.141053,
-      "ended_at": "2026-10-29T01:12:30.292849Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-320-evaluating-the-impact-of-code-generation",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-29T01:11:47.151796Z"
     }
   ],
   "reviewed_preprints": [
