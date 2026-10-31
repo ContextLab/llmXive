@@ -1,15 +1,32 @@
-status: none
-intent: Codeforces C++ reference solutions dataset HuggingFace CodeLlama StarCoder
-  python package dataset
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: "import datasets, sys\n\nds = datasets.load_dataset(\"open-r1/codeforces\"\
+  , split=\"train\")\nprint(f\"RECORDS={len(ds)}\")\ncols = ds.column_names\nmapping\
+  \ = {\n    \"problem_id\": \"problem_id\",\n    \"contest_id\": \"contest_id\",\n\
+  \    \"title\": \"problem_name\",\n    \"statement\": \"problem_statement\",\n \
+  \   \"time_limit\": \"time_limit\",\n    \"memory_limit\": \"memory_limit\",\n \
+  \   \"tags\": \"tags\",\n    \"code\": \"reference_solution_code\",\n    \"language\"\
+  : \"language\"\n}\npresent = [v for k, v in mapping.items() if k in cols]\nprint(\"\
+  FIELDS=\" + \",\".join(present))"
+record_count: 9556
+sample_fields:
+- contest_id
+- problem_name
+- time_limit
+- memory_limit
+- tags
+field_coverage: 0.778
 required_fields:
 - problem_id
-- problem_title
-- human_solution_code
-- human_solution_language
-- llm_model_name
-- llm_generated_code
-- generation_timestamp
-- generation_status
-cache_key: 71882f07baa466461a0bfca2c95ec21a68386a692b693339da167be661f8a74c
-searched_at: '2026-10-31T02:10:19.867037+00:00'
-retry_count: 1
+- contest_id
+- problem_name
+- problem_statement
+- time_limit
+- memory_limit
+- tags
+- reference_solution_code
+- language
+intent: Codeforces problemset C++ reference solutions dataset HuggingFace Datasets
+  python package dataset
+cache_key: 702157480e22e12777094eb5db015923e1618f420eb9f6dee956a605259379d7
