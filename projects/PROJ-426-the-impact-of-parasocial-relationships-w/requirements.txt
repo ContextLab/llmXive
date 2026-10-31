@@ -1,3 +1,15 @@
-# No additional third‑party dependencies beyond the base environment.
-# The attachment_proxy module uses only pandas, pyyaml and llmxive_toolkit,
-# all of which are already available in the execution environment.
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
+statsmodels
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil
+zenodo-get
+pyarrow
+fastparquet
