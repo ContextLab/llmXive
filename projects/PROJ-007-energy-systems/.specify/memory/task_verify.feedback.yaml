@@ -103,6 +103,10 @@ T040:
 T043:
   task: 50346acecad7fcfa90ebed127fc2b30fd9fdd699a836dd550ad4370896b62f59
 T044a:
+  reason: 'the task writes platform-owned path(s) inside the project: `.github/workflows/ci.yml`
+    (shadows `.github/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
   task: 3e577e6e26a8d1d4d8e1261d8c309d0dd3adb3d4f25e3964a6497cb0a1f46644
 T044b:
   reason: 'Requested task execution failed; rerun successfully: code/scripts/generate_secrets_baseline.sh

@@ -1,37 +1,31 @@
-# Data artifacts (raw, processed, and outputs are generated at runtime)
+# Ignore data directory to avoid committing raw and processed datasets
 data/
-!data/.gitkeep
 
-# Python bytecode
+# Ignore Python cache directories
 __pycache__/
-*.py[cod]
-*$py.class
 
-# Distribution / packaging
-build/
-dist/
-*.egg-info/
-.eggs/
+# Optional: ignore compiled bytecode files
+*.pyc
+*.pyo
+*.pyd
 
-# Virtual environments
+# Ignore virtual environment directories if any are created locally
 venv/
 .venv/
-env/
 
-# Test / coverage artifacts
-.pytest_cache/
-.coverage
-coverage.xml
-htmlcov/
-
-# Environments and secrets
-.env
-.env.*
-
-# Editors and OS files
-.vscode/
-.idea/
-.DS_Store
-
-# Jupyter
+# Ignore Jupyter notebook checkpoints
 .ipynb_checkpoints/
+
+# Ignore IDE/editor specific files
+.idea/
+.vscode/
+
+# Ignore logs
+logs/
+
+# Ignore temporary files
+*.tmp
+*.log
+*.bak
+
+# End of .gitignore

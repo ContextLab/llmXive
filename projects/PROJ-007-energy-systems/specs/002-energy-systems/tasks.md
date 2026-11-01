@@ -24,11 +24,11 @@
 
 **Purpose**: Project initialization, basic structure, and security enforcement.
 
-- [ ] T001 Create project structure: `mkdir -p src/data src/analysis src/utils src/models tests/unit tests/integration data/raw data/processed data/outputs specs/`
+- [~] T001 Create project structure: `mkdir -p src/data src/analysis src/utils src/models tests/unit tests/integration data/raw data/processed data/outputs specs/`
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools: Add `pyproject.toml` sections for ruff/black and create `.ruff.toml`
-- [ ] T004 [P] Set up `pytest` configuration: Create `pytest.ini` and `.gitignore` entries for `data/` and `__pycache__/`
-- [X] T044a [P] Security hardening (Workflow): Create `.github/workflows/ci.yml` with a job `security-scan` that runs `detect-secrets scan --baseline.secrets.baseline` on `data/` and `src/`. The workflow must fail the build if PII is detected. This task defines the CI infrastructure. **Implementation**: The file content must match the `plan.md` Phase 0 specification exactly.
-- [ ] T044b [P] Security hardening (Baseline): Generate the initial `.secrets.baseline` file by running `detect-secrets scan --baseline.secrets.baseline` locally. This task must be completed after T044a to ensure the baseline file exists for the CI workflow to audit. **Implementation**: Execute the command locally and commit the resulting file. <!-- FAILED-IN-EXECUTION: code/scripts/generate_secrets_baseline.sh exit=2 --> <!-- FAILED-IN-EXECUTION: code/scripts/generate_secrets_baseline.sh exit=1 -->
+- [~] T004 [P] Set up `pytest` configuration: Create `pytest.ini` and `.gitignore` entries for `data/` and `__pycache__/`
+- [ ] T044a [P] Security hardening (Workflow): Create `.github/workflows/ci.yml` with a job `security-scan` that runs `detect-secrets scan --baseline.secrets.baseline` on `data/` and `src/`. The workflow must fail the build if PII is detected. This task defines the CI infrastructure. **Implementation**: The file content must match the `plan.md` Phase 0 specification exactly.
+- [ ] T044b [P] Security hardening (Baseline): Generate the initial `.secrets.baseline` file by running `detect-secrets scan --baseline.secrets.baseline` locally. This task must be completed after T044a to ensure the baseline file exists for the CI workflow to audit. **Implementation**: Execute the command locally and commit the resulting file. <!-- FAILED-IN-EXECUTION: code/scripts/generate_secrets_baseline.sh exit=2 --> <!-- FAILED-IN-EXECUTION: code/scripts/generate_secrets_baseline.sh exit=1 --> <!-- FAILED-IN-EXECUTION: code/scripts/generate_secrets_baseline.sh exit=1 -->
 
 ---
 
@@ -39,7 +39,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T005 [P] Implement `src/models/schemas.py` with Pydantic models for `Household`, `MatchedPair`, and `AnalysisResult`
-- [X] T006 [P] Create `src/utils/logging.py` with structured logging and seed setting (numpy, pandas, sklearn). **Note**: All random seeds MUST be pinned here to satisfy Constitution Principle I.
+- [~] T006 [P] Create `src/utils/logging.py` with structured logging and seed setting (numpy, pandas, sklearn). **Note**: All random seeds MUST be pinned here to satisfy Constitution Principle I.
 - [ ] T007 [P] Implement `src/config.yaml` for seeds, paths, and thresholds (calipers: precise measurement capability, SMD limits: small effect sizes). **Note**: Only spec-defined thresholds are included. No scaling thresholds.
 - [ ] T008 [P] Create `src/data/ingest.py` with the following function signatures (stubs raising `NotImplementedError`):
  - `def fetch_eia_rec(url: str) -> pd.DataFrame:`
