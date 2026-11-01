@@ -1,7 +1,15 @@
 status: none
-intent: ADReSS Challenge sentence embeddings download python package dataset
+intent: ADReSS Challenge sentence embeddings PII synthetic dataset DementiaBank python
+  package dataset
 required_fields:
-- text
-cache_key: 76e42cfbb98cd3976337bb8f0da53faa7c0943cb42c628061436a27ec4bd0845
-searched_at: '2026-10-25T01:30:53.802827+00:00'
+- participant_id
+- audio_file_path
+- transcript
+- embedding_vector
+- diagnosis
+- age
+- gender
+- MMSE_score
+cache_key: 81364f9f4e41297e0ccf8a9be7aa176745121b38366d52fafb2f6944e4dbed24
+searched_at: '2026-11-01T16:08:14.381639+00:00'
 retry_count: 1

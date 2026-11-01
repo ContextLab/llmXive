@@ -12,7 +12,7 @@ Semantic coherence captures the consistency of thematic content across utterance
 |---------|--------------|---------------------|-------|
 | **ADReSS Challenge – Sentence Embeddings** | `https://huggingface.co/datasets/pruiu/ADReSS-IS2020_emb/resolve/main/IS2020_test_embeddings/dataset_info.json` | **Verified** | Contains per‑participant sentence‑level embeddings for the test set. Used for all downstream feature computation. |
 | **MCI Parquet (unused)** | `https://huggingface.co/datasets/mcimpoi/dtd_split_1/resolve/main/data/test-00000-of-00001-d6ecda0bacf8f78c.parquet` | **Verified** | Not required for the primary analysis; kept for possible future extensions. |
-| **PII Synthetic (unused)** | `https://huggingface.co/datasets/gretelai/synthetic_pii_finance_multilingual/resolve/main/data/Dutch_test-00000-of-00001.parquet` | **Verified** | Used only to test the privacy‑audit component; not part of the scientific dataset. |
+| **PII Synthetic (unused)** | `https://huggingface.co/datasets/nvidia/Nemotron-PII/resolve/main/data/test-00000-of-00001.parquet` | **Verified** | Used only to test the privacy‑audit component; not part of the scientific dataset. |
 | **DementiaBank** | – | **Excluded** | No public URL; explicitly excluded per specification. |
 
 All other URLs listed in the “Verified datasets” block are unrelated and therefore omitted.
@@ -24,11 +24,11 @@ All other URLs listed in the “Verified datasets” block are unrelated and the
 * **Checksum** the file (`sha256`) and store the hash in the project state.  
 * **Create** `data/interim/cleaned_adress.csv` with columns: `participant_id`, `label` (Control/MCI/AD), `text` (empty string placeholder), `age`, `education`, `embedding_path`.  
 * **Exclusions**: records with missing `label` or with a transcript length < 50 words (approximated via a `word_count` field if present) are omitted; each omission is logged to `data/interim/exclusions.log`.  
-* **Metadata**: write `data/results/raw_record_count.json` and `data/results/group_counts.json`.
+* **Metadata**: write `data/interim/raw_record_count.json` (total participants before exclusion) and `data/interim/group_counts.json` (per‑group counts after exclusion).
 
 ### 2. Power Analysis (FR‑007)
-* Use `statsmodels.stats.power.FTestAnovaPower` to compute the required sample size for a three‑group ANCOVA with two covariates, targeting **80 % power**, **α = 0.05 / N_features** (Bonferroni‑adjusted), and a medium effect size (partial η² ≈ 0.06 ⇒ Cohen’s f ≈ 0.25).  
-* With the available ≈ 300 participants, the analysis predicts **≥ 80 % power for detecting η² ≈ 0.06** for the Control vs AD contrast; power for Control vs MCI is lower (≈ 65 %). Results are saved to `data/results/power_analysis.txt`. If power falls below 80 %, the limitation is explicitly documented.
+* Use `statsmodels.stats.power.FTestAnovaPower` to compute required sample size for a three‑group ANCOVA with two covariates, targeting **80 % power**, **α = 0.05 / N_features** (Bonferroni‑adjusted), and a medium effect size (partial η² ≈ 0.06 ⇒ Cohen’s f ≈ 0.25).  
+* With the available ≈ 300 usable participants, the analysis predicts **≥ 80 % power for the Control vs AD contrast**; power for Control vs MCI is lower (≈ 65 %). Results are saved to `data/results/power_analysis.txt`. If power falls below 80 %, the limitation is explicitly documented.
 
 ### 3. Feature Extraction (US‑2)
 * Load each participant’s embedding array (`.npy` stored in `embedding_path`).  

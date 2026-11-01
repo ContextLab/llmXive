@@ -83,12 +83,12 @@ pytest tests/integration/test_pipeline.py
 |------|-------------|
 | `data/interim/cleaned_adress.csv` | Participant ID, label, empty `text`, age, education, and path to each embedding. |
 | `data/interim/exclusions.log` | Log of records omitted due to missing label or insufficient length. |
+| `data/interim/raw_record_count.json` | Total number of participants before exclusions. |
+| `data/interim/group_counts.json` | Per‑group participant counts after exclusions. |
 | `data/processed/features.csv` | Semantic coherence metric plus `null` placeholders for lexical/syntactic features. |
 | `data/processed/ancova_results.json` | ANCOVA statistics, Bonferroni‑adjusted p‑values, partial η², and 95 % BCa CIs. |
 | `data/processed/assumptions.json` | Results of Shapiro‑Wilk, homogeneity of slopes, and linearity diagnostics. |
 | `data/results/power_analysis.txt` | A‑priori power analysis for the ANCOVA models. |
-| `data/results/raw_record_count.json` | Total number of participants after download. |
-| `data/results/group_counts.json` | Per‑group participant counts after exclusions. |
 | `data/results/metadata.json` | SHA‑256 checksums, timestamps, and data‑hygiene metadata. |
 | `data/results/statistical_report.pdf` | Full PDF report with tables, boxplots, and effect‑size violin plot. |
 | `logs/privacy_audit.log` | Log of the PII audit (should contain “0 detections”). |
