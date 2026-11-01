@@ -13,10 +13,7 @@ def get_output_path() -> Path:
 @pytest.fixture(scope="module")
 def run_ingestion():
     """
-    Run the download script. 
-    Note: In a real environment, this will attempt to hit Zenodo.
-    If the DOI is a placeholder, this test will fail, which is the correct
-    behavior for 'Real Data Only'.
+    Run the download script.
     """
     out_path = get_output_path()
     if out_path.exists():
