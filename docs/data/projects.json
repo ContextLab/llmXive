@@ -28700,7 +28700,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-01T03:21:43.919154+00:00",
+  "generated_at": "2026-11-01T04:06:30.423002+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -144381,6 +144381,14 @@
       "last_run_log": [
         {
           "agent": "clarifier",
+          "duration_s": 2.794871,
+          "ended_at": "2026-11-01T03:20:33.223422Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-01T03:20:30.428551Z"
+        },
+        {
+          "agent": "clarifier",
           "duration_s": 3.470138,
           "ended_at": "2026-10-31T05:06:49.770746Z",
           "model": "zai-org.glm-5.3",
@@ -144450,14 +144458,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-10-28T14:07:29.389374Z"
-        },
-        {
-          "agent": "personality",
-          "duration_s": 24.211208,
-          "ended_at": "2026-10-19T04:05:27.236411+00:00",
-          "model": "zai-org.glm-5.3",
-          "outcome": "committed",
-          "started_at": "2026-10-19T04:05:03.025203+00:00"
         }
       ],
       "paper_status": null,
@@ -164561,6 +164561,14 @@
       "keywords": [],
       "last_run_log": [
         {
+          "agent": "personality",
+          "duration_s": 7.678421,
+          "ended_at": "2026-11-01T04:05:49.348561+00:00",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "model_error",
+          "started_at": "2026-11-01T04:05:41.670140+00:00"
+        },
+        {
           "agent": "implementer",
           "duration_s": 0.001961,
           "ended_at": "2026-11-01T03:16:20.661019Z",
@@ -164631,14 +164639,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-09-29T06:48:53.770224Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 179.085224,
-          "ended_at": "2026-09-29T06:48:53.767192Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-29T06:45:54.681968Z"
         }
       ],
       "paper_status": null,
@@ -175745,6 +175745,33 @@
   ],
   "recent_activity": [
     {
+      "agent": "personality",
+      "display_name": "Marie Curie (simulated)",
+      "duration_s": 7.678421,
+      "ended_at": "2026-11-01T04:05:49.348561+00:00",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "model_kind": "personality_simulator",
+      "outcome": "model_error",
+      "personality_slug": "marie-curie",
+      "project_id": "PROJ-916-llmxive-follow-up-extending-interleaveth",
+      "project_stage": "planned",
+      "severity": "hard",
+      "started_at": "2026-11-01T04:05:41.670140+00:00"
+    },
+    {
+      "agent": "clarifier",
+      "duration_s": 2.794871,
+      "ended_at": "2026-11-01T03:20:33.223422Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-762-quantifying-hallucination-in-llm-generat",
+      "project_stage": "specified",
+      "severity": "hard",
+      "started_at": "2026-11-01T03:20:30.428551Z"
+    },
+    {
       "agent": "tasker",
       "duration_s": 3.051506,
       "ended_at": "2026-11-01T03:16:24.663441Z",
@@ -181797,30 +181824,6 @@
       "project_stage": "clarified",
       "severity": "hard",
       "started_at": "2026-10-29T08:05:39.776173+00:00"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 20.444373,
-      "ended_at": "2026-10-29T07:12:43.330099Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-365-predicting-molecular-diffusion-coefficie",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-29T07:12:22.885726Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 9.890677,
-      "ended_at": "2026-10-29T07:12:22.883056Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-365-predicting-molecular-diffusion-coefficie",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-29T07:12:12.992379Z"
     }
   ],
   "reviewed_preprints": [
