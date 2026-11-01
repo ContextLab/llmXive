@@ -1,14 +1,28 @@
-status: none
-intent: CoinGecko API daily OHLCV BTC ETH dataset HuggingFace tner/btc python package
-  dataset
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: 'import datasets
+
+  ds = datasets.load_dataset("gauss314/bitcoin_daily")
+
+  # Use the default split (usually ''train'')
+
+  split_name = next(iter(ds))
+
+  data = ds[split_name]
+
+  print(f"RECORDS={len(data)}")
+
+  print(f"FIELDS={'',''.join(data.column_names)}")'
+record_count: 3645
+sample_fields:
+- date
+- price
+- market_caps
+- total_volumes
+field_coverage: 0.5
 required_fields:
 - date
-- open
-- high
-- low
 - close
-- volume
-- asset
-cache_key: c8d78f88aeba397434bf06838fdac599b11f05b3500d62728707dd2ea3b83251
-searched_at: '2026-10-31T22:08:20.399112+00:00'
-retry_count: 1
+intent: HuggingFace tner btc eth daily OHLCV dataset python package dataset
+cache_key: 48b3114e6f17247ac96d69f75b3971793982be36ecec8f9cd07935983ee08a9a
