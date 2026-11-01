@@ -1,11 +1,14 @@
 status: none
-intent: Zenodo ionic liquid benchmark interaction energies CCSD(T)/CBS dataset python
+intent: ionic liquid benchmark interaction energies dataset Zenodo download python
   package dataset
 required_fields:
 - ion_pair_id
 - reference_energy
-- reference_dispersion_energy
-- geometry_xyz
-cache_key: fb82fadf73b5f190753ca033968b54f3af557f0bd422aaeff572c48018900c8a
-searched_at: '2026-10-31T07:09:06.005020+00:00'
+- dft_total_energy
+- d3_dispersion_energy
+- signed_error
+- dispersion_reference_difference
+- coordinates
+cache_key: 7d8a214c479cd19734fa416d2492b7e2002f718726277e8bad627c7903a86605
+searched_at: '2026-11-01T05:09:57.835143+00:00'
 retry_count: 1
