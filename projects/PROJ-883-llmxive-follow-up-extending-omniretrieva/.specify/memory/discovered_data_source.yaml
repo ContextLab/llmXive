@@ -1,11 +1,12 @@
 status: none
-intent: LDBC SNB query workload latency dataset download python package dataset
+intent: LDBC Social Network Benchmark dataset python package including TPC-H TPC-DS
+  TREC query workloads python package dataset
 required_fields:
 - query_id
 - query_text
 - plan_depth
 - source_type
 - latency_ms
-cache_key: be7bb4712fa2fae6042b8c636b152b4681d725fc5a66924ef04c2cdd959bdff6
-searched_at: '2026-11-01T07:08:08.809926+00:00'
+cache_key: 7b36e441a627293e07527abd288016e5c76cdf16e623c4798262da26b8b8db04
+searched_at: '2026-11-01T21:07:38.911367+00:00'
 retry_count: 1
