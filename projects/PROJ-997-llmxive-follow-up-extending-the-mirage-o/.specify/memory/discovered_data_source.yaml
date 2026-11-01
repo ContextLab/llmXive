@@ -1,9 +1,8 @@
 status: none
-intent: GSM8K Llama2 3B quantization hardware benchmark dataset python package dataset
+intent: downloadable GSM8K prompts with Llama-2-3B-4bit-GGUF gradient norms curvature
+  python package dataset
 required_fields:
 - prompt
-- gradient_norm
-- local_curvature
 - full_precision_logits
 - int8_logits
 - int4_logits
@@ -11,6 +10,8 @@ required_fields:
 - kl_divergence_int8
 - kl_divergence_int4
 - kl_divergence_fp8
-cache_key: e969898657433da7d7053632ab84d92d7771de26e488f3bfc2e8c3803236e424
-searched_at: '2026-10-31T19:08:14.222621+00:00'
+- gradient_norm
+- local_curvature
+cache_key: 465dd583c1d058cc76c3beadea01421ee5df73ffd8292ab3ad5c9515ed012aa0
+searched_at: '2026-11-01T17:08:30.063512+00:00'
 retry_count: 1
