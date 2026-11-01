@@ -1,6 +1,30 @@
-status: none
-intent: speedrun.com API python package to download speedrun dataset for multiple
-  games python package dataset
+status: verified
+kind: pypi_package
+ref: speedruncomapi
+access_python: "from speedruncomapi import requests\n\nurl = \"https://www.speedrun.com/api/v1/runs\"\
+  \nresponse = requests.get(url)\nresponse.raise_for_status()\ndata = response.json()\n\
+  runs = data.get(\"data\", [])\nprint(f\"RECORDS={len(runs)}\")\nif runs:\n    print(f\"\
+  FIELDS={','.join(runs[0].keys())}\")"
+record_count: 20
+sample_fields:
+- id
+- weblink
+- game
+- level
+- category
+- videos
+- comment
+- status
+- players
+- date
+- date-time
+- submitted
+- times
+- system
+- splits
+- values
+- links
+field_coverage: 0.667
 required_fields:
 - run_time_seconds
 - runner_id
@@ -8,6 +32,5 @@ required_fields:
 - category
 - submission_date
 - game_id
-cache_key: 1c1d0488e0b92a7e29a978d9c36c4246e2d5388255043c5b35f8e93e4ef766d1
-searched_at: '2026-10-31T06:09:05.287000+00:00'
-retry_count: 1
+intent: speedrun.com runs dataset download python package speedrun API
+cache_key: d9e1926e0e6d2459965a0f5b026dcc0d375bd17fe965a87d6bd5fa8e5593b44f
