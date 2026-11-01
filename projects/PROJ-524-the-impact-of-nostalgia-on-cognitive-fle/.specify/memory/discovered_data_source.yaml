@@ -1,15 +1,18 @@
 status: none
-intent: Wisconsin Card Sorting Test dataset with MMSE scores python package dataset
+intent: Wisconsin Card Sorting Test dataset OpenML download python package dataset
 required_fields:
 - participant_id
 - condition
-- wcst_perseverative_errors
-- wcst_categories_completed
+- nostalgia_control
+- perseverative_errors
+- categories_completed
 - mmse_score
 - age
 - education_years
 - gender
-- audio_file_sha256
-cache_key: b26d1826fc3eb642ae02430dc1a5c8c721624e7d4942cf516ad0b2174c581ec0
-searched_at: '2026-11-01T02:09:50.174295+00:00'
+- audio_file_checksum
+- stimulus_file_name
+- random_assignment_seed
+cache_key: ea7491bc8f1cd4a6c18008621c5e299e424fcb6a33fb21a2878e91ab0299fc64
+searched_at: '2026-11-01T09:09:32.025831+00:00'
 retry_count: 1
