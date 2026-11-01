@@ -1,14 +1,12 @@
 status: none
-intent: OC20 dataset download python package Materials Project bulk descriptors API
-  python client Doe 2025 CO2 hydrogenation dataset python package dataset
+intent: OC20 Materials Project bulk descriptors python package dataset
 required_fields:
-- material_id
 - structure
 - energy
 - d_band_center
 - p_band_center
-- bader_charges
+- bader_charge
 - log_TOF
-cache_key: 49c3c16bdc18715094b5d6290de35cc4ddf288f49be76338cf3cd98f11936a4a
-searched_at: '2026-10-31T21:09:05.373702+00:00'
+cache_key: 878da5e6a9f3cfbe3088ac2593d84a4cca61478fdd773ac94615c914b8b4457e
+searched_at: '2026-11-01T19:10:05.966355+00:00'
 retry_count: 1
