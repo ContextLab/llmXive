@@ -1,17 +1,15 @@
 status: none
-intent: Wisconsin Card Sorting Test and MMSE scores dataset from ADNI python package
-  dataset
+intent: Wisconsin Card Sorting Test dataset with MMSE scores python package dataset
 required_fields:
 - participant_id
 - condition
-- age
-- gender
-- education_years
 - wcst_perseverative_errors
 - wcst_categories_completed
 - mmse_score
-- audio_file_name
-- audio_file_sha256_checksum
-cache_key: a1d32372f71c6e239a1c2f91dec9e28625968488151a6273941fecbe78444627
-searched_at: '2026-10-31T18:08:08.292351+00:00'
+- age
+- education_years
+- gender
+- audio_file_sha256
+cache_key: b26d1826fc3eb642ae02430dc1a5c8c721624e7d4942cf516ad0b2174c581ec0
+searched_at: '2026-11-01T02:09:50.174295+00:00'
 retry_count: 1
