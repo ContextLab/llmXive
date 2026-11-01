@@ -137,7 +137,7 @@
 ### Implementation for User Story 3
 
 - [ ] T031 [US3] Implement `code/analysis.py` to fit a **Generalized Additive Model (GAM)** (Primary Method per FR-006) to stability metrics. **Target Variable**: `stability SD` (y-axis) vs `study count k` (x-axis). **Parameters**: Use cubic basis with `k=3` smoothing. **Fallback**: If GAM fails (convergence error), automatically switch to segmented regression with a minimum of 2 segments. **Output**: Save changepoint estimate to `data/output/threshold_estimate.json`.
-- [ ] T032 [US3] Implement `code/analysis.py` to {{claim:c_228e184d}} and model fit (p < 0.05) is significantly better than linear. **Output**: Save changepoint estimate to `data/output/threshold_estimate.json`.
+- [ ] T032 [US3] Implement `code/analysis.py` to detect inflection point where derivative < 0.05 (unit: change in SD per unit k) and model fit (p < 0.05) is significantly better than linear. **Output**: Save changepoint estimate to `data/output/threshold_estimate.json`.
 - [ ] T033 [US3] Implement `code/analysis.py` to fit a **Parametric 1/sqrt(k) model** (Secondary/Validation Method) to stability metrics for comparison with the GAM result.
 - [ ] T034 [US3] Implement `code/analysis.py` to identify minimum `k` where coverage rate stabilizes within ±2% of the **nominal target read from `code/config.py` (T009a)** (SC-003, FR-007).
 - [ ] T035 [US3] Implement `code/viz.py` to generate stability curve plots with confidence bands.
