@@ -23,6 +23,8 @@ T005:
     exit=1'
   task: 8c24a672f6d10b89b4447c98bd3bebfdbbb2dee679bbbcfbcb8c3a063387566d
 T006:
+  reason: 'Requested task execution failed; rerun successfully: code/data/download.py
+    exit=1'
   task: 8cd413893537f2a49823608af09553b60eed886827e970ae43f0305695a66210
 T007:
   task: 41746edd1718d6bfcf5cbc5c14b97b552af1cd779c0d6a53988e888ff696eb35

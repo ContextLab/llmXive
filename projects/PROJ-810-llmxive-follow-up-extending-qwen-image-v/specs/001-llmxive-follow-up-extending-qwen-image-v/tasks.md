@@ -50,7 +50,7 @@
   *Run*: `python -m code.analysis.power --output data/results/power_analysis.json`.  
   *Verification*: `power_analysis.json` contains fields `N_required`, `effect_size`, `achieved_power`, and `status` (`conclusive` or `inconclusive`).  
 
-- [ ] T005 [P] Implement runtime‑budget estimator.   <!-- FAILED-IN-EXECUTION: code/analysis/runtime_estimate.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/analysis/runtime_estimate.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/analysis/runtime_estimate.py exit=1 -->
+- [~] T005 [P] Implement runtime‑budget estimator.
   *File*: `code/analysis/runtime_estimate.py` – estimates total wall‑clock time as `N_required * 60 s` (per‑image budget) and flags if > 6 h. Outputs `data/results/runtime_estimate.json`.  
   *Verification*: `runtime_estimate.json` includes `estimated_seconds`, `exceeds_budget` (bool), and `status`.
 
@@ -58,7 +58,7 @@
 
 ## Phase 2 – Data acquisition & deterministic sampling  
 
-- [ ] T006 [P] Download Omni‑Doc‑1 TokenBench subset.  
+- [ ] T006 [P] Download Omni‑Doc‑1 TokenBench subset.   <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 -->
   *Script*: `code/data/download.py` uses `datasets.load_dataset("omnineura/Omni-Doc-1", split="train", streaming=False)` and writes the parquet file to `data/raw/omnidoc_tokenbench.parquet`.*  
   *Verification*: After run, `data/raw/download_status.json` records `success: true` and file checksum; the parquet file exists and can be opened without error.
 
