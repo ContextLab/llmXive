@@ -100,6 +100,3 @@ pytest tests/integration/test_pipeline.py
 **Note:** Lexical and syntactic features are omitted because raw transcripts are not publicly available. A **spec amendment** is required to relax FR‑001 and FR‑002 if these features are desired; the pipeline will still produce a valid analysis of semantic coherence.
 
 ---
-
-
-

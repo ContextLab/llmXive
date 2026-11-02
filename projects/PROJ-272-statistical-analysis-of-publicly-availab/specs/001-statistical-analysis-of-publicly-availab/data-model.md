@@ -7,7 +7,7 @@ The data model defines the lifecycle of two primary artifacts (raw transcripts a
 2. **Interim Cleaned CSV** – participant identifiers, clinical label, placeholder text, demographic covariates, and the path to each participant’s embedding file.  
 3. **Processed Feature Matrix** – semantic coherence metric plus `null` placeholders for lexical and syntactic features that cannot be computed without raw transcripts.
 
-All artifacts reside under `data/` and are accompanied by SHA‑256 checksums recorded in the project state file.
+All artifacts reside under `data/` and are accompanied by SHA‑256 checksums recorded in the project state.
 
 ## Entity Definitions
 
@@ -44,16 +44,13 @@ All artifacts reside under `data/` and are accompanied by SHA‑256 checksums re
 * **`feature.schema.yaml`** – validates the processed feature CSV; fields not computed are allowed to be `null`.
 
 ## Data Hygiene Rules
-1. **Checksums** – Every file under `data/` has a cryptographic SHA‑2 hash recorded in the project's `state/projects/PROJ-272-statistical-analysis-of-publicly-availab.yaml` `artifact_hashes` map.
-2. **Immutability** – Raw embeddings are never altered; all transformations write new files.
-3. **PII** – No personally identifying information appears in any artifact; the privacy audit enforces this.
-4. **Missing Values** – Unavailable lexical/syntactic features are encoded as `null` (JSON) / `NaN` (CSV) and excluded from statistical calculations.
+1. **Checksums** – Every file under `data/` has a cryptographic SHA‑2 hash recorded in the project's `state/projects/PROJ-272-statistical-analysis-of-publicly-availab.yaml` `artifact_hashes` map.  
+2. **Immutability** – Raw embeddings are never altered; all transformations write new files.  
+3. **PII** – No personally identifying information appears in any artifact; the privacy audit enforces this.  
+4. **Missing Values** – Unavailable lexical/syntactic features are encoded as `null` (JSON) / `NaN` (CSV) and excluded from statistical calculations.  
 5. **Multicollinearity Awareness** – Because `sentence_count` is mathematically related to the coherence metric, the analysis pipeline includes a Variance Inflation Factor (VIF) check. If VIF > 5 for any predictor, the offending covariate is dropped before ANCOVA and the decision is logged in `assumptions.json`.
 
 ## Amendment Note
 The data model already anticipates that `text` may be empty and that lexical/syntactic fields may be `null`. This aligns with the **Specification Amendment** described in the plan and research documents, which formally permits these placeholders until an open dataset with raw transcripts becomes available.
 
 ---
-
-
-

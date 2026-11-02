@@ -1,19 +1,19 @@
 # Research: Statistical Analysis of Publicly Available Textual Data for Detecting Cognitive Decline
 
 ## Summary of Research
-The ADReSS Challenge provides **pre‑computed sentence embeddings** for each participant’s interview (verified Hugging Face URL). Raw transcripts are not publicly released, so lexical and syntactic markers cannot be computed directly. Nevertheless, **semantic coherence**—operationalized as the **Fisher‑z transformed mean pairwise cosine similarity** of sentence‑level embeddings—has been shown to be a useful indicator of semantic consistency in language tasks. The `all‑MiniLM‑L6‑v2` model (source: arXiv:2607.07974) is validated for semantic similarity tasks, providing a reliable basis for the coherence metric.
+The ADReSS Challenge provides **pre‑computed sentence embeddings** for each participant’s interview (verified Hugging Face URL). Raw transcripts are not publicly released, so lexical and syntactic markers cannot be computed directly. Nevertheless, **semantic coherence**—operationalized as the **Fisher‑z transformed mean pairwise cosine similarity** of sentence‑level embeddings—has been shown to be a useful indicator of semantic consistency in language tasks. The `all‑MiniLM‑L6‑v2` model (source: arXiv 2607.07974) is validated for semantic similarity tasks, providing a reliable basis for the coherence metric.
 
 ## Specification Amendment Request
 Because the original specification (FR‑001, FR‑002, SC‑002) requires raw transcripts that are unavailable in the open ADReSS dataset, we formally request the following amendments:
 
-1. **FR‑001 Amendment** – Allow ingestion of raw transcripts **if** an open dataset with them becomes available. Until then, the pipeline will create an empty `text` field and log the step as a no‑op.
-2. **FR‑002 Amendment** – Permit lexical and syntactic feature extraction to be conditional on the presence of raw transcripts. When transcripts are missing, those feature columns will be set to `null`.
+1. **FR‑001 Amendment** – Allow ingestion of raw transcripts **if** an open dataset with them becomes available. Until then, the pipeline will create an empty `text` field and log the step as a no‑op.  
+2. **FR‑002 Amendment** – Permit lexical and syntactic feature extraction to be conditional on the presence of raw transcripts. When transcripts are missing, those feature columns will be set to `null`.  
 3. **SC‑002 Amendment** – Adjust the success‑criterion to **≥ 300 records** after exclusions (the realistic maximum for ADReSS). The primary hypothesis will focus on the combined **(AD + MCI) vs Control** contrast to ensure adequate power.
 
 These amendments are reflected in the implementation plan and will be recorded as a formal amendment (version 1.1.0) to the project constitution.
 
 ## Construct‑Validity Justification
-Semantic coherence captures the consistency of thematic content across utterances. The `all‑MiniLM‑L6‑v2` model (arXiv:2607.07974) has been benchmarked on standard semantic similarity datasets, ensuring that cosine similarity between its sentence embeddings reflects genuine semantic relatedness. Prior neuro‑cognitive work indicates that lower coherence correlates with cognitive impairment; therefore, the Fisher‑z transformed mean cosine similarity serves as a valid proxy for detecting decline. By including **sentence count** as a covariate, we control for the known dependence of mean similarity on the number of sentences, preserving construct validity.
+Semantic coherence captures the consistency of thematic content across utterances. The `all‑MiniLM‑L6‑v2` model (arXiv 2607.07974) has been benchmarked on standard semantic similarity datasets, ensuring that cosine similarity between its sentence embeddings reflects genuine semantic relatedness. Prior neuro‑cognitive work indicates that lower coherence correlates with cognitive impairment; therefore, the Fisher‑z transformed mean cosine similarity serves as a valid proxy for detecting decline. By including **sentence count** as a covariate, we control for the known dependence of mean similarity on the number of sentences, preserving construct validity.
 
 ## Dataset Strategy
 
@@ -39,11 +39,12 @@ All other URLs listed in the “Verified datasets” block are unrelated and the
 ### 2. Power Analysis (FR‑007)
 * Use `statsmodels.stats.power.FTestAnovaPower` to compute required sample size for a three‑group ANCOVA with two covariates, targeting **80 % power**, **α = 0.05 / (N_features × 2) = 0.025**, and a medium effect size (partial η² ≈ 0.06 ⇒ Cohen’s f ≈ 0.25).  
 * **Primary contrast**: **combined AD + MCI vs Control** (≥ 80 % power with ~300 participants).  
-* **Exploratory contrast**: **Control vs MCI** (power < 80 %); this limitation is documented in `data/results/power_analysis.txt`. Results are saved to `data/results/power_analysis.txt`.
+* **Exploratory contrast**: **Control vs MCI** (power < 80 %); this limitation is documented in `data/results/power_analysis.txt`.  
+* Results saved to `data/results/power_analysis.txt`.
 
 ### 3. Feature Extraction (US‑2)
 * Load each participant’s embedding array (`.npy` stored in `embedding_path`).  
-* Compute **semantic coherence** as the mean pairwise cosine similarity of sentence embeddings (`sentence_embedding_cosine_similarity`).  
+* Compute **semantic coherence** as the mean pairwise cosine similarity of sentence embeddings.  
 * Apply a **Fisher‑z transformation** to improve normality:
 
 \[
@@ -57,7 +58,7 @@ z_i = \frac{1}{2}\ln\left(\frac{1 + \text{Coherence}_i}{1 - \text{Coherence}_i}\
 * Fit two ANCOVA models using `statsmodels.formula.api.ols`:
 
 ```
-z_coherence ~ C(Group) + Age + Education + Sentence_Count
+z_coherence ~ C(label) + age + education + sentence_count
 ```
 
   - **Primary contrast**: **(AD + MCI) vs Control**.  
@@ -68,9 +69,9 @@ z_coherence ~ C(Group) + Age + Education + Sentence_Count
 * **Bootstrap CI**: 5 000 bias‑corrected accelerated (BCa) resamples of the η² estimate.  
 * **Assumption checks**:  
   - Normality of residuals → Shapiro‑Wilk (α = 0.05).  
-  - Homogeneity of regression slopes → test interactions `Group:Age`, `Group:Education`, `Group:Sentence_Count`.  
+  - Homogeneity of regression slopes → test interactions `label:age`, `label:education`, `label:sentence_count`.  
   - Linearity → scatter plots of each covariate vs. residuals (saved in `assumptions.json`).  
-* **Multicollinearity**: Compute Variance Inflation Factor (VIF) for all predictors. If any VIF > 5 (especially `Sentence_Count`), drop `Sentence_Count` and re‑fit, documenting the decision in `assumptions.json`.  
+* **Multicollinearity**: Compute Variance Inflation Factor (VIF) for all predictors. If any VIF > 5 (especially `sentence_count`), drop `sentence_count` and re‑fit, documenting the decision in `assumptions.json`.  
 * **Fallback analysis**:  
   - If normality fails after Fisher‑z, fit a **beta regression** on the bounded cosine similarity (with logit link).  
   - If any ANCOVA assumption fails, run a **permutation‑based ANCOVA** (10 000 permutations). For severe violations, also provide a **rank‑based ANCOVA**. Report permutation and rank‑based p‑values alongside the parametric results.  
@@ -105,11 +106,8 @@ All diagnostics are stored in `data/processed/assumptions.json`; any violations 
 | Raw transcript limitation | Explicitly state limitation; set lexical/syntactic fields to `null`. |
 | Embedding file corruption | Verify SHA‑256; abort on mismatch. |
 | Assumption violations | Report them; if severe, fall back to permutation‑based ANCOVA or beta regression. |
-| Multicollinearity between `Sentence_Count` and `z_coherence` | Perform VIF check; drop `Sentence_Count` if VIF > 5. |
+| Multicollinearity between `sentence_count` and `z_coherence` | Perform VIF check; drop `sentence_count` if VIF > 5. |
 | Class imbalance | ANCOVA handles unequal group sizes; report group‑wise descriptive statistics. |
 | Potential PII leakage | Regex audit after every step; abort on detection. |
 
 ---
-
-
-
