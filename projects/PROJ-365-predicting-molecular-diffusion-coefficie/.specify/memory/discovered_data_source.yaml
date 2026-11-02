@@ -1,16 +1,15 @@
 status: none
-intent: experimental diffusion coefficients SMILES solvent viscosity NIST Chemistry
-  WebBook dataset python package dataset
+intent: experimental NIST diffusion coefficient database python package dataset download
 required_fields:
 - solute_smiles
 - solvent_name
-- diffusion_coefficient
-- temperature
-- pressure
-- viscosity
-- dielectric_constant
-- diffusion_units
-- reference_id
-cache_key: e7892d77358b18b628be43da7a0baf2aecc7e98894af8b0ac0d3b7e6d1ee0387
-searched_at: '2026-10-29T07:13:31.776041+00:00'
+- temperature_K
+- pressure_atm
+- diffusion_coefficient_cm2_per_s
+- solvent_viscosity_cP
+- solvent_dielectric_constant
+- measurement_reference
+- record_id
+cache_key: cd509197b4a63868b47a50b29e0dee0c80be4be948474b9c4011e0d6c4f620bc
+searched_at: '2026-11-02T21:19:28.436932+00:00'
 retry_count: 1

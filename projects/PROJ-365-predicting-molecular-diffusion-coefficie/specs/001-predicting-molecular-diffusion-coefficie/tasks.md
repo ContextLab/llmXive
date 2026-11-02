@@ -21,7 +21,7 @@ The checklist follows the canonical format
 
 ## Phase 0 – Data acquisition & provenance
 
-- [~] T001 [P] [US1] Create the raw‑data directory – `data/raw/`  
+- [ ] T001 [P] [US1] Create the raw‑data directory – `data/raw/`  
     • Verification: after running the setup script, `ls data/raw` lists a directory (exit code 0).  
 
 - [~] T002 [P] [US1] Generate a deterministic synthetic dataset (validation‑only fallback) – `code/ingestion/generate_synthetic.py`  
@@ -29,7 +29,7 @@ The checklist follows the canonical format
     • **Note:** This synthetic dataset is **only** for pipeline validation and does **not** satisfy FR‑001, which requires experimental data.  
     • Verification: the CSV exists, its row count equals 500, and it validates against `contracts/ingestion_schema.schema.yaml`.  
 
-- [ ] T003 [P] [US1] Download a verified real dataset – `code/ingestion/fetch_real.py`   <!-- FAILED-IN-EXECUTION: code/ingestion/fetch_real.py exit=1 -->
+- [ ] T003 [P] [US1] Download a verified real dataset – `code/ingestion/fetch_real.py`   <!-- FAILED-IN-EXECUTION: code/ingestion/fetch_real.py exit=1 --> <!-- FAILED: unspecified -->
     • Reads a line `Dataset URL: <url>` from `plan.md`, downloads the CSV to `data/raw/dataset.csv`, and raises an exception on any network or HTTP error (no silent fallback).  
     • If `plan.md` does **not** contain a URL, the script aborts with a clear error (“No real dataset URL – FR‑001 cannot be satisfied”).  
     • Verification: on success the file exists, is non‑empty, and passes schema validation (`contracts/ingestion_schema.schema.yaml`). On missing URL the script exits with non‑zero status and logs the abort message.  
@@ -77,15 +77,15 @@ The checklist follows the canonical format
     • Provides a `forward` method that accepts a batch of `torch_geometric.data.Data`.  
     • Verification: unit test runs a forward pass on a tiny synthetic batch without raising; the log contains “Device: CPU”.  
 
-- [ ] T009 [P] [US2] Implement a linear‑regression baseline using Morgan fingerprints + solvent descriptors – `code/models/baseline.py`  
+- [~] T009 [P] [US2] Implement a linear‑regression baseline using Morgan fingerprints + solvent descriptors – `code/models/baseline.py`  
     • Uses `sklearn.linear_model.LinearRegression` and a helper to compute 2048‑bit fingerprints from SMILES.  
     • Verification: training on a 10‑sample synthetic dataset produces a non‑empty coefficient vector and a successful `fit` call.  
 
-- [ ] T010 [P] [US2] 5‑fold cross‑validation strategy stratified by solvent type – `code/training/cv_strategy.py`  
+- [~] T010 [P] [US2] 5‑fold cross‑validation strategy stratified by solvent type – `code/training/cv_strategy.py`  
     • Raises `ConfigurationError` if the processed dataset contains fewer than 50 samples; otherwise returns exactly 5 folds with solvent‑type distribution deviation ≤ 5 % per fold.  
     • Verification: unit test on a processed dataset with ≥ 50 rows checks the number of folds and the distribution constraint.  
 
-- [ ] T011 [P] [US2] Training loop with checkpointing for both models – `code/training/train.py`  
+- [ ] T011 [P] [US2] Training loop with checkpointing for both models – `code/training/train.py`   <!-- FAILED-IN-EXECUTION: code/training/train.py exit=1 -->
     • Executes the CV strategy, trains the MPNN and baseline on each fold, saves checkpoints to `artifacts/models/mpnn_fold_{i}.pt` and `artifacts/models/baseline_fold_{i}.pt`.  
     • Records peak memory usage to `artifacts/reports/memory_profile.json` (SC‑005) and logs runtime per fold.  
     • Verification: after running on `data/processed/featurized_data.jsonl`, checkpoint files exist for all folds, `training.log` contains start‑to‑end timestamps for each fold, `memory_profile.json` asserts `peak_memory_mb ≤ 7000`, and the log reports successful completion.  

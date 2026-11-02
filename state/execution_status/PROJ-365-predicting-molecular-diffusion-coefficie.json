@@ -1,10 +1,10 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-29T07:13:34Z",
+  "updated_at": "2026-11-02T21:19:30Z",
   "project_id": "PROJ-365-predicting-molecular-diffusion-coefficie",
   "total_attempts": 0,
-  "replan_rounds": 0,
+  "replan_rounds": 1,
   "failure_class": "unknown",
   "evidence": []
 }

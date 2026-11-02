@@ -1,4 +1,5 @@
 T001:
+  reason: 'declared artifact(s) missing/empty/invalid: data/raw/'
   task: 2ae737c26f029b96db232ec28557377636b3d9fe40502082248abc26fea011a0
 T002:
   reason: "Checked `code/ingestion/generate_synthetic.py` (uses fixed seed\u202F42,\
@@ -53,6 +54,8 @@ T009:
 T010:
   task: 6032706f07ba14f6861ce1f5ebc2354e410a6974344b07141efcf5287a16174b
 T011:
+  reason: 'Requested task execution failed; rerun successfully: code/training/train.py
+    exit=1'
   task: 6bf26076de786f54b74c2926eab0fbf20b0766fcd3042cef35e85446ac71ca33
 T012:
   task: 552c888859183eaf6e7fd080795c2f4ff76341d6f751c3d5768ede9b1996c9c2
