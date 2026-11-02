@@ -28,6 +28,10 @@ This project aims to develop a statistical analysis pipeline to detect cognitive
 - **Excluded Sources**: DementiaBank is explicitly excluded from this project scope per the Implementation Plan. No code paths shall attempt to fetch or process data from DementiaBank unless a verified source URL and access method are provided in a future spec amendment.  
 - **Data Format**: Raw text transcripts (`.txt` or `.csv`), associated cognitive status labels, and optional embedding files (`.npy` or `.pt`).
 
+**Contingency for Missing Transcripts**:
+- If a record lacks a raw transcript, that record is omitted from lexical and syntactic feature extraction and logged in `data/interim/exclusions.log`.  
+- If **no** raw transcripts are available in the dataset (e.g., dataset provides only embeddings), the pipeline shall abort with a clear error message indicating that lexical and syntactic analyses cannot be performed, and the overall study will be halted pending a scope amendment to include an alternative source of raw text.
+
 **Edge Cases**:
 - Records with missing cognitive status labels **are omitted from the output CSV** and logged in `data/interim/exclusions.log`.  
 - Transcripts with insufficient length (< 50 words) **are omitted from the output CSV** and logged in `data/interim/exclusions.log`.  
@@ -74,6 +78,10 @@ Diagnostics and any violations shall be reported in the final statistical report
 - `raw_record_count.json` – total number of records read from the source dataset.  
 - `group_counts.json` – counts of records per cognitive status group (Control, MCI, AD).  
 Both files must conform to a simple schema `{ "total": int, "groups": { "Control": int, "MCI": int, "AD": int } }` and be referenced in the metadata report.
+
+### FR-010: Raw Transcript Availability Check (New)
+
+**Requirement**: Before any lexical or syntactic feature extraction, the system shall verify that at least one raw transcript is present in the ingested dataset. If none are found, the pipeline shall abort with error code 101 and log a clear message indicating that raw transcripts are required for the study’s primary research question. No downstream analysis shall be executed until the dataset is amended to include raw text.
 
 ## 3. User Stories
 
@@ -162,10 +170,10 @@ The project follows a phased approach:
 ## 8. Success Criteria
 
 - **SC-001**: At least one linguistic feature shows a statistically significant difference (Bonferroni‑adjusted *p* ≤ 0.05) **(See US2)**.  
-- **SC-002**: The cleaned dataset (`cleaned_adress.csv`) contains **≥ 150 records** after exclusions, which is realistic given the ADReSS dataset size (≈ 300 participants) and expected exclusion rate. **(See US1)**  
+- **SC-002**: The cleaned dataset (`cleaned_adress.csv`) contains **≥ 150 records** after exclusions, which is realistic given the ADReSS dataset size (approximately a few hundred participants) and expected exclusion rate. **(See US1)**  
 - **SC-003**: The final statistical report (`data/results/statistical_report.pdf`) is generated without errors, includes the required visualizations (boxplots for each feature and a summary violin plot), and passes the automated PII audit **(See US3 & US4)**.  
 - **SC-004**: Privacy audit reports **zero** PII detections; any detection aborts the pipeline as specified in US4.  
-- **SC-009**: The a priori power analysis (FR‑007) confirms **≥ 80 % power** to detect a medium effect size (partial η² ≈ 0.06) for the ANCOVA models given the available sample size **(See US2)**, or otherwise documents the limitation.
+- **SC-009**: The a priori power analysis (FR‑007) confirms **≥ 80 % power** to detect a medium effect size (partial η² indicating a moderate effect) for the ANCOVA models given the available sample size **(See US2)**, or otherwise documents the limitation.
 
 ## Requirements *(mandatory)*
 
