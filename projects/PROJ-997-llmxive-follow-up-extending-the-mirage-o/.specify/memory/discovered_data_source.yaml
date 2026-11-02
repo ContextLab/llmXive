@@ -1,8 +1,8 @@
 status: none
-intent: downloadable GSM8K prompts with Llama-2-3B-4bit-GGUF gradient norms curvature
+intent: download hardware quantized inference gap dataset GSM8K Llama-2-3B-4bit-GGUF
   python package dataset
 required_fields:
-- prompt
+- prompt_text
 - full_precision_logits
 - int8_logits
 - int4_logits
@@ -12,6 +12,6 @@ required_fields:
 - kl_divergence_fp8
 - gradient_norm
 - local_curvature
-cache_key: 465dd583c1d058cc76c3beadea01421ee5df73ffd8292ab3ad5c9515ed012aa0
-searched_at: '2026-11-01T17:08:30.063512+00:00'
+cache_key: d64fd216c224e249ea404be2cc21d1154f7593b9c25486ba10d88c76b728778a
+searched_at: '2026-11-02T15:09:46.980734+00:00'
 retry_count: 1
