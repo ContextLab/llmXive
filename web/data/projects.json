@@ -28700,7 +28700,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-02T06:10:16.324910+00:00",
+  "generated_at": "2026-11-02T06:34:47.161672+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -39683,6 +39683,14 @@
       "last_run_log": [
         {
           "agent": "tasker",
+          "duration_s": 3.363136,
+          "ended_at": "2026-11-02T06:10:04.483260Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-02T06:10:01.120124Z"
+        },
+        {
+          "agent": "tasker",
           "duration_s": 2.164005,
           "ended_at": "2026-11-01T08:06:42.282288Z",
           "model": "zai-org.glm-5.3",
@@ -39752,14 +39760,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-10-26T22:09:12.012947Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 2.534642,
-          "ended_at": "2026-10-26T20:07:21.106413Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-10-26T20:07:18.571771Z"
         }
       ],
       "paper_status": null,
@@ -174703,6 +174703,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 3.782142,
+          "ended_at": "2026-11-02T06:25:16.461980Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-02T06:25:12.679838Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 3.743277,
           "ended_at": "2026-10-21T12:31:40.811837Z",
           "model": "openai.gpt-oss-120b",
@@ -174772,14 +174780,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-09-03T01:52:39.088276Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 56.484219,
-          "ended_at": "2026-09-03T01:52:24.657008Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-03T01:51:28.172789Z"
         }
       ],
       "paper_status": null,
@@ -175817,6 +175817,30 @@
     }
   ],
   "recent_activity": [
+    {
+      "agent": "implementer",
+      "duration_s": 3.782142,
+      "ended_at": "2026-11-02T06:25:16.461980Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-986-llmxive-follow-up-extending-blockpilot-i",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-11-02T06:25:12.679838Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 3.363136,
+      "ended_at": "2026-11-02T06:10:04.483260Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-055-investigating-the-impact-of-telomere-len",
+      "project_stage": "planned",
+      "severity": "hard",
+      "started_at": "2026-11-02T06:10:01.120124Z"
+    },
     {
       "agent": "implementer",
       "duration_s": 3.762805,
@@ -181867,30 +181891,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-30T07:07:38.005814Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 4.610914,
-      "ended_at": "2026-10-30T07:08:26.689757Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-033-predicting-material-properties-from-comp",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-10-30T07:08:22.078843Z"
-    },
-    {
-      "agent": "clarifier",
-      "duration_s": 3.162171,
-      "ended_at": "2026-10-30T07:08:24.585306Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-762-quantifying-hallucination-in-llm-generat",
-      "project_stage": "specified",
-      "severity": "hard",
-      "started_at": "2026-10-30T07:08:21.423135Z"
     }
   ],
   "reviewed_preprints": [
