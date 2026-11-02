@@ -1,14 +1,7 @@
-last_used: alan-turing
-last_used_at: '2026-11-02T14:06:26.135338+00:00'
-last_outcome: model_error
+last_used: albert-einstein
+last_used_at: '2026-11-02T16:06:22.506556+00:00'
+last_outcome: abstained
 history:
-- slug: linus-pauling
-  started_at: '2026-07-03T16:37:10.909311+00:00'
-  ended_at: '2026-07-03T18:34:27.240893+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-120-machine-learning-prediction-of-glass-tra/reviews/research/linus-pauling-simulated__2026-07-03__research.md
 - slug: marie-curie
   started_at: '2026-07-03T18:34:27.240893+00:00'
   ended_at: '2026-07-03T20:31:34.312908+00:00'
@@ -1195,3 +1188,7 @@ history:
   started_at: '2026-11-02T12:07:12.436697+00:00'
   ended_at: '2026-11-02T14:06:26.135338+00:00'
   outcome: model_error
+- slug: albert-einstein
+  started_at: '2026-11-02T14:06:26.135338+00:00'
+  ended_at: '2026-11-02T16:06:22.506556+00:00'
+  outcome: abstained
