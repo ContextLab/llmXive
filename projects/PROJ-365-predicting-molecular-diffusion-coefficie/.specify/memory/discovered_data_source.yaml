@@ -1,5 +1,6 @@
 status: none
-intent: experimental NIST diffusion coefficient database python package dataset download
+intent: ThermoML experimental diffusion coefficients SMILES solvent viscosity dielectric
+  constant python package dataset
 required_fields:
 - solute_smiles
 - solvent_name
@@ -9,7 +10,6 @@ required_fields:
 - solvent_viscosity_cP
 - solvent_dielectric_constant
 - measurement_reference
-- record_id
-cache_key: cd509197b4a63868b47a50b29e0dee0c80be4be948474b9c4011e0d6c4f620bc
-searched_at: '2026-11-02T21:19:28.436932+00:00'
+cache_key: 225e1a723ece04b3ea403fb9e416d1a8d0465ebb1468cdcb25cda6c9e7356c10
+searched_at: '2026-11-02T21:22:43.187542+00:00'
 retry_count: 1
