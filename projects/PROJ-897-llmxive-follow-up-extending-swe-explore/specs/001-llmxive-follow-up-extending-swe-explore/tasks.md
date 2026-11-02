@@ -22,7 +22,7 @@
 
 ## Phase 0: Administrative Alignment & Data Foundation
 
-- [ ] T001a [P] **Create Project Structure**
+- [~] T001a [P] **Create Project Structure**
  - Create directories: `code/`, `data/raw/`, `data/curated/`, `data/results/`, `tests/unit/`, `tests/integration/`, `tests/contract/`.
  - Create `specs/001-llmxive-follow-up-extending-swe-explore/contracts/`.
  - **Verification**: Run `test -d code/ && test -d data/raw/ && test -d data/curated/ && test -d data/results/ && test -d tests/unit/ && test -d tests/integration/ && test -d tests/contract/ && test -d specs/001-llmxive-follow-up-extending-swe-explore/contracts/`. If any fail, create them immediately and log the creation.

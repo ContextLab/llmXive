@@ -1,12 +1,19 @@
 status: none
-intent: download SWE-Explore code issue dataset with coverage scores python package
+intent: download SWE-Explore dataset from SWE-bench GitHub or HuggingFace python package
   dataset
 required_fields:
 - issue_id
-- code
+- repository_name
+- issue_title
+- issue_body
+- code_snippet
 - initial_coverage_score
-- comments
-- metadata
-cache_key: 41f89a3dc1eb9694f2d8cc449c8978eb09e1f152cb23f0df02b1dead4a53fa64
-searched_at: '2026-10-16T21:22:20.922297+00:00'
+- coverage_percentile
+- difficulty_label
+- is_hard
+- synthetic_issue_id
+- original_issue_id
+- mutated_code
+cache_key: 970beb41a028dac24a74d8835d916a6b5eb24ff36bdd6beb1775255aa92c9c1e
+searched_at: '2026-11-02T09:21:28.301990+00:00'
 retry_count: 1
