@@ -1,15 +1,16 @@
 status: none
-intent: "Wisconsin Card Sorting Test dataset OpenNeuro Mini\u2011Mental State Examination\
-  \ ADNI python package dataset"
+intent: Wisconsin Card Sorting Test and Mini Mental State Examination dataset download
+  python package dataset
 required_fields:
 - participant_id
-- condition
+- condition_nostalgia_control
 - wcst_perseverative_errors
 - wcst_categories_completed
 - mmse_score
 - age
 - education_years
 - gender
-cache_key: 677982f0043ae00ea280d297e315bdbb468aa281861a6138e134a166fd49c3c6
-searched_at: '2026-11-02T05:08:59.486695+00:00'
+- audio_sha256_checksum
+cache_key: 7ed8ce812f9b9862d8337d00d06f48ba104f5d75e1002f61924d8ebdeb363820
+searched_at: '2026-11-02T20:09:07.442633+00:00'
 retry_count: 1
