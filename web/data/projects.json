@@ -28700,7 +28700,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-02T03:22:26.423276+00:00",
+  "generated_at": "2026-11-02T04:08:14.719252+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -83157,6 +83157,14 @@
       "last_run_log": [
         {
           "agent": "personality",
+          "duration_s": 1.990007,
+          "ended_at": "2026-11-02T04:07:28.914288+00:00",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "abstained",
+          "started_at": "2026-11-02T04:07:26.924281+00:00"
+        },
+        {
+          "agent": "personality",
           "duration_s": 9.462039,
           "ended_at": "2026-11-02T02:06:29.475652+00:00",
           "model": "openai.gpt-oss-120b",
@@ -83226,14 +83234,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-25T01:22:37.925235Z"
-        },
-        {
-          "agent": "clarifier",
-          "duration_s": 160.495075,
-          "ended_at": "2026-10-25T00:15:16.571484Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "failed",
-          "started_at": "2026-10-25T00:12:36.076409Z"
         }
       ],
       "paper_status": null,
@@ -85917,6 +85917,14 @@
       "id": "PROJ-289-predicting-gene-regulatory-network-dynam",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "specifier",
+          "duration_s": 3.937311,
+          "ended_at": "2026-11-02T03:18:28.143227Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-02T03:18:24.205916Z"
+        },
         {
           "agent": "specifier",
           "duration_s": 1078.188033,
@@ -175802,6 +175810,33 @@
   ],
   "recent_activity": [
     {
+      "agent": "personality",
+      "display_name": "Stephen Wolfram (simulated)",
+      "duration_s": 1.990007,
+      "ended_at": "2026-11-02T04:07:28.914288+00:00",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "model_kind": "personality_simulator",
+      "outcome": "abstained",
+      "personality_slug": "stephen-wolfram",
+      "project_id": "PROJ-272-statistical-analysis-of-publicly-availab",
+      "project_stage": "clarified",
+      "severity": "soft",
+      "started_at": "2026-11-02T04:07:26.924281+00:00"
+    },
+    {
+      "agent": "specifier",
+      "duration_s": 3.937311,
+      "ended_at": "2026-11-02T03:18:28.143227Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-289-predicting-gene-regulatory-network-dynam",
+      "project_stage": "project_initialized",
+      "severity": "hard",
+      "started_at": "2026-11-02T03:18:24.205916Z"
+    },
+    {
       "agent": "planner",
       "duration_s": 196.115103,
       "ended_at": "2026-11-02T03:11:22.641783Z",
@@ -181848,30 +181883,6 @@
       "project_stage": "analyzed",
       "severity": "hard",
       "started_at": "2026-10-30T05:07:06.144811Z"
-    },
-    {
-      "agent": "planner",
-      "duration_s": 122.363869,
-      "ended_at": "2026-10-30T04:10:57.836001Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-444-predicting-molecular-properties-from-top",
-      "project_stage": "clarified",
-      "severity": "hard",
-      "started_at": "2026-10-30T04:08:55.472132Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 8.842827,
-      "ended_at": "2026-10-30T04:09:11.655314Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-247-evaluating-the-impact-of-code-generation",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-10-30T04:09:02.812487Z"
     }
   ],
   "reviewed_preprints": [
