@@ -21,13 +21,6 @@ T004:
     \ contains the required fields (`N_required`, `effect_size`, `achieved_power`,\
     \ `status`). Both the script and output file exist and match the task specification."
   sig: abed012c525f4e75131f9987a422f6c95d0f0fdd85e8aedcc4a76572fa5c8a95
-T005:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration artifacts (e.g., `pyproject.toml` with\
-    \ Black and Ruff settings, `.flake8` file, or CI integration scripts) are present.\
-    \ The evidence provided only contains a high\u2011level feature specification\
-    \ unrelated to configuring ruff/flake8/black, so the required setup is missing."
 T008:
   c: false
   h: a457534a8c0ba6ea102b8097a6d77a5f8824afdd1ca71531fb9bc0959a9cd3c4

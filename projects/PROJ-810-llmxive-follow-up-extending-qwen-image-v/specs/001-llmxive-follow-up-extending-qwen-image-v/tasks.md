@@ -50,7 +50,7 @@
   *Run*: `python -m code.analysis.power --output data/results/power_analysis.json`.  
   *Verification*: `power_analysis.json` contains fields `N_required`, `effect_size`, `achieved_power`, and `status` (`conclusive` or `inconclusive`).  
 
-- [ ] T005 [P] Implement runtime‑budget estimator.   <!-- FAILED-IN-EXECUTION: code/analysis/runtime_estimate.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/analysis/runtime_estimate.py exit=1 -->
+- [ ] T005 [P] Implement runtime‑budget estimator.   <!-- FAILED-IN-EXECUTION: code/analysis/runtime_estimate.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/analysis/runtime_estimate.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/analysis/runtime_estimate.py exit=1 -->
   *File*: `code/analysis/runtime_estimate.py` – estimates total wall‑clock time as `N_required * 60 s` (per‑image budget) and flags if > 6 h. Outputs `data/results/runtime_estimate.json`.  
   *Verification*: `runtime_estimate.json` includes `estimated_seconds`, `exceeds_budget` (bool), and `status`.
 
