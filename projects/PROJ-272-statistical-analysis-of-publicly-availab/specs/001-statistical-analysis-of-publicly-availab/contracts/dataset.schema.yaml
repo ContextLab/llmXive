@@ -12,7 +12,25 @@ properties:
   text:
     type: string
     description: "Cleaned transcript text (empty string when raw text unavailable)."
+  age:
+    type:
+      - "integer"
+      - "null"
+    description: "Age in years (optional)."
+  education:
+    type:
+      - "integer"
+      - "null"
+    description: "Years of formal education (optional)."
+  embedding_path:
+    type: string
+    description: "Relative path to the participant's embedding file."
+  sentence_count:
+    type: integer
+    description: "Number of sentences (derived from embeddings) used as a covariate."
 required:
   - participant_id
   - label
   - text
+  - embedding_path
+  - sentence_count

@@ -36,7 +36,7 @@ python code/ingestion.py \
     --url https://huggingface.co/datasets/pruiu/ADReSS-IS2020_emb/resolve/main/IS2020_test_embeddings/dataset_info.json \
     --output data/raw/adress_embeddings.parquet
 
-# Step 3: Create the interim cleaned CSV (includes empty text placeholder)
+# Step 3: Create the interim cleaned CSV (includes empty text placeholder and sentence count)
 python code/ingestion.py \
     --create-cleaned \
     --input data/raw/adress_embeddings.parquet \
@@ -47,7 +47,7 @@ python code/features.py \
     --input data/interim/cleaned_adress.csv \
     --output data/processed/features.csv
 
-# Step 5: Perform ANCOVA, assumption checks, and bootstrap η² CIs
+# Step 5: Perform ANCOVA, assumption checks, and bootstrap η² CIs (with fallback permutation ANCOVA)
 python code/stats.py \
     --input data/processed/features.csv \
     --output data/processed/ancova_results.json \
@@ -82,7 +82,7 @@ pytest tests/integration/test_pipeline.py
 | Path | Description |
 |------|-------------|
 | `data/interim/cleaned_adress.csv` | Participant ID, label, empty `text`, age, education, and path to each embedding. |
-| `data/interim/exclusions.log` | Log of records omitted due to missing label or insufficient length. |
+| `data/interim/exclusions.log` | Log of records omitted due to missing label or insufficient **sentence count** (< 5 sentences). |
 | `data/interim/raw_record_count.json` | Total number of participants before exclusions. |
 | `data/interim/group_counts.json` | Per‑group participant counts after exclusions. |
 | `data/processed/features.csv` | Semantic coherence metric plus `null` placeholders for lexical/syntactic features. |
@@ -91,6 +91,9 @@ pytest tests/integration/test_pipeline.py
 | `data/results/power_analysis.txt` | A‑priori power analysis for the ANCOVA models. |
 | `data/results/metadata.json` | SHA‑256 checksums, timestamps, and data‑hygiene metadata. |
 | `data/results/statistical_report.pdf` | Full PDF report with tables, boxplots, and effect‑size violin plot. |
-| `logs/privacy_audit.log` | Log of the PII audit (should contain “0 detections”). |
+| `logs/privacy_audit.log` | Log of the PII audit (should contain no detections). |
+
+**Note:** Lexical and syntactic features are omitted because raw transcripts are not publicly available. A **spec amendment** is required to relax FR‑001 and FR‑002 if these features are desired.
 
 ---
+

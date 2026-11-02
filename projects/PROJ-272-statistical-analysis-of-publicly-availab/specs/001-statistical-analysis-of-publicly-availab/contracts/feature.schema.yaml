@@ -9,6 +9,8 @@ properties:
     type: string
   sentence_embedding_cosine_similarity:
     type: number
+  z_coherence:
+    type: number
   ttr:
     type:
       - "number"
@@ -29,10 +31,23 @@ properties:
     type:
       - "integer"
       - "null"
+  age:
+    type:
+      - "integer"
+      - "null"
+  education:
+    type:
+      - "integer"
+      - "null"
+  sentence_count:
+    type:
+      - "integer"
+      - "null"
 required:
   - participant_id
   - label
   - sentence_embedding_cosine_similarity
+  - z_coherence
   - ttr
   - mtld
   - noun_verb_ratio
