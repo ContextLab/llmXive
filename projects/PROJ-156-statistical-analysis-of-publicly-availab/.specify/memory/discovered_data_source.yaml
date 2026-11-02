@@ -1,36 +1,11 @@
-status: verified
-kind: pypi_package
-ref: speedruncomapi
-access_python: "from speedruncomapi import requests\n\nurl = \"https://www.speedrun.com/api/v1/runs\"\
-  \nresponse = requests.get(url)\nresponse.raise_for_status()\ndata = response.json()\n\
-  runs = data.get(\"data\", [])\nprint(f\"RECORDS={len(runs)}\")\nif runs:\n    print(f\"\
-  FIELDS={','.join(runs[0].keys())}\")"
-record_count: 20
-sample_fields:
-- id
-- weblink
-- game
-- level
-- category
-- videos
-- comment
-- status
-- players
-- date
-- date-time
-- submitted
-- times
-- system
-- splits
-- values
-- links
-field_coverage: 0.667
+status: none
+intent: speedrun.com API speedrun data full runs python package dataset
 required_fields:
 - run_time_seconds
 - runner_id
 - attempt_number
 - category
 - submission_date
-- game_id
-intent: speedrun.com runs dataset download python package speedrun API
-cache_key: d9e1926e0e6d2459965a0f5b026dcc0d375bd17fe965a87d6bd5fa8e5593b44f
+cache_key: 90651abf324732fdcfe6625e7a605fbdaefdd21804f89cdc08cc3cf8fc3e0358
+searched_at: '2026-11-02T02:10:05.069710+00:00'
+retry_count: 1
