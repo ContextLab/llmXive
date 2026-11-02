@@ -1,16 +1,18 @@
 status: none
-intent: ENCODE RNA-seq ATAC-seq DNase-seq count data download python package dataset
+intent: ENCODE GEO paired RNA-seq DNase-seq ATAC-seq count data python package dataset
 required_fields:
-- biosample_id
-- assay_type
-- feature_id
-- gene_id
-- peak_id
+- sample_id
+- assay_type (RNA-seq, DNase-seq, ATAC-seq)
+- gene_id (for RNA-seq)
+- gene_count
+- peak_id (for DNase/ATAC)
 - chromosome
-- start
-- end
-- raw_count
-- normalized_count
-cache_key: 89e852128faca3e11fccef267eefcc0f173e543e1c2507e74d462348293dd1f1
-searched_at: '2026-11-02T01:07:42.002943+00:00'
+- peak_start
+- peak_end
+- peak_count
+- cell_type
+- biosample_type
+- donor_id
+cache_key: decdabdbf3ca35b42c568b849cfcec31ec1d164b7722d7bb5fce6a3b4ce3fe5a
+searched_at: '2026-11-02T23:07:38.508016+00:00'
 retry_count: 1
