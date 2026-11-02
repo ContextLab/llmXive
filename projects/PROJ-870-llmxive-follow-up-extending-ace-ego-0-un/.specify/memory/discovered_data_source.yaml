@@ -1,13 +1,14 @@
 status: none
-intent: download EPIC-KITCHENS-100 dataset, RoboCasa benchmark, RoboTwin benchmark,
-  OpenVLA episodes python package dataset
+intent: VLA egocentric video dataset ACE-Ego-0 open source download python package
 required_fields:
 - video_id
-- video_file_path
-- frame_timestamp
+- segment_id
+- frame_id
+- image_path
+- timestamp
 - exposure_time
 - focal_length
-- dynamic_reliability_score
-cache_key: dec604fc71f0052de74a52f3d2b09cd61a04c392dd89e5ec8adfb8dcc09e7dc4
-searched_at: '2026-10-25T01:31:13.860733+00:00'
+- camera_intrinsics
+cache_key: a65803a66f9d25275d665ea71734f1d6bda24e53d8d029ca39a82bced121e6f5
+searched_at: '2026-11-02T07:08:59.119239+00:00'
 retry_count: 1
