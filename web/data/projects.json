@@ -28700,7 +28700,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-02T17:06:39.062070+00:00",
+  "generated_at": "2026-11-02T17:08:50.698594+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -81596,6 +81596,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 7.625773,
+          "ended_at": "2026-11-02T17:07:11.339780Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-02T17:07:03.714007Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 6.057592,
           "ended_at": "2026-11-02T15:06:38.500317Z",
           "model": "zai-org.glm-5.3",
@@ -81665,14 +81673,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-12T13:41:12.801236Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 26.657971,
-          "ended_at": "2026-10-12T13:41:12.797506Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-12T13:40:46.139535Z"
         }
       ],
       "paper_status": null,
@@ -90224,6 +90224,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 4.726085,
+          "ended_at": "2026-11-02T17:06:45.149298Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-02T17:06:40.423213Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 5.440072,
           "ended_at": "2026-11-02T10:08:03.148523Z",
           "model": "zai-org.glm-5.3",
@@ -90293,14 +90301,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-10-03T17:07:50.058057Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 22.137228,
-          "ended_at": "2026-10-03T17:07:50.054388Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-03T17:07:27.917160Z"
         }
       ],
       "paper_status": null,
@@ -108980,6 +108980,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 5.481318,
+          "ended_at": "2026-11-02T17:07:48.883333Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-02T17:07:43.402015Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 5.510496,
           "ended_at": "2026-11-01T19:06:32.570815Z",
           "model": "zai-org.glm-5.3",
@@ -109049,14 +109057,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-10-28T05:06:53.212841Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 1078.873963,
-          "ended_at": "2026-10-28T04:26:03.038424Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-10-28T04:08:04.164461Z"
         }
       ],
       "paper_status": null,
@@ -120761,6 +120761,14 @@
       "id": "PROJ-494-predicting-molecular-dielectric-constant",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "research_question_validator",
+          "duration_s": 2.678877,
+          "ended_at": "2026-11-02T17:07:16.315780Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-02T17:07:13.636903Z"
+        },
         {
           "agent": "research_question_validator",
           "duration_s": 2.771052,
@@ -148776,6 +148784,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 6.373295,
+          "ended_at": "2026-11-02T17:07:15.161196Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-02T17:07:08.787901Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 5.202852,
           "ended_at": "2026-11-02T11:06:53.832432Z",
           "model": "zai-org.glm-5.3",
@@ -148845,14 +148861,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-13T02:41:15.532654Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 118.195037,
-          "ended_at": "2026-10-13T02:41:15.528004Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-13T02:39:17.332967Z"
         }
       ],
       "paper_status": null,
@@ -175858,6 +175866,66 @@
   ],
   "recent_activity": [
     {
+      "agent": "implementer",
+      "duration_s": 5.481318,
+      "ended_at": "2026-11-02T17:07:48.883333Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-424-investigating-the-predictive-power-of-mo",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-11-02T17:07:43.402015Z"
+    },
+    {
+      "agent": "research_question_validator",
+      "duration_s": 2.678877,
+      "ended_at": "2026-11-02T17:07:16.315780Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-494-predicting-molecular-dielectric-constant",
+      "project_stage": "flesh_out_complete",
+      "severity": "hard",
+      "started_at": "2026-11-02T17:07:13.636903Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 6.373295,
+      "ended_at": "2026-11-02T17:07:15.161196Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-820-llmxive-follow-up-extending-visual-gener",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-11-02T17:07:08.787901Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 7.625773,
+      "ended_at": "2026-11-02T17:07:11.339780Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-266-exploring-the-correlation-between-molecu",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-11-02T17:07:03.714007Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 4.726085,
+      "ended_at": "2026-11-02T17:06:45.149298Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-314-predicting-the-impact-of-composition-on-",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-11-02T17:06:40.423213Z"
+    },
+    {
       "agent": "planner",
       "duration_s": 171.54535,
       "ended_at": "2026-11-02T16:09:32.249343Z",
@@ -181877,66 +181945,6 @@
       "project_stage": "clarified",
       "severity": "hard",
       "started_at": "2026-10-30T18:22:49.381139Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 13.760687,
-      "ended_at": "2026-10-30T18:24:23.143392Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-090-evaluating-the-robustness-of-llm-generat",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-30T18:24:09.382705Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 19.30206,
-      "ended_at": "2026-10-30T18:24:09.378716Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-090-evaluating-the-robustness-of-llm-generat",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-30T18:23:50.076656Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 171.117262,
-      "ended_at": "2026-10-30T18:23:50.072391Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-090-evaluating-the-robustness-of-llm-generat",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-30T18:20:58.955129Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 160.682616,
-      "ended_at": "2026-10-30T18:16:37.595933Z",
-      "failure_reason": "",
-      "model": "google.gemma-4-31B-it",
-      "outcome": "success",
-      "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-30T18:13:56.913317Z"
-    },
-    {
-      "agent": "planner",
-      "duration_s": 144.389289,
-      "ended_at": "2026-10-30T18:15:06.488915Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-444-predicting-molecular-properties-from-top",
-      "project_stage": "clarified",
-      "severity": "hard",
-      "started_at": "2026-10-30T18:12:42.099626Z"
     }
   ],
   "reviewed_preprints": [
