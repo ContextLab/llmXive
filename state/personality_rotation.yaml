@@ -1,14 +1,7 @@
-last_used: stephen-wolfram
-last_used_at: '2026-11-02T06:06:13.380257+00:00'
-last_outcome: model_error
+last_used: ada-lovelace
+last_used_at: '2026-11-02T08:08:14.504434+00:00'
+last_outcome: abstained
 history:
-- slug: eric-kandel
-  started_at: '2026-07-03T09:10:15.981904+00:00'
-  ended_at: '2026-07-03T10:59:28.516287+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/reviews/research/eric-kandel-simulated__2026-07-03__research.md
 - slug: freeman-dyson
   started_at: '2026-07-03T10:59:28.516287+00:00'
   ended_at: '2026-07-03T12:44:45.232441+00:00'
@@ -1207,3 +1200,7 @@ history:
   started_at: '2026-11-02T04:07:28.914288+00:00'
   ended_at: '2026-11-02T06:06:13.380257+00:00'
   outcome: model_error
+- slug: ada-lovelace
+  started_at: '2026-11-02T06:06:13.380257+00:00'
+  ended_at: '2026-11-02T08:08:14.504434+00:00'
+  outcome: abstained
