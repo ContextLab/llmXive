@@ -28700,7 +28700,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-01T23:15:51.970805+00:00",
+  "generated_at": "2026-11-02T00:07:16.995882+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -164619,6 +164619,14 @@
       "last_run_log": [
         {
           "agent": "personality",
+          "duration_s": 8.536923,
+          "ended_at": "2026-11-02T00:06:36.748858+00:00",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "model_error",
+          "started_at": "2026-11-02T00:06:28.211935+00:00"
+        },
+        {
+          "agent": "personality",
           "duration_s": 1.023774,
           "ended_at": "2026-11-01T22:05:25.121591+00:00",
           "model": "openai.gpt-oss-120b",
@@ -164688,14 +164696,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-09-29T06:53:00.071573Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 5.721649,
-          "ended_at": "2026-09-29T06:53:00.068632Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-29T06:52:54.346983Z"
         }
       ],
       "paper_status": null,
@@ -175802,6 +175802,21 @@
   ],
   "recent_activity": [
     {
+      "agent": "personality",
+      "display_name": "Stephen Wolfram (simulated)",
+      "duration_s": 8.536923,
+      "ended_at": "2026-11-02T00:06:36.748858+00:00",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "model_kind": "personality_simulator",
+      "outcome": "model_error",
+      "personality_slug": "stephen-wolfram",
+      "project_id": "PROJ-916-llmxive-follow-up-extending-interleaveth",
+      "project_stage": "planned",
+      "severity": "hard",
+      "started_at": "2026-11-02T00:06:28.211935+00:00"
+    },
+    {
       "agent": "implementer",
       "duration_s": 3.502467,
       "ended_at": "2026-11-01T23:07:20.242330Z",
@@ -181860,18 +181875,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-30T01:10:29.893276Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 15.943799,
-      "ended_at": "2026-10-30T01:10:29.889714Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-426-the-impact-of-parasocial-relationships-w",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-30T01:10:13.945915Z"
     }
   ],
   "reviewed_preprints": [
