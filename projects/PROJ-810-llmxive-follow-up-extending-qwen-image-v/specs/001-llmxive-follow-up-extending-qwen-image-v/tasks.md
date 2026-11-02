@@ -12,7 +12,7 @@
   *Write `quickstart.md` with the command `python -m code.main --config config.yaml` and a description of the required environment.*  
   *Verification*: `verify_resources.py` exits with status 0 and creates `data/raw/download_status.json`; `quickstart.md` exists and contains the command line.
 
-- [X] T002 [P] Create `requirements.txt` with exact pinned versions (fixes previously missing file).  
+- [~] T002 [P] Create `requirements.txt` with exact pinned versions (fixes previously missing file).  
   *File path*: `requirements.txt` (project root).  
   *Contents* must match the plan’s Technical Context:  
 
@@ -58,11 +58,11 @@
 
 ## Phase 2 – Data acquisition & deterministic sampling  
 
-- [ ] T006 [P] Download Omni‑Doc‑1 TokenBench subset.   <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 -->
+- [~] T006 [P] Download Omni‑Doc‑1 TokenBench subset.
   *Script*: `code/data/download.py` uses `datasets.load_dataset("omnineura/Omni-Doc-1", split="train", streaming=False)` and writes the parquet file to `data/raw/omnidoc_tokenbench.parquet`.*  
   *Verification*: After run, `data/raw/download_status.json` records `success: true` and file checksum; the parquet file exists and can be opened without error.
 
-- [ ] T007 [P] Deterministic sampling based on feasibility results.  
+- [~] T007 [P] Deterministic sampling based on feasibility results.  
   *Script*: `code/data/sample.py` reads `power_analysis.json` → `N_required`, caps `N_final = min(N_required, floor(6*3600/60))` (respecting the 6 h budget), and draws a fixed‑seed (`seed=42`) sample of `N_final` crops, writing `data/interim/sample.parquet`.*  
   *Verification*: `sample.parquet` contains exactly `N_final` rows; `data/results/sampling_report.json` logs the seed and final size.
 

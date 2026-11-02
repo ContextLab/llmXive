@@ -1,6 +1,7 @@
 torch==2.2.0+cpu
 transformers==4.40.0
 datasets==2.18.0
+pyarrow==15.0.0
 scikit-learn==1.4.0
 opencv-python==4.9.0
 paddleocr==2.7.0
