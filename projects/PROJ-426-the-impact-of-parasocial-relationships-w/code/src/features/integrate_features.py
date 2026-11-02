@@ -75,6 +75,7 @@ def _merge_features(
 
     # Filter for usage that occurred in the 28 days PRIOR to the survey
     # Usage must be before the survey, but not more than 28 days before.
+    # (merged["timestamp"] - merged["week_start"]) gives a Timedelta
     days_diff = (merged["timestamp"] - merged["week_start"]).dt.days
     merged = merged[(days_diff >= 0) & (days_diff < 28)].copy()
 
@@ -97,6 +98,11 @@ def _merge_features(
             "session_duration": "sum",
         })
     )
+
+    # The contract for unified_dataset.schema.yaml specifies session_duration 
+    # maximum: 24.0. Since usage_metrics.py produces duration in minutes,
+    # we convert the summed total to hours to satisfy the contract.
+    unified["session_duration"] = unified["session_duration"] / 60.0
 
     # 2. Merge Attachment Scores (Left join - user level)
     unified = pd.merge(

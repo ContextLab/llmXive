@@ -31,7 +31,7 @@ Tasks are ordered by scientific data‑flow; tasks that can run in parallel are 
 
 ## Phase 1 – Data ingestion & user matching  
 
-- [ ] T003 [P] Implement `src/ingest/download_loneliness.py` to fetch the **Reddit Loneliness Longitudinal Dataset** from its Zenodo DOI, validate required columns (`username_hash`, `UCLA_Loneliness_Score`, `timestamp`, `baseline_text`, `age`, `gender`), enforce ≥ 6 months of non‑null scores per user, and write `data/raw/loneliness_dataset.parquet`.   <!-- FAILED-IN-EXECUTION: code/src/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/main.py exit=1 --> <!-- FAILED: unspecified -->
+- [ ] T003 [P] Implement `src/ingest/download_loneliness.py` to fetch the **Reddit Loneliness Longitudinal Dataset** from its Zenodo DOI, validate required columns (`username_hash`, `UCLA_Loneliness_Score`, `timestamp`, `baseline_text`, `age`, `gender`), enforce ≥ 6 months of non‑null scores per user, and write `data/raw/loneliness_dataset.parquet`.   <!-- FAILED-IN-EXECUTION: code/src/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/main.py exit=1 --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
   - **Verification**: Unit test `tests/unit/test_download_loneliness.py` asserts the parquet contains ≥ 600 rows, all required columns, and that each user has ≥ 6 distinct months with non‑null loneliness scores.
 
 - [~] T004 [P] Implement `src/ingest/fetch_pushshift.py` to retrieve AI‑companion interaction logs from the Pushshift API for subreddits `r/Replika`, `r/characterAI`, and `r/AICompanions`.  
@@ -92,7 +92,7 @@ Tasks are ordered by scientific data‑flow; tasks that can run in parallel are 
 - [~] T017 [P] Perform proxy‑construct validation (usage metrics vs. Parasocial Interaction Scale) on a 30‑user subset. Compute Pearson r; abort with “Proxy Validation Failed” if r < 0.6 (p < 0.05).  
   - **Verification**: `src/validation/validate_proxy_construct.py` writes `data/validation/proxy_construct_report.yaml` with r, p‑value, and pass/fail status.
 
-- [ ] T010 [P] Implement `src/features/integrate_features.py` to merge `matched_users.parquet`, `usage_metrics.parquet`, and `attachment_scores.parquet` into a single longitudinal dataset `data/processed/unified_dataset.parquet`.   <!-- FAILED-IN-EXECUTION: code/src/features/integrate_features.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/features/integrate_features.py exit=1 -->
+- [ ] T010 [P] Implement `src/features/integrate_features.py` to merge `matched_users.parquet`, `usage_metrics.parquet`, and `attachment_scores.parquet` into a single longitudinal dataset `data/processed/unified_dataset.parquet`.   <!-- FAILED-IN-EXECUTION: code/src/features/integrate_features.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/features/integrate_features.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/features/integrate_features.py exit=1 -->
   - **Verification**: Run `src/utils/data_validation.py` against `contracts/unified_dataset.schema.yaml`; the script must produce `logs/unified_dataset_validation.log` with “validation passed”.
 
 ---
