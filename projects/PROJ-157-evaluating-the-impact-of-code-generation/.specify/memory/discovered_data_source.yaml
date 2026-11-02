@@ -1,19 +1,16 @@
 status: none
-intent: download Codeforces C++ reference solutions dataset with problem metadata
+intent: EvalPlus HumanEval dataset with OpenAI HumanEval reference solutions pip install
   python package dataset
 required_fields:
 - problem_id
-- problem_name
-- problem_statement
-- human_cpp_solution
-- time_limit_ms
-- memory_limit_mb
-- difficulty_rating
-- tags
-- input_format
-- output_format
-- sample_input
-- sample_output
-cache_key: 65b106d53a372a35eb4f6a443f272d7cc605fc2a01482b374bc41db9bf3fc63d
-searched_at: '2026-11-01T06:13:16.116811+00:00'
+- problem_description
+- human_solution_code
+- human_solution_language
+- llm_model_name
+- llm_generated_solution_code
+- llm_generated_solution_language
+- generation_timestamp
+- generation_status
+cache_key: 4f17ca34b815f6cddae7346ed47f30234ac49bf39412eb33a1aa3a5374ba59dc
+searched_at: '2026-11-02T04:12:43.561565+00:00'
 retry_count: 1
