@@ -1,13 +1,15 @@
 status: none
-intent: ADReSS Challenge sentence embeddings dataset download python package dataset
+intent: download ADReSS Challenge speech dataset python package dataset
 required_fields:
-- utterance_id
-- sentence_text
-- embedding_vector
-- diagnosis
+- participant_id
+- audio_file_path
+- transcript
+- diagnosis_label
 - age
 - gender
-- audio_file_path
-cache_key: d400885ce6b93e4f21618f038ff71e177956d98b91f958f64b3dd16c44f6dce2
-searched_at: '2026-11-02T00:12:28.835475+00:00'
+- MMSE_score
+- acoustic_features
+- sentence_embeddings
+cache_key: 5e27445aa0a08ad63228e9c8147376e0e5a99d6e235101485fe5e1f04566b9cf
+searched_at: '2026-11-02T00:27:07.046033+00:00'
 retry_count: 1

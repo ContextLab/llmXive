@@ -26,9 +26,10 @@ pre-commit install
 ## Running the Full Pipeline
 
 ```bash
-# Step 1: Power analysis (optional but part of the spec)
+# Step 1: Power analysis (primary combined contrast)
 python code/power.py \
-    --output data/results/power_analysis.txt
+    --output data/results/power_analysis.txt \
+    --primary-contrast combined
 
 # Step 2: Download and verify ADReSS embeddings, create cleaned CSV
 python code/ingestion.py \
@@ -47,7 +48,7 @@ python code/features.py \
     --input data/interim/cleaned_adress.csv \
     --output data/processed/features.csv
 
-# Step 5: Perform ANCOVA, assumption checks, and bootstrap η² CIs (with fallback permutation ANCOVA)
+# Step 5: Perform ANCOVA, assumption checks, multicollinearity (VIF) check, and bootstrap η² CIs (with fallback permutation ANCOVA)
 python code/stats.py \
     --input data/processed/features.csv \
     --output data/processed/ancova_results.json \
@@ -63,6 +64,9 @@ python code/main.py \
 # Optional: Run the entire workflow with a single command
 python code/main.py
 ```
+
+## Specification Amendment Notice
+The original workflow assumed access to raw transcripts for lexical and syntactic analysis. Since the publicly available ADReSS dataset provides only embeddings, the pipeline now **conditionally** computes lexical and syntactic features if raw transcripts become available (as requested in the Specification Amendment). Until then, those columns are written as `null`.
 
 ## Verification
 
@@ -81,19 +85,21 @@ pytest tests/integration/test_pipeline.py
 
 | Path | Description |
 |------|-------------|
-| `data/interim/cleaned_adress.csv` | Participant ID, label, empty `text`, age, education, and path to each embedding. |
+| `data/interim/cleaned_adress.csv` | Participant ID, label, empty `text` placeholder (or actual transcript if available), age, education, and path to each embedding. |
 | `data/interim/exclusions.log` | Log of records omitted due to missing label or insufficient **sentence count** (< 5 sentences). |
-| `data/interim/raw_record_count.json` | Total number of participants before exclusions. |
-| `data/interim/group_counts.json` | Per‑group participant counts after exclusions. |
-| `data/processed/features.csv` | Semantic coherence metric plus `null` placeholders for lexical/syntactic features. |
+| `data/results/raw_record_count.json` | Total number of participants before exclusions (now stored in `results`). |
+| `data/results/group_counts.json` | Per‑group participant counts after exclusions (now stored in `results`). |
+| `data/processed/features.csv` | Semantic coherence metric (`sentence_embedding_cosine_similarity`) plus Fisher‑z transformed `z_coherence`; lexical/syntactic fields are `null` unless raw transcripts are supplied. |
 | `data/processed/ancova_results.json` | ANCOVA statistics, Bonferroni‑adjusted p‑values, partial η², and 95 % BCa CIs. |
-| `data/processed/assumptions.json` | Results of Shapiro‑Wilk, homogeneity of slopes, and linearity diagnostics. |
-| `data/results/power_analysis.txt` | A‑priori power analysis for the ANCOVA models. |
+| `data/processed/assumptions.json` | Results of Shapiro‑Wilk, homogeneity of slopes, linearity diagnostics, and VIF values. |
+| `data/results/power_analysis.txt` | A‑priori power analysis for the ANCOVA models (primary combined contrast). |
 | `data/results/metadata.json` | SHA‑256 checksums, timestamps, and data‑hygiene metadata. |
 | `data/results/statistical_report.pdf` | Full PDF report with tables, boxplots, and effect‑size violin plot. |
 | `logs/privacy_audit.log` | Log of the PII audit (should contain no detections). |
 
-**Note:** Lexical and syntactic features are omitted because raw transcripts are not publicly available. A **spec amendment** is required to relax FR‑001 and FR‑002 if these features are desired.
+**Note:** Lexical and syntactic features are omitted because raw transcripts are not publicly available. A **spec amendment** is required to relax FR‑001 and FR‑002 if these features are desired; the pipeline will still produce a valid analysis of semantic coherence.
 
 ---
+
+
 

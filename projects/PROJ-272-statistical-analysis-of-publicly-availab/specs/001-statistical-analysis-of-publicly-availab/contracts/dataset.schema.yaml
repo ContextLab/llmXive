@@ -14,12 +14,12 @@ properties:
     description: "Cleaned transcript text (empty string when raw text unavailable)."
   age:
     type:
-      - "integer"
+      - integer
       - "null"
     description: "Age in years (optional)."
   education:
     type:
-      - "integer"
+      - integer
       - "null"
     description: "Years of formal education (optional)."
   embedding_path:
