@@ -1,8 +1,10 @@
 status: none
-intent: download hardware quantized inference gap dataset GSM8K Llama-2-3B-4bit-GGUF
-  python package dataset
+intent: GSM8K Llama 2 3B 4bit quantization divergence dataset python package
 required_fields:
+- prompt_id
 - prompt_text
+- gradient_norm
+- local_curvature
 - full_precision_logits
 - int8_logits
 - int4_logits
@@ -10,8 +12,6 @@ required_fields:
 - kl_divergence_int8
 - kl_divergence_int4
 - kl_divergence_fp8
-- gradient_norm
-- local_curvature
-cache_key: d64fd216c224e249ea404be2cc21d1154f7593b9c25486ba10d88c76b728778a
-searched_at: '2026-11-02T15:09:46.980734+00:00'
+cache_key: d76f57ed794da3296b6afdce5bf41748078ac57a8200dfafe0630e4ab6a1cf3c
+searched_at: '2026-11-03T13:09:27.653532+00:00'
 retry_count: 1
