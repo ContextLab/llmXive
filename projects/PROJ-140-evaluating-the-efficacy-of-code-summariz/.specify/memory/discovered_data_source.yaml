@@ -1,5 +1,5 @@
 status: none
-intent: download Defects4J v2.0 Java bug dataset pip install python package dataset
+intent: Defects4J benchmark Chart Time Math dataset download python package dataset
 required_fields:
 - participant_id
 - task_id
@@ -8,8 +8,7 @@ required_fields:
 - selected_line_number
 - ground_truth_buggy_line
 - project_name
-- bug_id
-- method_source_code
-cache_key: 9121eb459d2e8c1f9ed1d960283749895fd1102beec9ee8321b2450befb6c153
-searched_at: '2026-11-02T12:11:02.647884+00:00'
+- buggy_method_name
+cache_key: e579c0bee34741d8fcb4a3dbe23ef360cde47069392fae11af2c208f6fef9cc5
+searched_at: '2026-11-03T11:07:21.290633+00:00'
 retry_count: 1
