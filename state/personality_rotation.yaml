@@ -1,14 +1,7 @@
-last_used: david-krakauer
-last_used_at: '2026-11-03T14:06:17.693426+00:00'
-last_outcome: model_error
+last_used: eric-kandel
+last_used_at: '2026-11-03T16:11:03.565225+00:00'
+last_outcome: abstained
 history:
-- slug: eric-kandel
-  started_at: '2026-07-07T12:56:00.317133+00:00'
-  ended_at: '2026-07-10T05:26:42.309517+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-346-investigating-the-correlation-between-gu/reviews/research/eric-kandel-simulated__2026-07-10__research.md
 - slug: freeman-dyson
   started_at: '2026-07-10T05:26:42.309517+00:00'
   ended_at: '2026-10-09T10:20:17.159244+00:00'
@@ -1170,3 +1163,7 @@ history:
   started_at: '2026-11-03T12:06:56.685826+00:00'
   ended_at: '2026-11-03T14:06:17.693426+00:00'
   outcome: model_error
+- slug: eric-kandel
+  started_at: '2026-11-03T14:06:17.693426+00:00'
+  ended_at: '2026-11-03T16:11:03.565225+00:00'
+  outcome: abstained
