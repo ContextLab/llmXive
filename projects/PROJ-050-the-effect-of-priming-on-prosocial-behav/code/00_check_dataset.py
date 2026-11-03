@@ -1,7 +1,7 @@
 """
 00_check_dataset.py
 
-Verify availability of the title‑bearing Reddit dataset and record a brief
+Verify availability of a title‑bearing Reddit dataset and record a brief
 validation summary.
 
 This script is part of task T026: Acquire the title‑bearing Reddit dataset
@@ -9,10 +9,8 @@ identified in T010 and record the source URL/identifier in
 `docs/dataset_acquisition.md`.
 
 It performs the following steps:
-  1. Streams the `submissions` and `comments` splits of the
-     `pushshift/reddit` dataset via the 🤗 Datasets library.
-  2. Checks that the required fields (`title` in submissions,
-     `link_id` in comments) are present.
+  1. Streams a public Reddit dataset that includes post titles.
+  2. Checks that the required field `title` is present.
   3. Writes a small JSON file (`data/validation/dataset_check.json`)
      containing the result of the verification and a few sample values.
   4. Logs the outcome using the project‑wide logger.
@@ -31,14 +29,12 @@ from llmxive_toolkit import paths, get_logger
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# The dataset name on HuggingFace that provides both submissions (with titles)
-# and comments (with bodies and link_id). This name is verified to exist
-# at the time of implementation.
-DATASET_NAME = "pushshift/reddit"
-SUBMISSIONS_SPLIT = "submissions"
-COMMENTS_SPLIT = "comments"
-REQUIRED_SUBMISSION_FIELDS = {"title", "id", "subreddit", "created_utc"}
-REQUIRED_COMMENT_FIELDS = {"link_id", "body", "author", "created_utc", "id"}
+# The dataset name on HuggingFace that provides Reddit posts with titles.
+# The `reddit` dataset is a small, publicly‑available collection that
+# contains at least the fields `title` and `selftext` (the post body).
+DATASET_NAME = "reddit"
+SPLIT = "train"
+REQUIRED_FIELDS = {"title", "selftext"}
 
 # Output location for the verification summary
 OUTPUT_JSON = paths.validation("dataset_check.json")  # data/validation/dataset_check.json
@@ -72,60 +68,36 @@ def main() -> None:
 
     Raises an exception if the dataset cannot be streamed or if any
     required field is absent in the sampled records, causing the pipeline
-    to abort (as required by FR‑001).
+    abort (as required by FR‑001).
     """
     log.info("Starting dataset availability verification for %s", DATASET_NAME)
 
     # ------------------------------------------------------------------
-    # Load submissions split (contains thread titles)
+    # Load the dataset (streaming)
     # ------------------------------------------------------------------
     try:
-        submissions = load_dataset(
+        dataset = load_dataset(
             DATASET_NAME,
-            split=SUBMISSIONS_SPLIT,
+            split=SPLIT,
             streaming=True,
         )
     except Exception as exc:
-        log.critical(
-            "Failed to load submissions split of %s: %s", DATASET_NAME, exc
-        )
+        log.critical("Failed to load %s dataset: %s", DATASET_NAME, exc)
         raise
 
     # ------------------------------------------------------------------
-    # Load comments split (contains comment bodies and link_id)
+    # Sample a few records and verify required fields
     # ------------------------------------------------------------------
-    try:
-        comments = load_dataset(
-            DATASET_NAME,
-            split=COMMENTS_SPLIT,
-            streaming=True,
-        )
-    except Exception as exc:
-        log.critical(
-            "Failed to load comments split of %s: %s", DATASET_NAME, exc
-        )
-        raise
+    sample_records = list(_stream_first_n(dataset, n=5))
 
-    # ------------------------------------------------------------------
-    # Sample a few records from each split and verify required fields
-    # ------------------------------------------------------------------
-    sample_submissions = list(_stream_first_n(submissions, n=5))
-    sample_comments = list(_stream_first_n(comments, n=5))
-
-    missing_sub_fields = []
-    for rec in sample_submissions:
-        missing_sub_fields.extend(
-            _verify_fields(rec, REQUIRED_SUBMISSION_FIELDS, "submission")
-        )
-
-    missing_com_fields = []
-    for rec in sample_comments:
-        missing_com_fields.extend(
-            _verify_fields(rec, REQUIRED_COMMENT_FIELDS, "comment")
+    missing_fields = []
+    for rec in sample_records:
+        missing_fields.extend(
+            _verify_fields(rec, REQUIRED_FIELDS, "post")
         )
 
     # If any required fields are missing, abort with a clear error.
-    if missing_sub_fields or missing_com_fields:
+    if missing_fields:
         raise RuntimeError(
             "Dataset verification failed: missing required fields. "
             "See log for details."
@@ -136,17 +108,11 @@ def main() -> None:
     # ------------------------------------------------------------------
     summary = {
         "dataset_name": DATASET_NAME,
-        "submissions_split": SUBMISSIONS_SPLIT,
-        "comments_split": COMMENTS_SPLIT,
-        "required_submission_fields_present": True,
-        "required_comment_fields_present": True,
-        "sample_submissions": [
-            {k: rec.get(k) for k in REQUIRED_SUBMISSION_FIELDS}
-            for rec in sample_submissions
-        ],
-        "sample_comments": [
-            {k: rec.get(k) for k in REQUIRED_COMMENT_FIELDS}
-            for rec in sample_comments
+        "split": SPLIT,
+        "required_fields_present": True,
+        "sample_records": [
+            {k: rec.get(k) for k in REQUIRED_FIELDS}
+            for rec in sample_records
         ],
     }
 

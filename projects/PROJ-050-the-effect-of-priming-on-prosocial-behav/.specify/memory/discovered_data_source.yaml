@@ -1,12 +1,13 @@
 status: none
-intent: download pushshift reddit comments dataset python package dataset
+intent: download pushshift reddit comments full archive via python package dataset
 required_fields:
-- comment_body
 - comment_id
-- parent_post_title
-- subreddit
-- created_utc
 - author
-cache_key: d699999feae4552b2d3cdc3c1c3e2ea8448079674f04f4f9f159b9519761251d
-searched_at: '2026-10-31T07:08:15.296487+00:00'
+- body
+- created_utc
+- subreddit
+- link_id
+- title
+cache_key: f8a29c96f314cdb274acbb73d83e7aa5004f3d8f4aae11db4d99f2f9057d5a12
+searched_at: '2026-11-03T18:22:16.708087+00:00'
 retry_count: 1

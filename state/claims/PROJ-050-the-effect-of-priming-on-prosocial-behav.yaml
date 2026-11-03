@@ -1023,3 +1023,39 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-19T14:46:34Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/docs/dataset_acquisition.md
+  attempts: 1
+  canonical: reddit dataset includes title field
+  claim_id: c_21331bac
+  context: The reddit dataset provides the required `title` field (along with `selftext`,
+    `id`, `subreddit`, `created_utc`, etc.). By using this dataset we can associate
+    each post title with its comments...
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: The reddit dataset provides the required `title` field (along with `selftext`,
+    `id`, `subreddit`, `created_utc`, etc.).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-11-03T18:21:20Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/docs/dataset_acquisition.md
+  attempts: 1
+  canonical: reddit dataset is publicly available under CC-BY-4.0 and can be downloaded
+    without authentication
+  claim_id: c_54ee84ea
+  context: "The dataset is publicly available under a permissive license (CC\u2011\
+    BY\u20114.0) and can be downloaded programmatically without authentication."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The dataset is publicly available under a permissive license (CC\u2011\
+    BY\u20114.0) and can be downloaded programmatically without authentication."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-11-03T18:21:40Z'

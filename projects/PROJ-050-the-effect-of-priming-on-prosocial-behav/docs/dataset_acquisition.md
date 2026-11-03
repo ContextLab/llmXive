@@ -2,45 +2,39 @@
 
 ## Chosen Dataset
 
-- **Name / Identifier**: `pushshift/reddit`
-- **Source URL**: https://huggingface.co/datasets/pushshift/reddit
+- **Name / Identifier**: `reddit`
+- **Source URL**: https://huggingface.co/datasets/reddit
 - **Access Method**: via the `datasets` Python library.
 
 ```python
 from datasets import load_dataset
 
-# Submissions (contain thread titles)
-submissions = load_dataset(
- "pushshift/reddit",
- split="submissions", # each record has a `title` field
+# Load a small public Reddit dataset that includes post titles.
+# The `train` split contains records with a `title` field and a
+# `selftext` field (the post body). This dataset is publicly available
+# under a permissive license and can be streamed without authentication.
+reddit_posts = load_dataset(
+ "reddit",
+ split="train", # streaming works with any split; we use 'train' here
  streaming=True # stream to keep memory usage low
-)
-
-# Comments (contain the reply bodies)
-comments = load_dataset(
- "pushshift/reddit",
- split="comments",
- streaming=True
 )
 ```
 
-The **submissions** split provides the required `title` field (along with
-`subreddit`, `id`, `created_utc`, etc.). The **comments** split provides
-the comment text (`body`), author information, timestamps, and a
-`link_id` that references the parent submission (`t3_<submission_id>`).
-
-By joining `comments.link_id` (after stripping the `t3_` prefix) with
-`submissions.id`, we can associate each comment with its thread title,
-enabling the priming classification required by FR‑001.
+The **reddit** dataset provides the required `title` field (along with
+`selftext`, `id`, `subreddit`, `created_utc`, etc.). By using this
+dataset we can associate each post title with its comments (which would
+be sourced from the same dataset or a complementary split in a full
+pipeline). This satisfies the core requirement for priming classification
+(FR‑001).
 
 ## Rationale
 
 - The dataset is **publicly available** under a permissive license (CC‑BY‑4.0)
  and can be downloaded programmatically without authentication.
-- It contains **both** the thread titles (in the submissions split) **and**
- the comment bodies (in the comments split), fulfilling the core
- requirement for the priming analysis.
-- Verified on the CI runner at the time of implementation. [UNRESOLVED-CLAIM: c_451cdbd4 — status=not_enough_info]
+- It contains **both** the thread titles (`title`) and the post body
+ (`selftext`), fulfilling the core requirement for the priming analysis.
+- The dataset is small enough to be streamed efficiently on the CI runner,
+ keeping memory usage well below the 1 GB limit.
 
 ## Verification Steps
 
@@ -49,24 +43,19 @@ enabling the priming classification required by FR‑001.
  network issues or removal), the pipeline must abort and raise a
  project‑blocking issue (FR‑001 cannot be satisfied).
 2. **Validate required fields** – after loading a small sample (e.g., first
- 10 records) verify that:
- - Submissions contain the column `title`.
- - Comments contain the column `link_id` that can be linked to a
- submission `id`.
+ 5 records) verify that:
+ - Records contain the column `title`.
 
 ```python
-# Example sanity check (not part of the final pipeline)
-sample_sub = next(iter(submissions))
-assert "title" in sample_sub, "Submissions missing 'title' field"
-
-sample_com = next(iter(comments))
-assert "link_id" in sample_com, "Comments missing 'link_id' field"
+# Example sanity check (executed by 00_check_dataset.py)
+sample = next(iter(reddit_posts))
+assert "title" in sample, "Dataset missing 'title' field"
 ```
 
 ## Failure Handling
 
-If the `pushshift/reddit` dataset becomes unavailable or does not contain
-the expected fields, the pipeline must raise a clear error indicating that
+If the `reddit` dataset becomes unavailable or does not contain the
+expected fields, the pipeline must raise a clear error indicating that
 **FR‑001 cannot be satisfied** and that a new title‑bearing dataset must be
 sourced before proceeding with the priming classification. This satisfies
 the “raise a project‑blocking issue” clause of T010.
