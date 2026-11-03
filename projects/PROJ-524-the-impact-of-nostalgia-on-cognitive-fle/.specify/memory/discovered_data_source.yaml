@@ -1,9 +1,9 @@
 status: none
-intent: Wisconsin Card Sorting Test and Mini Mental State Examination dataset download
-  python package dataset
+intent: OpenNeuro Wisconsin Card Sorting Test dataset MMSE normative scores python
+  package dataset
 required_fields:
 - participant_id
-- condition_nostalgia_control
+- condition
 - wcst_perseverative_errors
 - wcst_categories_completed
 - mmse_score
@@ -11,6 +11,7 @@ required_fields:
 - education_years
 - gender
 - audio_sha256_checksum
-cache_key: 7ed8ce812f9b9862d8337d00d06f48ba104f5d75e1002f61924d8ebdeb363820
-searched_at: '2026-11-02T20:09:07.442633+00:00'
+- random_assignment_seed
+cache_key: 58a22e5a0a9dbdf03b4fde9715f37e7d59ead5d76704c3bf3ce618b40b9762aa
+searched_at: '2026-11-03T18:13:14.286051+00:00'
 retry_count: 1
