@@ -1,12 +1,12 @@
 status: none
-intent: Multi-LCB code translation benchmark pip installable python package dataset
+intent: download Multi-LCB benchmark dataset for code translation python package dataset
 required_fields:
 - task_id
 - problem_statement
-- ground_truth_python
+- ground_truth_python_solution
 - target_language
-- failed_output
-- test_cases
-cache_key: bb5b47cec9c3ce28161e97e8a10f8d377f9d5b12645b18ce19c17a1c88e92193
-searched_at: '2026-10-23T01:45:50.948525+00:00'
+- failed_model_output
+- test_suite
+cache_key: ea1f5df52db00bf2b65ea11047685fb3bdbb23ee62e0b44bfd11b80c7e521335
+searched_at: '2026-11-03T19:21:58.266094+00:00'
 retry_count: 1

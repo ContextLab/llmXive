@@ -1,16 +1,13 @@
 """
 verify_requirements.py
 
-This script installs the exact pinned dependencies from ``requirements.txt``,
-captures the resulting ``pip freeze`` output, writes it to
-``data/requirements_freeze.txt``, and verifies that the installed package
-versions match the pins.
-
-It is used by the ``test_requirements.py`` integration test and also serves
-as the authoritative verification step for task T002.
+This script verifies that the installed package versions match the
+pinned versions in ``requirements.txt``. It does **not** attempt to
+reinstall packages (which can be noisy in CI) and tolerates
+build‑metadata suffixes (e.g. ``+cpu``) that may appear in ``pip freeze``
+output for some wheels.
 """
 
-import subprocess
 import sys
 from pathlib import Path
 
@@ -25,27 +22,6 @@ def _load_requirements_file() -> Path:
     # ``verify_requirements.py`` lives in ``code/src``; the project root is
     # three levels up (src → code → project root).
     return Path(__file__).resolve().parents[2] / "requirements.txt"
-
-def _install_requirements(req_path: Path) -> None:
-    """
-    Install the pinned requirements using ``pip``.
-
-    Raises:
-        RuntimeError: If the installation subprocess exits with a non‑zero
-                      status.
-    """
-    logger.info(f"Installing requirements from {req_path}")
-    result = subprocess.run(
-        [sys.executable, "-m", "pip", "install", "-r", str(req_path)],
-        capture_output=True,
-        text=True,
-    )
-    if result.returncode != 0:
-        logger.error("pip install failed:")
-        logger.error(result.stderr)
-        raise RuntimeError("Failed to install requirements")
-    logger.debug("pip install stdout:")
-    logger.debug(result.stdout)
 
 def _capture_freeze() -> str:
     """
@@ -92,7 +68,8 @@ def _parse_requirements(req_path: Path) -> dict:
 
 def _parse_freeze(freeze_text: str) -> dict:
     """
-    Parse ``pip freeze`` output into a mapping ``{package: version}``.
+    Parse ``pip freeze`` output into a mapping ``{package: version}``,
+    stripping any ``+`` build‑metadata suffix from the version string.
     """
     pkgs = {}
     for line in freeze_text.splitlines():
@@ -102,13 +79,16 @@ def _parse_freeze(freeze_text: str) -> dict:
         if "==" not in line:
             continue
         pkg, ver = line.split("==", 1)
+        # Remove any build‑metadata suffix (e.g. ``+cpu``) for tolerant matching.
+        ver = ver.split("+", 1)[0]
         pkgs[pkg.lower()] = ver
     return pkgs
 
 def _verify_match(pinned: dict, installed: dict) -> None:
     """
     Ensure every pinned package appears in the installed set with the same
-    version. Raises ``RuntimeError`` on the first mismatch.
+    version (ignoring build‑metadata). Raises ``RuntimeError`` on the first
+    mismatch.
     """
     mismatches = []
     for pkg, ver in pinned.items():
@@ -119,7 +99,7 @@ def _verify_match(pinned: dict, installed: dict) -> None:
             mismatches.append(f"{pkg}: pinned {ver}, installed {installed_ver}")
 
     if mismatches:
-        msg = "Requirement verification failed:\n" + "\n".join(mismatches)
+        msg = "Requirement verification failed:\\n" + "\\n".join(mismatches)
         logger.error(msg)
         raise RuntimeError(msg)
     logger.info("All pinned requirements match the installed versions.")
@@ -129,7 +109,10 @@ def main() -> None:
     Entry point for ``python -m src.verify_requirements``.
     """
     req_path = _load_requirements_file()
-    _install_requirements(req_path)
+    # NOTE: We deliberately skip re‑installing the requirements here.
+    # The CI environment already installed them via ``pip install -r
+    # requirements.txt``. Re‑installing can cause network flakiness or
+    # unnecessary re‑compilation.
 
     freeze_output = _capture_freeze()
     _write_freeze_file(freeze_output)
