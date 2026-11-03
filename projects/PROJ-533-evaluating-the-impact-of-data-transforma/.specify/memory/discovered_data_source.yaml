@@ -1,19 +1,19 @@
 status: none
-intent: download UCI Machine Learning Repository and OpenML classification datasets
-  python package dataset
+intent: OpenML UCI Machine Learning Repository continuous classification datasets
+  with numeric features python package dataset
 required_fields:
 - dataset_id
-- dataset_name
+- name
 - download_url
 - sha256_checksum
-- n_instances
-- n_features
-- numeric_feature_names
+- num_instances
+- num_features
 - continuous_feature_names
 - categorical_target_name
-- target_type
 - missing_percentage_per_feature
-- shapiro_wilk_pvalue_per_continuous_feature
-cache_key: 6fac678d387cd76c8f0f6bc9cd464c63f21fb338fbe315543223183b293f6af1
-searched_at: '2026-11-02T09:10:05.004565+00:00'
+- task_type
+- source_repository
+- license
+cache_key: 9ec835194ec98b3e2335080aa6ebc4eda833698f2fef68c005a0a51c37f13d6b
+searched_at: '2026-11-03T07:08:35.101617+00:00'
 retry_count: 1
