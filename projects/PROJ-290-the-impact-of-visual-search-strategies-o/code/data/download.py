@@ -6,22 +6,23 @@ import argparse
 import shutil
 import hashlib
 from pathlib import Path
-from typing import Optional, List
+from typing import Optional, List, Tuple
 
 # Project utilities
 from utils.logging import get_logger
 from config import get_config
 
-# External library for downloading from HuggingFace Hub
+# External libraries
 try:
     from huggingface_hub import snapshot_download, HfApi
+    from datasets import load_dataset, Dataset
 except ImportError as e:
     raise ImportError(
-        "The 'huggingface_hub' library is required. Install it via pip."
+        "The 'huggingface_hub' and 'datasets' libraries are required. Install them via pip."
     ) from e
 
 # Constants for retry logic (FR-002)
-RETRY_DELAYS = [1, 2, 4]  # Exponential backoff timings in seconds
+RETRY_DELAYS = [1, 2, 4]
 MAX_RETRIES = len(RETRY_DELAYS)
 
 def get_logger_wrapper(name: str = __name__) -> logging.Logger:
@@ -44,6 +45,40 @@ def write_checksum_file(checksum: str, checksum_path: Path, logger: logging.Logg
         f.write(checksum + "\n")
     logger.info("Checksum file written.")
 
+def check_dataset_columns(dataset_id: str, logger: logging.Logger) -> bool:
+    """
+    Verify if the dataset contains the required variables.
+    Uses streaming to avoid downloading the whole dataset just for a check.
+    """
+    required = {"gaze_coordinates", "response_times", "emotion_labels"}
+    # We allow partial matches or common synonyms to make the search realistic
+    synonyms = {
+        "gaze_coordinates": ["gaze", "fixation", "coordinates", "x", "y"],
+        "response_times": ["rt", "response_time", "latency"],
+        "emotion_labels": ["emotion", "label", "category", "affect"]
+    }
+    
+    try:
+        # Try loading the first row of the first split
+        ds = load_dataset(dataset_id, split='train', streaming=True)
+        first_row = next(iter(ds))
+        cols = set(first_row.keys())
+        
+        found_vars = set()
+        for req, syns in synonyms.items():
+            if req in cols:
+                found_vars.add(req)
+            elif any(s in cols for s in syns):
+                found_vars.add(req)
+        
+        if len(found_vars) == len(required):
+            logger.info(f"Dataset {dataset_id} matches required columns: {cols}")
+            return True
+        return False
+    except Exception as e:
+        logger.debug(f"Could not check columns for {dataset_id}: {e}")
+        return False
+
 def find_dataset_id(logger: logging.Logger, explicit_id: Optional[str] = None) -> str:
     """
     Search HuggingFace Hub for a dataset containing eye-tracking and emotion data.
@@ -53,32 +88,32 @@ def find_dataset_id(logger: logging.Logger, explicit_id: Optional[str] = None) -
         logger.info(f"Using user-supplied dataset identifier: {explicit_id}")
         return explicit_id
 
-    search_queries = ["eye tracking emotion", "gaze emotion", "eye tracking face"]
+    # Broader search queries to avoid the previous "No dataset found" failure
+    search_queries = ["gaze emotion", "eye tracking face", "fixation emotion", "gaze face", "eye-tracking"]
     api = HfApi()
     
     for query in search_queries:
         logger.info(f"Searching HuggingFace Hub for query: '{query}'...")
         try:
-            datasets = list(api.list_datasets(search=query, limit=5))
+            datasets = list(api.list_datasets(search=query, limit=20))
             if datasets:
-                dataset_id = datasets[0].id
-                logger.info(f"Found suitable dataset: {dataset_id}")
-                return dataset_id
+                for ds in datasets:
+                    if check_dataset_columns(ds.id, logger):
+                        logger.info(f"Found suitable dataset: {ds.id}")
+                        return ds.id
         except Exception as e:
             logger.warning(f"Search for '{query}' failed: {e}")
     
-    # Final fallback to a known real dataset if search fails, 
-    # but we must ensure it's a valid repo ID.
-    # 'iris' is a common small dataset, but for this research, we need something more specific.
-    # If we reach here and have no results, we fail as per "Real data only" constraint.
-    raise RuntimeError("No real eye-tracking emotion dataset found on HuggingFace Hub via search.")
+    # If search fails, we try a known fallback that is often used in eye-tracking research 
+    # if it exists on HF, otherwise we must fail to avoid fabrication.
+    # For this implementation, we fail loudly if no real match is found.
+    raise RuntimeError("No real eye-tracking emotion dataset found on HuggingFace Hub matching the required columns.")
 
 def download_raw_archive(dataset_id: str, target_dir: Path, logger: logging.Logger) -> Path:
     """
-    Download the raw dataset repository from the HuggingFace Hub,
-    archive it as a ZIP, and place it under target_dir.
+    Download the raw dataset repository, archive it as a ZIP, and place it under target_dir.
     """
-    logger.info(f"Downloading raw repository for dataset '{dataset_id}' via snapshot_download...")
+    logger.info(f"Downloading raw repository for dataset '{dataset_id}'...")
     
     # Download the repository to a temporary local directory
     repo_path = snapshot_download(repo_id=dataset_id, repo_type="dataset")
@@ -87,9 +122,8 @@ def download_raw_archive(dataset_id: str, target_dir: Path, logger: logging.Logg
     zip_name = f"{dataset_id.replace('/', '_')}.zip"
     zip_path = target_dir / zip_name
 
-    # Create ZIP archive of the downloaded repository
+    # Create ZIP archive
     logger.info(f"Creating ZIP archive at '{zip_path}'...")
-    # shutil.make_archive expects base_name without extension
     base_name = str(zip_path.with_suffix(''))
     shutil.make_archive(base_name=base_name, format='zip', root_dir=repo_path)
 
@@ -98,7 +132,7 @@ def download_raw_archive(dataset_id: str, target_dir: Path, logger: logging.Logg
 
 def main() -> None:
     """
-    Entry point for the download module.
+    Main entry point for T010.
     Downloads the raw archive into data/raw/ and records a SHA-256 checksum.
     """
     logger = get_logger_wrapper(__name__)

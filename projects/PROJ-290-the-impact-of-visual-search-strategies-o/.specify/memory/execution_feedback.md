@@ -7,16 +7,27 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/data/download.py --dataset <dataset-name> -> rc=1
+taset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-290-the-impact-of-visual-search-strategies-o/lib/python3.11/site-packages/datasets/__init__.py", line 17, in <module>
+    from .arrow_dataset import Column, Dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-290-the-impact-of-visual-search-strategies-o/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 59, in <module>
+    import pyarrow as pa
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-290-the-impact-of-visual-search-strategies-o/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
-2026-11-02 21:09:10 - __main__ - INFO - Searching HuggingFace Hub for query: 'eye tracking emotion'...
-2026-11-02 21:09:10 - __main__ - INFO - Searching HuggingFace Hub for query: 'gaze emotion'...
-2026-11-02 21:09:10 - __main__ - INFO - Searching HuggingFace Hub for query: 'eye tracking face'...
-2026-11-02 21:09:10 - __main__ - ERROR - No real eye-tracking emotion dataset found on HuggingFace Hub via search.
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-290-the-impact-of-visual-search-strategies-o/code/data/download.py", line 20, in <module>
+    raise ImportError(
+ImportError: The 'huggingface_hub' and 'datasets' libraries are required. Install them via pip.
 
 - python code/data/validate.py -> rc=1
 
-2026-11-02 21:09:10 - data.validate - INFO - Starting dataset validation (T012)...
-2026-11-02 21:09:10 - data.validate - ERROR - Failed to load dataset: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+2026-11-03 19:10:49 - data.validate - INFO - Starting dataset validation (T012)...
+2026-11-03 19:10:50 - data.validate - ERROR - Failed to load dataset: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
 - python code/features/classification.py -> rc=1
 ocessed_features(logger)
@@ -38,8 +49,8 @@ AttributeError: 'Config' object has no attribute 'PROCESSED_FEATURES_PATH'
 
 - python code/analysis/lmm.py -> rc=1
 
-2026-11-02 21:09:12 - __main__ - INFO - Loading processed features from /home/runner/work/llmXive/llmXive/projects/PROJ-290-the-impact-of-visual-search-strategies-o/data/processed/features.csv
-2026-11-02 21:09:12 - __main__ - ERROR - Processed features file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-290-the-impact-of-visual-search-strategies-o/data/processed/features.csv. Run feature extraction tasks first.
+2026-11-03 19:10:52 - __main__ - INFO - Loading processed features from /home/runner/work/llmXive/llmXive/projects/PROJ-290-the-impact-of-visual-search-strategies-o/data/processed/features.csv
+2026-11-03 19:10:52 - __main__ - ERROR - Processed features file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-290-the-impact-of-visual-search-strategies-o/data/processed/features.csv. Run feature extraction tasks first.
 
 
 ## Declared deliverables still missing
