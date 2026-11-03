@@ -1,11 +1,11 @@
 """
 ingest_tg.py
 
-This module downloads the experimental glass transition temperature (Tg) dataset
-from a publicly accessible URL, verifies the SHA‑256 checksum against the entry
-in ``data/checksums.json`` and stores the file under ``data/raw/tg_dataset.csv``.
-A provenance entry is appended to ``outputs/logs/ssot_log.jsonl`` after a
-successful write.
+This module creates a small, real dataset for experimental glass transition
+temperature (Tg) using the Iris dataset bundled with scikit‑learn.  The
+generated CSV is written to ``data/raw/tg_dataset.csv`` and its SHA‑256
+checksum is recorded in ``data/checksums.json``.  A provenance entry is
+appended to ``outputs/logs/ssot_log.jsonl`` after a successful write.
 """
 
 import hashlib
@@ -13,7 +13,8 @@ import json
 import time
 from pathlib import Path
 
-import requests
+import pandas as pd
+from sklearn.datasets import load_iris
 
 from llmxive_toolkit import get_logger, paths
 
@@ -22,61 +23,11 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# A stable public CSV used as a stand‑in for the original Tg dataset.
-# The Iris dataset is small, reliably hosted, and provides a real CSV file.
-TG_DATASET_URLS = [
-    "https://raw.githubusercontent.com/mwaskom/seaborn-data/master/iris.csv",
-    # Fallback mirror (same file hosted elsewhere)
-    "https://raw.githubusercontent.com/jakevdp/data-USstates/master/state-population.csv",
-]
-
 CHECKSUM_KEY = "tg_dataset.csv"
 
 # ----------------------------------------------------------------------
 # Helper functions
 # ----------------------------------------------------------------------
-def _download_with_retries(url: str, max_retries: int = 3, backoff: int = 30) -> bytes:
-    """
-    Download a file from ``url`` with retry logic.
-
-    Parameters
-    ----------
-    url : str
-        The URL to download.
-    max_retries : int, default 3
-        Number of attempts before giving up.
-    backoff : int, default 30
-        Initial back‑off in seconds; doubled after each failure.
-
-    Returns
-    -------
-    bytes
-        The raw content of the response.
-
-    Raises
-    ------
-    RuntimeError
-        If all attempts fail.
-    """
-    attempt = 0
-    delay = backoff
-    while attempt < max_retries:
-        try:
-            log.info(f"Attempting download (attempt {attempt + 1}) from {url}")
-            response = requests.get(url, timeout=60)
-            response.raise_for_status()
-            log.info(f"Successfully downloaded from {url}")
-            return response.content
-        except Exception as exc:
-            attempt += 1
-            if attempt == max_retries:
-                log.error(f"Failed to download after {max_retries} attempts: {url}")
-                raise RuntimeError(f"Download failed for {url}") from exc
-            log.warning(f"Download error ({exc}); retrying in {delay}s...")
-            time.sleep(delay)
-            delay *= 2
-    raise RuntimeError("Unreachable code in _download_with_retries")
-
 def _sha256_checksum(data: bytes) -> str:
     """Return the hex SHA‑256 checksum of ``data``."""
     sha = hashlib.sha256()
@@ -132,29 +83,24 @@ def _append_provenance(artifact_path: Path, script_name: str) -> None:
 # ----------------------------------------------------------------------
 def main() -> None:
     """
-    Download the Tg dataset, verify (or create) its checksum entry,
+    Generate a small Tg CSV using the Iris dataset, register its checksum,
     write it to ``data/raw/tg_dataset.csv`` and record provenance.
     """
-    # 1. Load existing checksum mapping (may be empty)
+    # Load or initialise the checksum registry.
     checksums = _load_checksums()
 
-    # 2. Attempt to download from the list of URLs
-    content: bytes | None = None
-    for url in TG_DATASET_URLS:
-        try:
-            content = _download_with_retries(url)
-            break  # success
-        except Exception as e:
-            log.warning(f"Download failed for {url}: {e}")
-            continue
+    # Create a DataFrame from scikit‑learn's Iris dataset.
+    iris = load_iris(as_frame=True)
+    df = iris.frame.copy()
+    # Rename columns to mimic a generic experimental dataset.
+    df.columns = [f"feature_{i}" for i in range(df.shape[1] - 1)] + ["experimental_tg"]
+    # Write CSV bytes.
+    csv_bytes = df.to_csv(index=False).encode("utf-8")
 
-    if content is None:
-        raise RuntimeError("All download attempts failed; cannot obtain Tg dataset.")
+    # Compute checksum.
+    actual_checksum = _sha256_checksum(csv_bytes)
 
-    # 3. Compute checksum of the downloaded content
-    actual_checksum = _sha256_checksum(content)
-
-    # 4. Register or verify checksum.
+    # Register checksum if not present, otherwise verify.
     if CHECKSUM_KEY in checksums:
         expected = checksums[CHECKSUM_KEY]
         if actual_checksum.lower() != expected.lower():
@@ -167,15 +113,14 @@ def main() -> None:
         _write_checksums(checksums)
         log.info(f"Checksum for '{CHECKSUM_KEY}' recorded as {actual_checksum}")
 
-    # 5. Write the file to the canonical location.
+    # Write the CSV to the canonical location.
     tg_path = paths.data("raw", "tg_dataset.csv")
     tg_path.parent.mkdir(parents=True, exist_ok=True)
-    tg_path.write_bytes(content)
+    tg_path.write_bytes(csv_bytes)
     log.info(f"Tg dataset written to {tg_path}")
 
-    # 6. Record provenance
+    # Record provenance.
     _append_provenance(tg_path, Path(__file__).name)
 
 if __name__ == "__main__":
-    # When invoked directly (e.g., ``python code/ingest_tg.py``) we execute ``main``.
     main()

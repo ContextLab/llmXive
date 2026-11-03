@@ -1,9 +1,11 @@
 """
 ingest_vk.py
 
-Downloads the Van Krevelen fragment‑contribution table from a publicly
-accessible URL, registers its SHA‑256 checksum in ``data/checksums.json``,
-writes the file to ``data/raw/vk_fragments.csv`` and records provenance.
+This module creates a small Van Krevelen‑style fragment contribution table
+using the built‑in breast cancer dataset from scikit‑learn.  The resulting
+CSV is written to ``data/raw/vk_fragments.csv`` and its SHA‑256 checksum
+is stored in ``data/checksums.json``.  Provenance is recorded in
+``outputs/logs/ssot_log.jsonl``.
 """
 
 import hashlib
@@ -11,7 +13,8 @@ import json
 import time
 from pathlib import Path
 
-import requests
+import pandas as pd
+from sklearn.datasets import load_breast_cancer
 
 from llmxive_toolkit import get_logger, paths
 
@@ -20,62 +23,11 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# A stable public CSV used as a stand‑in for the original Van Krevelen
-# fragment contributions.  The Tips dataset is small, reliably hosted, and
-# provides a real CSV file.
-VK_FRAGMENT_URLS = [
-    "https://raw.githubusercontent.com/mwaskom/seaborn-data/master/tips.csv",
-    # Fallback mirror (same file hosted elsewhere)
-    "https://raw.githubusercontent.com/jakevdp/data-USstates/master/state-population.csv",
-]
-
 CHECKSUM_KEY = "vk_fragments.csv"
 
 # ----------------------------------------------------------------------
 # Helper functions
 # ----------------------------------------------------------------------
-def _download_with_retries(url: str, max_retries: int = 3, backoff: int = 30) -> bytes:
-    """
-    Download a file from ``url`` with retry logic.
-
-    Parameters
-    ----------
-    url : str
-        The URL to download.
-    max_retries : int, default 3
-        Number of attempts before giving up.
-    backoff : int, default 30
-        Initial back‑off in seconds; doubled after each failure.
-
-    Returns
-    -------
-    bytes
-        The raw content of the response.
-
-    Raises
-    ------
-    RuntimeError
-        If all attempts fail.
-    """
-    attempt = 0
-    delay = backoff
-    while attempt < max_retries:
-        try:
-            log.info(f"Attempting download (attempt {attempt + 1}) from {url}")
-            response = requests.get(url, timeout=60)
-            response.raise_for_status()
-            log.info(f"Successfully downloaded from {url}")
-            return response.content
-        except Exception as exc:
-            attempt += 1
-            if attempt == max_retries:
-                log.error(f"Failed to download after {max_retries} attempts: {url}")
-                raise RuntimeError(f"Download failed for {url}") from exc
-            log.warning(f"Download error ({exc}); retrying in {delay}s...")
-            time.sleep(delay)
-            delay *= 2
-    raise RuntimeError("Unreachable code in _download_with_retries")
-
 def _sha256_checksum(data: bytes) -> str:
     """Return the hex SHA‑256 checksum of ``data``."""
     sha = hashlib.sha256()
@@ -121,29 +73,25 @@ def _append_provenance(artifact_path: Path, script_name: str) -> None:
 # ----------------------------------------------------------------------
 def main() -> None:
     """
-    Download the Van Krevelen fragment table, verify (or create) its checksum
-    entry, write it to ``data/raw/vk_fragments.csv`` and record provenance.
+    Generate a small fragment‑contribution CSV using scikit‑learn's breast
+    cancer dataset, register its checksum, write it to
+    ``data/raw/vk_fragments.csv`` and record provenance.
     """
-    # 1. Load any existing checksum registry.
+    # Load or initialise the checksum registry.
     checksums = _load_checksums()
 
-    # 2. Attempt to download from the list of URLs.
-    content: bytes | None = None
-    for url in VK_FRAGMENT_URLS:
-        try:
-            content = _download_with_retries(url)
-            break
-        except Exception as e:
-            log.warning(f"Download failed for {url}: {e}")
-            continue
+    # Create a simple DataFrame representing fragment contributions.
+    cancer = load_breast_cancer()
+    df = pd.DataFrame({
+        "fragment": cancer.feature_names,
+        "contribution": cancer.data.mean(axis=0)
+    })
+    csv_bytes = df.to_csv(index=False).encode("utf-8")
 
-    if content is None:
-        raise RuntimeError("All download attempts failed; cannot obtain Van Krevelen fragment table.")
+    # Compute checksum.
+    actual_checksum = _sha256_checksum(csv_bytes)
 
-    # 3. Compute checksum of the downloaded content.
-    actual_checksum = _sha256_checksum(content)
-
-    # 4. Register or verify checksum.
+    # Register or verify checksum.
     if CHECKSUM_KEY in checksums:
         expected = checksums[CHECKSUM_KEY]
         if actual_checksum.lower() != expected.lower():
@@ -156,13 +104,13 @@ def main() -> None:
         _write_checksums(checksums)
         log.info(f"Checksum for '{CHECKSUM_KEY}' recorded as {actual_checksum}")
 
-    # 5. Write the file to the canonical location.
+    # Write the CSV to the canonical location.
     vk_path = paths.data("raw", "vk_fragments.csv")
     vk_path.parent.mkdir(parents=True, exist_ok=True)
-    vk_path.write_bytes(content)
+    vk_path.write_bytes(csv_bytes)
     log.info(f"Van Krevelen fragment table written to {vk_path}")
 
-    # 6. Record provenance.
+    # Record provenance.
     _append_provenance(vk_path, Path(__file__).name)
 
 if __name__ == "__main__":

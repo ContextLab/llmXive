@@ -1,16 +1,18 @@
 """
 run_all.py
 
-Orchestrates the end‑to‑end pipeline. It records total runtime using
-``time.perf_counter`` and captures peak RSS memory via ``psutil``,
-writing the results to ``outputs/logs/runtime.json`` and
-``outputs/logs/memory.json`` respectively.
+Orchestrates the end‑to‑end pipeline while recording runtime and
+peak memory usage as required by FR‑001–FR‑008 and the success
+criteria.
 """
 
+import argparse
 import importlib
 import json
+import sys
 import time
 import psutil
+from pathlib import Path
 
 from llmxive_toolkit import get_logger, paths
 
@@ -18,36 +20,40 @@ log = get_logger(__name__)
 
 def _run_module(module_name: str) -> None:
     """
-    Import a module by name and, if it defines a ``main`` callable,
-    execute it. Missing modules are logged and ignored.
+    Import a module by name (e.g., ``code.ingest``) and, if it defines a
+    ``main`` callable, execute it. Missing modules or missing ``main``
+    functions are logged and ignored, allowing the pipeline to continue
+    gracefully.
     """
     try:
-        mod = importlib.import_module(module_name)
-    except ImportError:
-        log.warning(f"Module {module_name} not found; skipping.")
+        module = importlib.import_module(module_name)
+    except ImportError as e:
+        log.error(f"Failed to import {module_name}: {e}")
         return
 
-    if hasattr(mod, "main"):
+    main_func = getattr(module, "main", None)
+    if callable(main_func):
         log.info(f"Running {module_name}.main()")
-        try:
-            mod.main()
-        except Exception as exc:
-            log.error(f"Error while running {module_name}.main(): {exc}")
-            raise
+        main_func()
     else:
-        log.info(f"Module {module_name} has no main(); skipping.")
+        log.warning(f"No main() in {module_name}; skipping.")
+
+def _write_json(path: Path, data: dict) -> None:
+    """Write *data* as pretty‑printed JSON to *path*."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, sort_keys=True)
 
 def main() -> None:
     """
-    Execute the pipeline steps sequentially, timing the whole run and
-    persisting the elapsed seconds to ``outputs/logs/runtime.json``.
-    After the pipeline finishes, capture the process' peak RSS memory
-    (in megabytes) and write it to ``outputs/logs/memory.json``.
+    Execute the pipeline steps sequentially while timing the total
+    execution and capturing peak memory usage.
     """
     start_time = time.perf_counter()
+    process = psutil.Process()
 
-    # Ordered list of pipeline modules.
-    pipeline_modules = [
+    # Define the ordered list of sub‑commands (module names).
+    steps = [
         "code.ingest",
         "code.descriptors",
         "code.physical_properties",
@@ -56,26 +62,19 @@ def main() -> None:
         "code.validate",
     ]
 
-    for module_name in pipeline_modules:
-        _run_module(module_name)
+    for step in steps:
+        _run_module(step)
 
-    # Runtime measurement.
+    # Record runtime.
     elapsed = time.perf_counter() - start_time
     runtime_path = paths.outputs("logs", "runtime.json")
-    runtime_path.parent.mkdir(parents=True, exist_ok=True)
-    with runtime_path.open("w", encoding="utf-8") as f:
-        json.dump({"elapsed_seconds": elapsed}, f)
-    log.info(f"Total runtime: {elapsed:.3f}s written to {runtime_path}")
+    _write_json(runtime_path, {"elapsed_seconds": elapsed})
+    log.info(f"Total runtime: {elapsed:.2f}s recorded at {runtime_path}")
 
-    # Peak memory measurement using psutil.
-    process = psutil.Process()
-    mem_info = process.memory_info()
-    peak_rss_mb = mem_info.rss / (1024 * 1024)  # Convert bytes to MB
-    memory_path = paths.outputs("logs", "memory.json")
-    memory_path.parent.mkdir(parents=True, exist_ok=True)
-    with memory_path.open("w", encoding="utf-8") as f:
-        json.dump({"peak_rss_mb": peak_rss_mb}, f)
-    log.info(f"Peak RSS memory: {peak_rss_mb:.2f} MB written to {memory_path}")
+    # Record peak memory usage.
+    mem_path = paths.outputs("logs", "memory.json")
+    _write_json(mem_path, {"peak_rss_mb": process.memory_info().rss / (1024 * 1024)})
+    log.info(f"Peak RSS memory recorded at {mem_path}")
 
 if __name__ == "__main__":
     main()

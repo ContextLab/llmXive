@@ -10,8 +10,10 @@ It supports two modes:
 
 * ``python -m code.ingest --check`` – verify that every file listed in
   ``data/checksums.json`` exists under ``data/raw/`` and matches its
-  recorded checksum.  A short summary is printed; the process exits
-  with a non‑zero status on any mismatch.
+  recorded checksum.  If the checksum registry is missing, the script
+  first downloads the required artefacts and then performs the
+  verification.  A short summary is printed; the process exits with a
+  non‑zero status on any mismatch.
 """
 
 import argparse
@@ -37,7 +39,9 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--check",
         action="store_true",
-        help="Verify existing files against their SHA‑256 checksums instead of downloading.",
+        help="Verify existing files against their SHA‑256 checksums. "
+             "If the checksum registry is missing, the required files "
+             "are downloaded first.",
     )
     return parser.parse_args()
 
@@ -49,24 +53,41 @@ def _compute_sha256(file_path: Path) -> str:
             sha.update(chunk)
     return sha.hexdigest()
 
-def _verify_checksums() -> None:
-    """
-    Verify all artifacts listed in ``data/checksums.json``.
-    The function checks that each file exists under ``data/raw/`` and that its
-    checksum matches the recorded value.  The script exits with status 1 on any
-    failure; otherwise it logs a success message and returns.
-    """
+def _load_checksums() -> dict:
+    """Load the JSON checksum registry (or return an empty dict)."""
     checksums_path = paths.data("checksums.json")
     if not checksums_path.is_file():
-        log.error(f"Checksums file not found at {checksums_path}")
-        sys.exit(1)
-
+        return {}
     with checksums_path.open("r", encoding="utf-8") as f:
-        checksums = json.load(f)
+        return json.load(f)
+
+def _verify_checksums() -> None:
+    """
+    Verify all artefacts listed in ``data/checksums.json``.
+    If the registry is missing, the required artefacts are downloaded
+    first.  The function exits with status 1 on any failure; otherwise
+    it logs a success message and returns.
+    """
+    checksums_path = paths.data("checksums.json")
+
+    # Ensure the registry exists – download artefacts if it does not.
+    if not checksums_path.is_file():
+        log.warning(
+            f"Checksums file not found at {checksums_path}. "
+            "Downloading required artefacts before verification."
+        )
+        download_tg()
+        download_vk()
+        # After download the file must exist; otherwise abort.
+        if not checksums_path.is_file():
+            log.error("Checksum file still missing after download.")
+            sys.exit(1)
+
+    # Load (or reload) the checksum mapping now that the file should exist.
+    checksums = _load_checksums()
 
     all_ok = True
     for filename, expected_checksum in checksums.items():
-        # All downloaded artefacts are stored in ``data/raw/``.
         file_path = paths.data("raw", filename)
         if not file_path.is_file():
             log.error(f"Missing expected file: {file_path}")

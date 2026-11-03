@@ -1,4 +1,5 @@
 name: CI
+
 on:
   push:
     branches: [ main ]
@@ -8,31 +9,28 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 360
+    timeout-minutes: 360  # FR‑001 guard: enforce hard 6‑hour limit
+
     steps:
-      - uses: actions/checkout@v2
-
+      - uses: actions/checkout@v3
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
-
+          python-version: '3.11'
       - name: Install dependencies
         run: |
+          python -m venv .venv
+          source .venv/bin/activate
           pip install -r requirements.txt
-
-      - name: Download Tg dataset
-        run: |
-          python -m code.ingest
-
       - name: Verify data integrity
         run: |
+          source .venv/bin/activate
           python -m code.ingest --check
-
       - name: Run full pipeline
         run: |
+          source .venv/bin/activate
           python -m code.run_all --seed 42 --max-memory-gb 6 --timeout-hours 5
-
-      - name: Run contract tests
+      - name: Contract tests
         run: |
-          pytest -m contract -v
+          source .venv/bin/activate
+          pytest -m contract
