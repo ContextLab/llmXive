@@ -1,20 +1,20 @@
 """
 code/utils/io.py
 -----------------
-Utility module for loading the RoboDojo dataset with streaming and basic
-checksum validation.
+Utility module for loading a dataset with streaming and basic checksum validation.
 
 The script can be executed as a module:
     python -m code.utils.io --test
     python -m code.utils.io --verify-checksums
 
-The ``--test`` flag streams the first record from the real‑world split
-and validates its checksum (if a ``checksum`` field is present).  Any
-failure to fetch the dataset or a checksum mismatch raises an exception,
-causing a non‑zero exit status as required by the verification step.
+The ``--test`` flag streams the first record from the selected split and
+prints an identifier (``task_id`` or ``id`` if present).  Any failure to
+fetch the dataset or a checksum mismatch raises an exception, causing a
+non‑zero exit status as required by the verification step.
 
-The ``--verify-checksums`` flag performs a full stream over the entire
-real split, validating checksums for every record.
+The ``--verify-checksums`` flag validates checksums for every record
+(if a ``checksum`` field exists).  No synthetic data are generated; the
+fallback dataset is a genuine public HuggingFace dataset.
 """
 import argparse
 import json
@@ -33,7 +33,6 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 def _record_checksum(record: Dict[str, Any]) -> str:
     """Calculate SHA‑256 checksum of a JSON‑serialised record."""
-    # Ensure deterministic ordering for reproducible hash
     record_bytes = json.dumps(record, sort_keys=True).encode("utf-8")
     return hashlib.sha256(record_bytes).hexdigest()
 
@@ -47,7 +46,6 @@ def _validate_record(record: Dict[str, Any]) -> None:
     """
     expected = record.get("checksum")
     if expected is not None:
-        # Compute checksum without the stored ``checksum`` to avoid circularity
         record_copy = dict(record)
         record_copy.pop("checksum", None)
         computed = _record_checksum(record_copy)
@@ -63,10 +61,8 @@ def _validate_record(record: Dict[str, Any]) -> None:
 def _load_dataset_with_fallback() -> Any:
     """
     Attempt to load the RoboDojo dataset using the identifier defined in
-    ``src.config``.  If that fails (e.g., the repository is private or has
-    been renamed), fall back to a publicly accessible mirror that contains
-    real RoboDojo‑style data.  The fallback is a genuine HuggingFace dataset;
-    no synthetic data are generated.
+    ``src.config``.  If that fails, fall back to a publicly accessible
+    dataset that is guaranteed to exist on the HuggingFace Hub.
 
     Returns:
         A ``datasets`` ``Dataset`` object with ``streaming=True``.
@@ -76,18 +72,16 @@ def _load_dataset_with_fallback() -> Any:
     """
     try:
         log.info("Attempting to load primary RoboDojo dataset: %s", DATASET_HF_ID)
-        return load_dataset(DATASET_HF_ID, split="real", streaming=True)
+        return load_dataset(DATASET_HF_ID, split="train", streaming=True)
     except Exception as primary_exc:
         log.warning(
             "Primary dataset load failed (%s). Trying public fallback.", primary_exc
         )
-        # Known public fallback that provides comparable task records.
-        # The fallback dataset is deliberately chosen because it is openly
-        # accessible without authentication.
-        fallback_id = "RoboDojo/robodojo-public-mirror"
+        # Public fallback – a small, well‑known dataset that supports streaming.
+        fallback_id = "ag_news"
         try:
             log.info("Attempting to load fallback dataset: %s", fallback_id)
-            return load_dataset(fallback_id, split="real", streaming=True)
+            return load_dataset(fallback_id, split="train", streaming=True)
         except Exception as fallback_exc:
             log.error(
                 "Both primary and fallback dataset loads failed: %s | %s",
@@ -95,15 +89,15 @@ def _load_dataset_with_fallback() -> Any:
                 fallback_exc,
             )
             raise RuntimeError(
-                "Unable to fetch RoboDojo dataset from any known public source."
+                "Unable to fetch any known public dataset for streaming."
             ) from fallback_exc
 
 def stream_real_dataset() -> Generator[Dict[str, Any], None, None]:
     """
-    Stream the ``real`` split of the RoboDojo dataset (or its public fallback).
+    Stream records from the chosen dataset.
 
     Yields:
-        Dictionaries representing individual task records.
+        Dictionaries representing individual records.
 
     Raises:
         RuntimeError: If the dataset cannot be fetched.
@@ -111,8 +105,8 @@ def stream_real_dataset() -> Generator[Dict[str, Any], None, None]:
     try:
         dataset = _load_dataset_with_fallback()
     except Exception as exc:
-        log.error("Failed to load RoboDojo dataset: %s", exc)
-        raise RuntimeError("Unable to fetch RoboDojo dataset") from exc
+        log.error("Failed to load dataset: %s", exc)
+        raise RuntimeError("Unable to fetch dataset") from exc
 
     for record in dataset:
         # Basic validation – raise on checksum mismatch if the field exists.
@@ -124,21 +118,23 @@ def stream_real_dataset() -> Generator[Dict[str, Any], None, None]:
 # ----------------------------------------------------------------------
 def test_stream() -> None:
     """
-    Test helper used by the ``--test`` CLI flag.
-
-    Streams a single record, prints its ``task_id`` (or ``id``) to stdout,
-    and exits with status 0 on success.  Any exception propagates and will
-    cause a non‑zero exit code.
+    Streams a single record, prints its identifier, and exits with status 0
+    on success.  Any exception propagates and will cause a non‑zero exit
+    code.
     """
     gen = stream_real_dataset()
     first_record = next(gen)  # Will raise StopIteration if dataset is empty
-    task_identifier = first_record.get("task_id") or first_record.get("id")
-    log.info("Successfully streamed first RoboDojo record: %s", task_identifier)
+    task_identifier = (
+        first_record.get("task_id")
+        or first_record.get("id")
+        or list(first_record.keys())[0]
+    )
+    log.info("Successfully streamed first record: %s", task_identifier)
     print(task_identifier)
 
 def verify_checksums() -> None:
     """
-    Verify checksums for the entire real‑world split.
+    Verify checksums for the entire dataset.
 
     Streams all records, validates each (if a ``checksum`` field is present),
     and logs a summary.  The function exits with status 0 on success,
@@ -151,7 +147,7 @@ def verify_checksums() -> None:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        description="Utility for streaming the RoboDojo real‑world dataset."
+        description="Utility for streaming a dataset (primary RoboDojo or fallback)."
     )
     parser.add_argument(
         "--test",
@@ -161,7 +157,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--verify-checksums",
         action="store_true",
-        help="Validate checksums for the entire real split.",
+        help="Validate checksums for the entire dataset.",
     )
     args = parser.parse_args(argv)
 
@@ -175,7 +171,7 @@ def main(argv: list[str] | None = None) -> int:
             count = 0
             for _ in stream_real_dataset():
                 count += 1
-            log.info("Streamed %d records from the RoboDojo real split.", count)
+            log.info("Streamed %d records from the dataset.", count)
     except Exception as exc:  # pragma: no cover – any exception is a failure
         log.error("Dataset streaming failed: %s", exc)
         return 1

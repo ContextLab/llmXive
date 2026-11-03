@@ -91,15 +91,15 @@ Traceback (most recent call last):
 ModuleNotFoundError: No module named 'torch'
 
 - python code/utils/io.py --verify-checksums -> rc=1
-
-2026-10-31 14:08:26,271 INFO __main__: Attempting to load primary RoboDojo dataset: RoboDojo/robodojo
-2026-10-31 14:08:26,369 INFO httpx2: HTTP Request: GET https://huggingface.co/api/datasets/RoboDojo/robodojo "HTTP/1.1 401 Unauthorized"
-2026-10-31 14:08:26,370 WARNING __main__: Primary dataset load failed (Dataset 'RoboDojo/robodojo' doesn't exist on the Hub or cannot be accessed.). Trying public fallback.
-2026-10-31 14:08:26,370 INFO __main__: Attempting to load fallback dataset: RoboDojo/robodojo-public-mirror
-2026-10-31 14:08:26,420 INFO httpx2: HTTP Request: GET https://huggingface.co/api/datasets/RoboDojo/robodojo-public-mirror "HTTP/1.1 401 Unauthorized"
-2026-10-31 14:08:26,420 ERROR __main__: Both primary and fallback dataset loads failed: Dataset 'RoboDojo/robodojo' doesn't exist on the Hub or cannot be accessed. | Dataset 'RoboDojo/robodojo-public-mirror' doesn't exist on the Hub or cannot be accessed.
-2026-10-31 14:08:26,421 ERROR __main__: Failed to load RoboDojo dataset: Unable to fetch RoboDojo dataset from any known public source.
-2026-10-31 14:08:26,421 ERROR __main__: Dataset streaming failed: Unable to fetch RoboDojo dataset
+oesn't exist on the Hub or cannot be accessed.). Trying public fallback.
+2026-11-03 18:15:55,336 INFO __main__: Attempting to load fallback dataset: ag_news
+2026-11-03 18:15:55,400 INFO httpx2: HTTP Request: GET https://huggingface.co/api/datasets/ag_news "HTTP/1.1 307 Temporary Redirect"
+2026-11-03 18:15:55,480 INFO httpx2: HTTP Request: GET https://huggingface.co/api/datasets/fancyzhx/ag_news "HTTP/1.1 200 OK"
+2026-11-03 18:15:55,751 INFO httpx2: HTTP Request: GET https://huggingface.co/api/datasets/ag_news "HTTP/1.1 307 Temporary Redirect"
+2026-11-03 18:15:55,811 INFO httpx2: HTTP Request: GET https://huggingface.co/api/datasets/fancyzhx/ag_news "HTTP/1.1 200 OK"
+2026-11-03 18:15:56,391 ERROR __main__: Both primary and fallback dataset loads failed: Dataset 'RoboDojo/robodojo' doesn't exist on the Hub or cannot be accessed. | Invalid HF URI 'hf://datasets/ag_news@eb185aade064a813bc0b7f42de02595523103ca4/data/train-*'. Repository id must be 'namespace/name', got 'ag_news'.
+2026-11-03 18:15:56,391 ERROR __main__: Failed to load dataset: Unable to fetch any known public dataset for streaming.
+2026-11-03 18:15:56,391 ERROR __main__: Dataset streaming failed: Unable to fetch dataset
 
 - python -c "import pandas as pd; print(pd.read_parquet('data/interim/execution_logs.parquet').head())" -> rc=1
 
@@ -142,7 +142,7 @@ ERROR code/tests/unit/test_stats.py
 ERROR code/tests/unit/test_stats_analysis.py
 ERROR code/tests/unit/test_vision_encoder.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 15 errors during collection !!!!!!!!!!!!!!!!!!!
-============================== 15 errors in 1.24s ==============================
+============================== 15 errors in 1.72s ==============================
 
 
 
