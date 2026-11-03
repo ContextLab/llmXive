@@ -1,38 +1,44 @@
 """
-Perceived Stress Scale (PSS‑10) scoring module.
+pss10.py
 
-The PSS‑10 consists of 10 items, each scored 0‑4.
-The total score is the sum of all items, ranging from 0 to 40.
+Scoring implementation for the Perceived Stress Scale (PSS‑10).
+The function validates input length and range and returns the total
+stress score as an integer.
 """
 
-from typing import List
+from typing import List, Dict  # Dict imported to satisfy type‑checking and avoid NameError
 
-def score_pss10(responses: List[int]) -> Dict[str, int | str]:
+class PSS10Error(ValueError):
+    """Custom error for PSS‑10 validation failures."""
+
+def score_pss10(responses: List[int]) -> int:
     """
-    Compute the PSS‑10 total score and a quality flag.
+    Compute the PSS‑10 total score.
 
-    Args:
-        responses: List of 10 integer responses, each in the range 0‑4.
+    Parameters
+    ----------
+    responses : List[int]
+        A list of 10 integer responses, each in the range 0‑4 inclusive.
 
-    Returns:
-        Dictionary with:
-            - 'total_score' (int): Sum of the responses (0‑40).
-            - 'quality_flag' (str): Always 'valid' for PSS‑10 (no RT limits).
+    Returns
+    -------
+    int
+        The sum of the ten responses.
 
-    Raises:
-        ValueError: If the number of responses is not 10 or any response is out of range.
+    Raises
+    ------
+    PSS10Error
+        If the length is not 10 or any response is outside the allowed range.
     """
     if len(responses) != 10:
-        raise ValueError(f"PSS‑10 requires exactly 10 responses, got {len(responses)}")
-
+        raise PSS10Error(
+            f"PSS‑10 requires exactly 10 responses, got {len(responses)}."
+        )
     for i, r in enumerate(responses):
         if not isinstance(r, int):
-            raise ValueError(f"Response {i} is not an integer: {r!r}")
-        if not (0 <= r <= 4):
-            raise ValueError(f"Response {i} out of valid range 0‑4: {r}")
-
-    total = int(sum(responses))
-    return {
-        'total_score': total,
-        'quality_flag': 'valid'
-    }
+            raise PSS10Error(f"Response {i} is not an integer: {r!r}")
+        if r < 0 or r > 4:
+            raise PSS10Error(
+                f"Response {i} out of range (0‑4): {r}"
+            )
+    return int(sum(responses))

@@ -24,7 +24,7 @@ app = Flask(__name__)
 # Use the llmxive toolkit to locate the participants CSV within the project.
 PARTICIPANT_CSV = paths.data("raw", "participants.csv")
 
-ID_PATTERN = re.compile(r"^P\d{3}$")
+ID_PATTERN = re.compile(r"^P\\d{3}$")
 
 def _ensure_csv_exists():
     """Create the CSV file with a header if it does not already exist."""

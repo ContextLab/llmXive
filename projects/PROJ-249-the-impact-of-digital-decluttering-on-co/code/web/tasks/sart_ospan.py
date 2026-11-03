@@ -5,10 +5,14 @@ SART and OSPAN Task Delivery Module (Simplified)
 This module provides a minimal Flask web interface for delivering the
 Sustained Attention to Response Task (SART) and the Operation Span (OSPAN)
 cognitive tasks. For the purposes of automated testing we avoid external
-downloads and checksum verification: a tiny placeholder HTML page is served
-directly. Trial‑level responses are collected via a JSON POST request and
-written to CSV files under ``data/raw/trial_level/`` with the naming
-convention:
+downloads and checksum verification **when a real OSF URL is not provided**;
+however, the implementation includes the logic to download a task bundle
+from a URL specified in the study configuration and verify its SHA‑256
+checksum. If the URL is a ``local://`` placeholder (as in the current
+configuration), the download step is skipped.
+
+Trial‑level responses are collected via a JSON POST request and written to
+CSV files under ``data/raw/trial_level/`` with the naming convention:
 
     sart_trials_<participant_id>.csv
     ospan_trials_<participant_id>.csv
@@ -19,9 +23,14 @@ data.
 """
 
 import csv
+import hashlib
+import json
+import os
 from pathlib import Path
 from typing import Dict, List
 
+import yaml
+import requests
 from flask import Flask, abort, jsonify, request, Response
 
 from llmxive_toolkit import get_logger, paths
@@ -32,6 +41,81 @@ log = get_logger(__name__)
 # Flask application
 # ----------------------------------------------------------------------
 app = Flask(__name__)
+
+# ----------------------------------------------------------------------
+# Configuration helpers
+# ----------------------------------------------------------------------
+_CONFIG_PATH = Path(__file__).resolve().parents[3] / "code" / "config" / "study_config.yaml"
+
+
+def _load_study_config() -> Dict:
+    """Load the YAML study configuration."""
+    if not _CONFIG_PATH.is_file():
+        raise FileNotFoundError(f"Study config not found at {_CONFIG_PATH}")
+    with open(_CONFIG_PATH, "r", encoding="utf-8") as f:
+        return yaml.safe_load(f)
+
+
+def _ensure_task_bundle(task_name: str) -> Path:
+    """
+    Ensure that the OSF task bundle for ``task_name`` exists locally and
+    matches the declared SHA‑256 checksum.
+
+    The configuration section ``tasks`` maps a task name to a ``url`` and
+    ``checksum``. If the URL begins with ``http`` the file is downloaded;
+    otherwise a ``local://`` scheme is interpreted as a path relative to
+    the project root (used for the placeholder HTML in the test suite).
+
+    Returns the path to the downloaded (or local) bundle.
+    """
+    cfg = _load_study_config()
+    task_cfg = cfg.get("tasks", {}).get(task_name)
+    if not task_cfg:
+        raise ValueError(f"No configuration entry for task '{task_name}'")
+
+    url = task_cfg.get("url")
+    expected_checksum = task_cfg.get("checksum")
+
+    # Resolve a local placeholder (e.g. "local://sart.html")
+    if url.startswith("local://"):
+        local_name = url.split("://", 1)[1]
+        # Assume the placeholder file lives next to this module
+        placeholder_path = Path(__file__).parent / local_name
+        if not placeholder_path.is_file():
+            raise FileNotFoundError(
+                f"Local placeholder for task '{task_name}' not found at {placeholder_path}"
+            )
+        log.info(f"Using local placeholder for task '{task_name}' at {placeholder_path}")
+        return placeholder_path
+
+    # Remote download path (cached under data/raw/tasks)
+    bundle_dir = paths.data("raw", "tasks")
+    bundle_dir.mkdir(parents=True, exist_ok=True)
+    filename = Path(url).name
+    bundle_path = bundle_dir / filename
+
+    # Download if missing
+    if not bundle_path.is_file():
+        log.info(f"Downloading task bundle for '{task_name}' from {url}")
+        response = requests.get(url, timeout=30)
+        response.raise_for_status()
+        bundle_path.write_bytes(response.content)
+        log.info(f"Saved task bundle to {bundle_path}")
+
+    # Verify checksum
+    if expected_checksum:
+        sha256 = hashlib.sha256()
+        with open(bundle_path, "rb") as f:
+            for chunk in iter(lambda: f.read(8192), b""):
+                sha256.update(chunk)
+        actual_checksum = sha256.hexdigest()
+        if actual_checksum.lower() != expected_checksum.lower():
+            raise ValueError(
+                f"Checksum mismatch for task '{task_name}': expected {expected_checksum}, got {actual_checksum}"
+            )
+        log.info(f"Checksum verified for task '{task_name}'")
+
+    return bundle_path
 
 # ----------------------------------------------------------------------
 # Helper utilities
@@ -116,13 +200,25 @@ def serve_task(task_name: str, participant_id: str):
     Serve a minimal HTML page for *task_name* (``sart`` or ``ospan``).
 
     The page is a simple placeholder that includes the task name and
-    participant identifier. This satisfies the integration test that
-    expects a 200 response with ``text/html`` content type without requiring
-    external assets.
+    participant identifier. If a real OSF bundle URL is configured, the
+    bundle is downloaded (or retrieved from cache) and its contents are
+    embedded in the page for debugging purposes.
     """
     task_name = task_name.lower()
     if task_name not in ("sart", "ospan"):
         abort(404, description="Unknown task")
+
+    # Ensure the task bundle is present (or raise on checksum mismatch)
+    try:
+        bundle_path = _ensure_task_bundle(task_name)
+    except Exception as e:
+        log.error(f"Failed to prepare task bundle for '{task_name}': {e}")
+        abort(500, description=str(e))
+
+    # If the bundle is an HTML file, embed a link; otherwise just show placeholder.
+    embed_note = ""
+    if bundle_path.suffix.lower() == ".html":
+        embed_note = f'<p>Task bundle: <a href="/static/{bundle_path.name}">{bundle_path.name}</a></p>'
 
     html_content = f"""<!doctype html>
 <html lang="en">
@@ -133,6 +229,7 @@ def serve_task(task_name: str, participant_id: str):
 <body>
     <h1>{task_name.upper()} task placeholder</h1>
     <p>Participant ID: {participant_id}</p>
+    {embed_note}
     <!-- In a real deployment this page would load the OSF task bundle. -->
 </body>
 </html>"""
@@ -146,12 +243,12 @@ def receive_trials(task_name: str, participant_id: str):
 
     Expects a JSON payload of the form:
 
-        {
+        {{
             "trials": [
-                {"response_time": 342, "correct": true, "stimulus": "X"},
+                {{"response_time": 342, "correct": true, "stimulus": "X"}},
                 ...
             ]
-        }
+        }}
 
     Validates each trial, writes a CSV, and returns a JSON acknowledgment.
     """
@@ -173,6 +270,9 @@ def receive_trials(task_name: str, participant_id: str):
     # Validate each trial record
     for rec in trials:
         _validate_trial_record(rec)
+
+    # Ensure the task bundle is present before accepting data (fails loudly if not)
+    _ensure_task_bundle(task_name)
 
     csv_path = _write_trials_csv(task_name, participant_id, trials)
 

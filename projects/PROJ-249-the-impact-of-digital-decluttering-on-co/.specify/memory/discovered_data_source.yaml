@@ -1,8 +1,8 @@
 status: none
-intent: download dataset containing SART OSPAN PSS-10 PANAS baseline measures python
-  package dataset
+intent: SART OSPAN PSS-10 PANAS baseline dataset download OSF python package dataset
 required_fields:
 - participant_id
+- pseudonymous_id
 - timestamp
 - sart_commission_errors
 - sart_omission_errors
@@ -10,6 +10,6 @@ required_fields:
 - pss10_total_score
 - panas_positive_affect_score
 - panas_negative_affect_score
-cache_key: 98d79cac9934986cb7672594035d057d7e2229100dc9e216cf61d4002356bfc3
-searched_at: '2026-10-24T11:49:06.709956+00:00'
+cache_key: 5a20a2a31eec1f6fc36c3cf9b4b312a2023f45add2c349e4c9d7a7eaddc5683f
+searched_at: '2026-11-03T23:11:53.215749+00:00'
 retry_count: 1

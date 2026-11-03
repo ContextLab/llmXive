@@ -1,50 +1,49 @@
 """
-PANAS (Positive and Negative Affect Schedule) scoring module.
+panas.py
 
-The instrument contains 20 items:
-    * Items 1‑10  → Positive Affect (PA)
-    * Items 11‑20 → Negative Affect (NA)
-
-Each item is scored 1‑5. Subscale scores are the sum of the respective 10 items.
+Scoring implementation for the Positive and Negative Affect Schedule (PANAS).
+The function expects 20 integer responses (1‑5) ordered with the first
+ten items representing Positive Affect (PA) and the last ten representing
+Negative Affect (NA).  It returns a tuple ``(pa_score, na_score)``.
 """
 
-from typing import List, Tuple, Dict
+from typing import List, Tuple
 
-def _validate_responses(responses: List[int]) -> None:
+class PANASError(ValueError):
+    """Custom error for PANAS validation failures."""
+
+def score_panas(responses: List[int]) -> Tuple[int, int]:
+    """
+    Compute PANAS scores.
+
+    Parameters
+    ----------
+    responses : List[int]
+        A list of 20 integer responses (1‑5).  Items 0‑9 correspond to
+        Positive Affect, items 10‑19 to Negative Affect.
+
+    Returns
+    -------
+    Tuple[int, int]
+        (positive_affect_score, negative_affect_score)
+
+    Raises
+    ------
+    PANASError
+        If the length is not 20 or any response is outside the allowed range.
+    """
     if len(responses) != 20:
-        raise ValueError(f"PANAS requires exactly 20 responses, got {len(responses)}")
+        raise PANASError(
+            f"PANAS requires exactly 20 responses, got {len(responses)}."
+        )
     for i, r in enumerate(responses):
         if not isinstance(r, int):
-            raise ValueError(f"Response {i} is not an integer: {r!r}")
-        if not (1 <= r <= 5):
-            raise ValueError(f"Response {i} out of valid range 1‑5: {r}")
-
-def score_panas(responses: List[int]) -> Dict[str, int | str]:
-    """
-    Compute PANAS subscale scores and a quality flag.
-
-    Args:
-        responses: List of 20 integer responses (1‑5).
-
-    Returns:
-        Dictionary with:
-            - 'positive_score' (int): Sum of the first 10 items.
-            - 'negative_score' (int): Sum of the last 10 items.
-            - 'quality_flag' (str): Always 'valid' for PANAS.
-
-    Raises:
-        ValueError: If the input list is malformed or contains out‑of‑range values.
-    """
-    _validate_responses(responses)
-
-    pa_items = responses[:10]
-    na_items = responses[10:]
-
-    pa_score = sum(pa_items)
-    na_score = sum(na_items)
-
-    return {
-        'positive_score': int(pa_score),
-        'negative_score': int(na_score),
-        'quality_flag': 'valid'
-    }
+            raise PANASError(f"Response {i} is not an integer: {r!r}")
+        if r < 1 or r > 5:
+            raise PANASError(
+                f"Response {i} out of range (1‑5): {r}"
+            )
+    # First 10 items = Positive Affect, last 10 = Negative Affect
+    pa = sum(responses[:10])
+    na = sum(responses[10:])
+    return int(pa), int(na)

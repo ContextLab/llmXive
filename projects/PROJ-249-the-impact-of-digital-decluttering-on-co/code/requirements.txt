@@ -1,16 +1,6 @@
-# Core dependencies (already available in the environment)
-numpy
-pandas
-scipy
-matplotlib
-scikit-learn
-statsmodels
-seaborn
-pytest
-PyYAML
-requests
-jsonschema
-psutil
-
-# Additional dependency required for the recruitment endpoint
-Flask>=2.0.0
+# Project dependencies
+Flask>=2.0
+# Existing dependencies are provided by the platform (numpy, pandas, scipy, matplotlib,
+# scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests, jsonschema, psutil) and
+# do not need to be listed here.  Adding Flask ensures the recruitment endpoint can be
+# imported and used in the integration test.

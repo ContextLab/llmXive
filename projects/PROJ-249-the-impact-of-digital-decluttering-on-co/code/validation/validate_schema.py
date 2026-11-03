@@ -53,16 +53,25 @@ def _load_csv(data_path: Path) -> List[Dict[str, Any]]:
 
 def _extract_measurement_schema(full_schema: Dict[str, Any]) -> Dict[str, Any]:
     """
-    The top‑level schema describes the whole dataset (participants,
-    measurements, compliance_logs). For CSV validation we only need the
-    ``MeasurementRecord`` definition.
+    Extract the MeasurementRecord schema from a top‑level schema.
+
+    The original implementation expected the schema to contain a
+    ``definitions`` section with a ``MeasurementRecord`` entry.
+    However, the project's ``contracts/dataset.schema.yaml`` is itself
+    the MeasurementRecord schema (no ``definitions`` wrapper).  This
+    helper now supports both layouts:
+
+    1. If ``definitions.MeasurementRecord`` exists, return it.
+    2. Otherwise, assume the top‑level object is the desired schema.
     """
-    try:
+    if (
+        "definitions" in full_schema
+        and isinstance(full_schema["definitions"], dict)
+        and "MeasurementRecord" in full_schema["definitions"]
+    ):
         return full_schema["definitions"]["MeasurementRecord"]
-    except KeyError as exc:
-        raise KeyError(
-            "The provided schema does not contain a 'MeasurementRecord' definition."
-        ) from exc
+    # Fallback: treat the whole schema as the measurement record definition.
+    return full_schema
 
 def validate_csv_against_schema(schema_path: Path, data_path: Path) -> None:
     """

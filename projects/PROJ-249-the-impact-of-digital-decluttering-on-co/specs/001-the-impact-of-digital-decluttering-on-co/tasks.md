@@ -7,7 +7,7 @@ The goal is to implement a reproducible, end‑to‑end pipeline that evaluates 
 
 ## Phase 0 – Pilot Validation (pre‑recruitment)
 
-- [ ] T000 **Pilot validation of SART and Ospan timing (n = 5).**  
+- [~] T000 **Pilot validation of SART and Ospan timing (n = 5).**  
   *Create a tiny live pilot, record raw trial‑level responses, and verify that all response times fall within 100 ms – 5000 ms and that SART accuracy ≥ 50 % (low‑attention flag otherwise).*  
   **File path(s)**: `data/raw/pilot/`, `code/tests/test_pilot.py`  
   **Verification**: `pytest code/tests/test_pilot.py` must pass and the pilot files must validate against `contracts/dataset.schema.yaml`.
@@ -18,36 +18,36 @@ The goal is to implement a reproducible, end‑to‑end pipeline that evaluates 
 
 ### Project scaffolding  
 
-- [ ] T001 **Create project layout, pin dependencies, and write configuration.**  
+- [~] T001 **Create project layout, pin dependencies, and write configuration.**  
   *Create required directories (`code/scoring/`, `code/analysis/`, `code/compliance/`, `code/viz/`, `code/validation/`, `code/pipeline/`, `code/tests/`, `data/raw/`, `data/processed/`, `data/results/`, `figures/`).*  
   **File path(s)**: (directory creation), `code/requirements.txt`, `code/config/study_config.yaml`, `quickstart.md` (updated with exact command).  
   **Verification**: `pytest tests/integration/test_layout.py` confirms directories exist; `pip install -r code/requirements.txt` succeeds without conflicts.
 
 ### Participant recruitment & instrument delivery  
 
-- [ ] T001b **Implement web‑based participant recruitment and pseudonymous ID generation (FR‑001).**  
+- [~] T001b **Implement web‑based participant recruitment and pseudonymous ID generation (FR‑001).**  
   *Develop a minimal Flask endpoint `code/recruitment/app.py` that registers a new participant, assigns an ID matching `^P\\d{3}$`, stores optional demographics, and writes a row to `data/raw/participants.csv`.*  
   **File path(s)**: `code/recruitment/app.py`, `data/raw/participants.csv`  
   **Verification**: `tests/integration/test_recruitment.py` confirms ID format and CSV entry.
 
-- [ ] T001c **Build web interface for SART and Ospan delivery (FR‑002).**  
+- [~] T001c **Build web interface for SART and Ospan delivery (FR‑002).**  
   *Create `code/web/tasks/sart_ospan.py` that downloads the OSF task code (verified via checksum), serves the tasks, records raw trial‑level responses, and writes CSVs (`data/raw/trial_level/sart_trials_<pid>.csv`, `data/raw/trial_level/ospan_trials_<pid>.csv`).*  
   **File path(s)**: `code/web/tasks/sart_ospan.py`, `data/raw/trial_level/`  
   **Verification**: `tests/integration/test_task_delivery.py` ensures files are created and conform to `contracts/dataset.schema.yaml`.
 
-- [ ] T001d **Create web pages for PSS‑10 and PANAS questionnaires (FR‑003).**  
+- [~] T001d **Create web pages for PSS‑10 and PANAS questionnaires (FR‑003).**  
   *Implement `code/web/questionnaires/pss_panas.py` that serves the questionnaires, collects raw responses, and writes `data/raw/questionnaire_responses.csv`.*  
   **File path(s)**: `code/web/questionnaires/pss_panas.py`, `data/raw/questionnaire_responses.csv`  
   **Verification**: `tests/integration/test_questionnaire.py` validates the CSV against `contracts/dataset.schema.yaml`.
 
-- [ ] T001e **Develop daily compliance‑logging UI (FR‑004).**  
+- [~] T001e **Develop daily compliance‑logging UI (FR‑004).**  
   *Provide `code/web/compliance/compliance_ui.py` where participants submit daily logs (social media minutes, news consumption, notifications off). Logs are stored as one CSV per participant per day under `data/raw/compliance_logs/`.*  
   **File path(s)**: `code/web/compliance/compliance_ui.py`, `data/raw/compliance_logs/`  
   **Verification**: `tests/integration/test_compliance_ui.py` checks that submitted logs validate against `contracts/compliance.schema.yaml`.
 
 ### Scoring functions  
 
-- [ ] T002 **Implement scoring functions for SART, Ospan, PSS‑10, and PANAS with quality‑flag logic (FR‑002, FR‑003, FR‑009).**  
+- [~] T002 **Implement scoring functions for SART, Ospan, PSS‑10, and PANAS with quality‑flag logic (FR‑002, FR‑003, FR‑009).**  
   *Add modules `code/scoring/sart.py`, `code/scoring/ospan.py`, `code/scoring/pss10.py`, `code/scoring/panas.py` that follow OSF v2.1+ reference algorithms. Each returns a numeric score and a `quality_flag` (`valid`, `low_attention`, `missing`). SART flags `low_attention` when accuracy < 50 %; all tasks enforce response‑time limits 100 ms – 5000 ms.*  
   **File path(s)**: `code/scoring/*.py`, `code/tests/test_scoring.py`  
   **Verification**: `pytest code/tests/test_scoring.py` must pass; scored rows must validate against `contracts/dataset.schema.yaml`.
@@ -73,7 +73,7 @@ The goal is to implement a reproducible, end‑to‑end pipeline that evaluates 
   **File path(s)**: `code/validation/generate_checksums.py`, `data/checksums.sha256`  
   **Verification**: `sha256sum -c data/checksums.sha256` exits with all OK; `tests/integration/test_checksum.py` checks that the manifest contains entries for at least five simulated files.
 
-- [ ] T003d **Produce a smoke‑analysis result on the simulated dataset and confirm values.**   <!-- FAILED-IN-EXECUTION: code/validation/produce_smoke_results.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/validation/produce_smoke_results.py exit=1 -->
+- [ ] T003d **Produce a smoke‑analysis result on the simulated dataset and confirm values.**   <!-- FAILED-IN-EXECUTION: code/validation/produce_smoke_results.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/validation/produce_smoke_results.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/validation/produce_smoke_results.py exit=1 -->
   *Run `code/validation/produce_smoke_results.py` which invokes the full analysis pipeline on the simulated data and writes `data/results/smoke_results.json`.*  
   *After generation, a quick sanity check confirms that each metric’s `mean_change` is a finite number and that `method_used` is either `"bootstrap"` or `"wilcoxon"`.*  
   **File path(s)**: `code/validation/produce_smoke_results.py`, `data/results/smoke_results.json`  

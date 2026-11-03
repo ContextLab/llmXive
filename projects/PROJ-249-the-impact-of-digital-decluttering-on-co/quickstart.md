@@ -37,20 +37,3 @@ All study parameters live in `code/config/study_config.yaml`:
 dict for SART, Ospan, PSS‑10, PANAS‑PA, PANAS‑NA),
 `practice_effect_grid` ([0.0, 0.2, 0.4]), `bootstrap_resamples`
 (10 000), `start_date` (ISO date), and `pilot_n` (5).
-
-## Checksums
-
-```bash
-sha256sum -c data/checksums.sha256
-```
-
-## Tests
-
-```bash
-pytest -v
-```
-
-The integration test `tests/integration/test_layout.py` verifies that the
-layout is created and that the configuration file is available both at
-its canonical location (`code/config/study_config.yaml`) and at the
-repository‑level shim (`code/config/study_config.yaml` one level up).
