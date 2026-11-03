@@ -1,5 +1,5 @@
 status: none
-intent: download LDBC SNB query latency dataset python package dataset
+intent: LDBC Social Network Benchmark query logs dataset download python package ldbc_snb_datagen
 required_fields:
 - query_id
 - query_text
@@ -8,7 +8,6 @@ required_fields:
 - latency_ms
 - cpu_time_ms
 - memory_mb
-- execution_timestamp
-cache_key: 86cdcf92cccebd245a8f07ed326fa544ffa42970a61094d9ac8f8b48bde71325
-searched_at: '2026-11-02T19:08:58.772166+00:00'
+cache_key: 1c119e79c8906051ebad63b81f0bc81b1eee4edda31a93739183c40c173dd1a8
+searched_at: '2026-11-03T17:07:20.481423+00:00'
 retry_count: 1
