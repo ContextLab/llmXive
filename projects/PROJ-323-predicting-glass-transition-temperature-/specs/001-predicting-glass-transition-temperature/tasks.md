@@ -8,7 +8,7 @@ The checklist implements a reproducible end‑to‑end pipeline that respects al
 
 ## Phase 0️⃣ – Resource Guardrails & Reproducibility  
 
-- [ ] T001 Configure CI timeout – Add `timeout-minutes: 360` to `.github/workflows/ci.yml` to enforce a hard 6‑hour limit on the entire workflow.   <!-- FAILED-IN-EXECUTION: code/ingest.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/ingest.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/ingest.py exit=1 -->
+- [ ] T001 Configure CI timeout – Add `timeout-minutes: 360` to `.github/workflows/ci.yml` to enforce a hard 6‑hour limit on the entire workflow.   <!-- FAILED-IN-EXECUTION: code/ingest.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/ingest.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/ingest.py exit=1 --> <!-- FAILED: unspecified -->
   - **Verification**: CI logs contain `Job timed out after 6 hours` when the limit is hit; otherwise the job completes normally.  
 
 - [~] T002 Implement pre‑run size check – In `code/utils.py` compute the total size of `data/raw/`.  
@@ -25,16 +25,16 @@ The checklist implements a reproducible end‑to‑end pipeline that respects al
 
 ## Phase 1️⃣ – Data Ingestion & Integrity  
 
-- [ ] T005 Download experimental $T_g$ dataset – Fetch the verified CSV files from the primary sources:   <!-- FAILED-IN-EXECUTION: code/ingest_tg.py exit=1 -->
+- [ ] T005 Download experimental $T_g$ dataset – Fetch the verified CSV files from the primary sources:   <!-- FAILED-IN-EXECUTION: code/ingest_tg.py exit=1 --> <!-- FAILED: unspecified -->
   * Polymer Genome Project: `[UNRESOLVED-CLAIM: https://polymergenome.org/api/v1/tg_dataset.csv` — HTTP 404]  
   * NIST WebBook (via API): `[UNRESOLVED-CLAIM: https://webbook.nist.gov/cgi/cgi2/chemistry/chemistry-download?type=tg&format=csv` — HTTP 404]  
   Verify SHA‑256 checksums (recorded in `data/checksums.json`) and store under `data/raw/tg_dataset.csv`.  
   - **Verification**: Checksums match entries in `data/checksums.json`; script aborts on mismatch.  
 
-- [ ] T006 Download Van Krevelen fragment contributions – Retrieve the original published fragment table from the DOI repository: `[UNRESOLVED-CLAIM: https://doi.org/10.1021/acs.jcim.0c00523/fragment_contributions.csv` — HTTP 404], verify checksum, and save to `data/raw/vk_fragments.csv`.   <!-- FAILED-IN-EXECUTION: tests/test_ingest_check.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/ingest.py exit=1 -->
+- [ ] T006 Download Van Krevelen fragment contributions – Retrieve the original published fragment table from the DOI repository: `[UNRESOLVED-CLAIM: https://doi.org/10.1021/acs.jcim.0c00523/fragment_contributions.csv` — HTTP 404], verify checksum, and save to `data/raw/vk_fragments.csv`.   <!-- FAILED-IN-EXECUTION: tests/test_ingest_check.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/ingest.py exit=1 --> <!-- FAILED: unspecified -->
   - **Verification**: Checksum matches; file existence confirmed.  
 
-- [ ] T007 Verify raw $T_g$ file integrity – Confirm that `data/raw/tg_dataset.csv` contains columns `polymer_id`, `smiles`, `experimental_tg`, `polymer_class`, and that at least 500 rows are present. Abort with a clear error if the check fails.  
+- [ ] T007 Verify raw $T_g$ file integrity – Confirm that `data/raw/tg_dataset.csv` contains columns `polymer_id`, `smiles`, `experimental_tg`, `polymer_class`, and that at least 500 rows are present. Abort with a clear error if the check fails.   <!-- FAILED-IN-EXECUTION: code/verify_tg.py exit=1 -->
   - **Verification**: Log `logs/ingest.log` contains `T_g dataset integrity check passed`; CI fails if conditions unmet.  
 
 ---  

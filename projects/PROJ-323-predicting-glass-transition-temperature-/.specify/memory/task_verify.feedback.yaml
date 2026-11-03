@@ -27,6 +27,8 @@ T006:
     exit=1'
   task: 3d6f6f79bdd5f99a8eca5ffbe2463f21157274f1ef1c20b058ec7b626caa2594
 T007:
+  reason: 'Requested task execution failed; rerun successfully: code/verify_tg.py
+    exit=1'
   task: 0c80fbdc6cc9d5dce3fc3d3a0b22b61febd4a90da20ec355166bb9139423c6e7
 T008:
   task: b90a92e48cea22aea28bbb7d4ac4b804c079ca5c8110af44e4e02ad62a08cd9a

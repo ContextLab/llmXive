@@ -7,3 +7,4 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T004** — The `outputs/logs/memory.json` file exists and contains a valid `peak_rss_mb` value well below the 7000 MB limit, but there is no evidence (e.g., script, code snippet, CI log) showing that the value was obtained using `psutil` as required by the task. Provide the implementation that records peak RSS with `psutil` and evidence of its execution.
 - **T005** — Requested task execution failed; rerun successfully: code/ingest_tg.py exit=1
 - **T006** — Requested task execution failed; rerun successfully: tests/test_ingest_check.py exit=1
+- **T007** — Requested task execution failed; rerun successfully: code/verify_tg.py exit=1

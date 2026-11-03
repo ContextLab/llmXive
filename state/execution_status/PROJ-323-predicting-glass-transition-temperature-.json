@@ -1,6 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-11-03T09:09:42Z",
-  "project_id": "PROJ-323-predicting-glass-transition-temperature-"
+  "updated_at": "2026-11-03T13:15:36Z",
+  "project_id": "PROJ-323-predicting-glass-transition-temperature-",
+  "replan_rounds": 1
 }
