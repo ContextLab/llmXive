@@ -1,50 +1,14 @@
-status: verified
-kind: pypi_package
-ref: pycoingecko
-access_python: "import json, sys\nfrom datetime import datetime\nfrom pycoingecko\
-  \ import CoinGeckoAPI\ncg = CoinGeckoAPI()\n\ndef fetch(symbol):\n    # OHLC data\
-  \ (timestamp in ms, open, high, low, close)\n    ohlc = cg.get_coin_ohlc_by_id(symbol,\
-  \ 'usd', 30)\n    # Volume data (timestamp in ms, volume)\n    vol_data = cg.get_coin_market_chart_by_id(symbol,\
-  \ 'usd', 30)['total_volumes']\n    out = {}\n    for ts, o, h, l, c in ohlc:\n \
-  \       date = datetime.utcfromtimestamp(ts/1000).date().isoformat()\n        out[date]\
-  \ = {'open': o, 'high': h, 'low': l, 'close': c}\n    for ts, v in vol_data:\n \
-  \       date = datetime.utcfromtimestamp(ts/1000).date().isoformat()\n        if\
-  \ date in out:\n            out[date]['volume'] = v\n    return out\n\nbtc = fetch('bitcoin')\n\
-  eth = fetch('ethereum')\nrecords = []\nfor date in sorted(set(btc) & set(eth)):\n\
-  \    rec = {\n        'date': date,\n        'btc_open': btc[date]['open'],\n  \
-  \      'btc_high': btc[date]['high'],\n        'btc_low': btc[date]['low'],\n  \
-  \      'btc_close': btc[date]['close'],\n        'btc_volume': btc[date].get('volume'),\n\
-  \        'eth_open': eth[date]['open'],\n        'eth_high': eth[date]['high'],\n\
-  \        'eth_low': eth[date]['low'],\n        'eth_close': eth[date]['close'],\n\
-  \        'eth_volume': eth[date].get('volume')\n    }\n    records.append(rec)\n\
-  print(f\"RECORDS={len(records)}\")\nprint(\"FIELDS=date,btc_open,btc_high,btc_low,btc_close,btc_volume,eth_open,eth_high,eth_low,eth_close,eth_volume\"\
-  )"
-record_count: 31
-sample_fields:
-- date
-- btc_open
-- btc_high
-- btc_low
-- btc_close
-- btc_volume
-- eth_open
-- eth_high
-- eth_low
-- eth_close
-- eth_volume
-field_coverage: 1.0
+status: none
+intent: HuggingFace datasets tner btc daily OHLCV and tner eth daily OHLCV download
+  python package dataset
 required_fields:
 - date
-- btc_open
-- btc_high
-- btc_low
-- btc_close
-- btc_volume
-- eth_open
-- eth_high
-- eth_low
-- eth_close
-- eth_volume
-intent: download daily OHLCV Bitcoin and Ethereum dataset via CoinGecko python package
-  dataset
-cache_key: d950212cf139b824ef1cf8abf61a8eeb13e679913fd9b3170d091abfd7064d4d
+- open
+- high
+- low
+- close
+- volume
+- symbol
+cache_key: fc366849c6e16ba0c220b0bc3ca22bb042e4b4c70ed9e6f574dfbe2d3eefa0db
+searched_at: '2026-11-03T16:14:34.466720+00:00'
+retry_count: 1
