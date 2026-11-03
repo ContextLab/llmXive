@@ -1,13 +1,14 @@
 status: none
-intent: download Human Connectome Project OpenNeuro ds000224 dataset python package
-  dataset
+intent: download Human Connectome Project ds000224 OpenNeuro resting state fMRI CAQ
+  scores python package dataset
 required_fields:
 - participant_id
-- resting_state_fmri
 - age
 - sex
 - education
 - caq_score
-cache_key: ec6dd1c1c25c12d5638ee8a8d15303510552122ce14c7563f6362099d2da1da6
-searched_at: '2026-11-03T16:25:54.384947+00:00'
+- divergent_thinking_score
+- resting_state_fmri_file
+cache_key: 8d2b35375f464a8695977da1e9233a0c92c40b0fb235460b516adb94f776ed7b
+searched_at: '2026-11-03T16:28:13.105896+00:00'
 retry_count: 1
