@@ -1,14 +1,7 @@
-last_used: dan-rockmore
-last_used_at: '2026-11-03T04:06:07.675213+00:00'
-last_outcome: model_error
+last_used: daniel-kahneman
+last_used_at: '2026-11-03T06:06:44.396608+00:00'
+last_outcome: abstained
 history:
-- slug: alan-turing
-  started_at: '2026-07-04T07:07:24.840591+00:00'
-  ended_at: '2026-07-04T18:27:44.960159+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-586-social-memory-networks-modeling-collecti/reviews/research/alan-turing-simulated__2026-07-04__research.md
 - slug: albert-einstein
   started_at: '2026-07-04T18:27:44.960159+00:00'
   ended_at: '2026-07-05T00:45:45.481800+00:00'
@@ -1183,3 +1176,7 @@ history:
   started_at: '2026-11-03T00:06:21.094420+00:00'
   ended_at: '2026-11-03T04:06:07.675213+00:00'
   outcome: model_error
+- slug: daniel-kahneman
+  started_at: '2026-11-03T04:06:07.675213+00:00'
+  ended_at: '2026-11-03T06:06:44.396608+00:00'
+  outcome: abstained
