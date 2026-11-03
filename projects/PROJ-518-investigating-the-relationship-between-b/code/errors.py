@@ -1,9 +1,10 @@
-from typing import Optional
+"""
+Custom error definitions for the Brain Dynamics and Creativity pipeline.
+"""
 
 class DataMissingCreativityError(Exception):
     """
-    Exception raised when required creativity data (CAQ) is missing.
+    Raised when the Creative Achievement Questionnaire (CAQ) field is missing
+    or null in the behavioral metadata for a subject.
     """
-    def __init__(self, message: str, missing_field: Optional[str] = None):
-        super().__init__(message)
-        self.missing_field = missing_field
+    pass

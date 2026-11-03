@@ -27,22 +27,22 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 Starting Brain Dynamics and Creativity Pipeline...
 CRITICAL ERROR: Behavioral JSON file not found in raw data.
 
-2026-10-31 07:07:07,155 INFO root: Pipeline execution started.
-2026-10-31 07:07:07,156 ERROR root: CRITICAL ERROR: Behavioral JSON file not found in raw data.
+2026-11-03 09:07:50,356 INFO root: Pipeline execution started.
+2026-11-03 09:07:50,356 ERROR root: CRITICAL ERROR: Behavioral JSON file not found in raw data.
 
 - python code/main.py --window-length 30 --permutations 10000 -> rc=1
 Starting Brain Dynamics and Creativity Pipeline...
 CRITICAL ERROR: Behavioral JSON file not found in raw data.
 
-2026-10-31 07:07:07,482 INFO root: Pipeline execution started.
-2026-10-31 07:07:07,482 ERROR root: CRITICAL ERROR: Behavioral JSON file not found in raw data.
+2026-11-03 09:07:50,626 INFO root: Pipeline execution started.
+2026-11-03 09:07:50,627 ERROR root: CRITICAL ERROR: Behavioral JSON file not found in raw data.
 
 - python code/main.py --sweep-windows -> rc=1
 Starting Brain Dynamics and Creativity Pipeline...
 CRITICAL ERROR: Behavioral JSON file not found in raw data.
 
-2026-10-31 07:07:07,804 INFO root: Pipeline execution started.
-2026-10-31 07:07:07,804 ERROR root: CRITICAL ERROR: Behavioral JSON file not found in raw data.
+2026-11-03 09:07:50,900 INFO root: Pipeline execution started.
+2026-11-03 09:07:50,901 ERROR root: CRITICAL ERROR: Behavioral JSON file not found in raw data.
 
 
 ## Declared deliverables still missing
@@ -59,6 +59,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 
 - `data/checksums.json` is declared but was NOT written. Scripts referencing it:
     - `code/data/loader.py` — NOT invoked by the run-book
+    - `code/data/run_fetch.py` — NOT invoked by the run-book
     - `code/tests/unit/test_loader_fetch.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/checksums.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/interim/included_subjects.csv` is declared but was NOT written. Scripts referencing it:
@@ -83,6 +84,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 - `data/raw/manifest.json` is declared but was NOT written. Scripts referencing it:
     - `code/config.py` — NOT invoked by the run-book
     - `code/data/loader.py` — NOT invoked by the run-book
+    - `code/data/run_fetch.py` — NOT invoked by the run-book
     - `code/scripts/save_analysis_results.py` — NOT invoked by the run-book
     - `code/scripts/update_readme.py` — NOT invoked by the run-book
     - `code/tests/unit/test_filter_subjects.py` — NOT invoked by the run-book
