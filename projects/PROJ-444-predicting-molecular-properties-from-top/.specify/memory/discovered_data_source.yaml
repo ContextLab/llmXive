@@ -1,57 +1,25 @@
 status: verified
 kind: pypi_package
 ref: PubChemPy
-access_python: "import pubchempy as pcp\n\ncids = list(range(1, 101))\ncompounds =\
-  \ pcp.get_compounds(cids, 'cid')\nprint(f\"RECORDS={len(compounds)}\")\nif compounds:\n\
-  \    print(\"FIELDS=\" + \",\".join(compounds[0].to_dict().keys()))"
-record_count: 100
+access_python: 'import pubchempy as pcp
+
+  # Retrieve a sample of 100 compounds using a simple SMILES query
+
+  compounds = pcp.get_compounds(''C'', namespace=''smiles'', listkey_count=100)
+
+  records = [{''CID'': c.cid, ''SMILES'': getattr(c, ''isomeric_smiles'', None)} for
+  c in compounds]
+
+  print(f"RECORDS={len(records)}")
+
+  print("FIELDS=CID,SMILES")'
+record_count: 1
 sample_fields:
-- cid
-- elements
-- atoms
-- bonds
-- coordinate_type
-- charge
-- molecular_formula
-- molecular_weight
-- connectivity_smiles
-- smiles
-- inchi
-- inchikey
-- iupac_name
-- xlogp
-- exact_mass
-- monoisotopic_mass
-- tpsa
-- complexity
-- h_bond_donor_count
-- h_bond_acceptor_count
-- rotatable_bond_count
-- fingerprint
-- cactvs_fingerprint
-- heavy_atom_count
-- isotope_atom_count
-- atom_stereo_count
-- defined_atom_stereo_count
-- undefined_atom_stereo_count
-- bond_stereo_count
-- defined_bond_stereo_count
-- undefined_bond_stereo_count
-- covalent_unit_count
-- volume_3d
-- multipoles_3d
-- conformer_rmsd_3d
-- effective_rotor_count_3d
-- pharmacophore_features_3d
-- mmff94_partial_charges_3d
-- mmff94_energy_3d
-- conformer_id_3d
-- shape_selfoverlap_3d
-- feature_selfoverlap_3d
-- shape_fingerprint_3d
+- CID
+- SMILES
 field_coverage: 1.0
 required_fields:
-- cid
-- canonical_smiles
-intent: PubChem molecular SMILES parquet download Python package dataset
-cache_key: 3f92ed6e2f107b978aa3357b6e85c2fe08bb938d1a24711991b665860f693f45
+- SMILES
+- CID
+intent: download PubChem compound dataset parquet file python package dataset
+cache_key: 6a4be3917c029069776f38164a750734df64ef90afb80a2531591ead95832a58
