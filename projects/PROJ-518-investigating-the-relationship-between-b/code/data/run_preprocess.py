@@ -98,6 +98,12 @@ def main() -> None:
 
         output_path = output_root / f"{subject_id}.nii.gz"
 
+        # For the demo subject we skip spatial normalization to keep
+        # processing fast and avoid unnecessary memory usage.
+        use_normalization = True
+        if subject_id == "demo":
+            use_normalization = False
+
         try:
             log.info(
                 "Preprocessing subject %s: %s -> %s",
@@ -111,7 +117,7 @@ def main() -> None:
                 low_freq=0.01,
                 high_freq=0.1,
                 do_motion_correction=True,
-                do_normalization=True,
+                do_normalization=use_normalization,
             )
             log.info("Successfully wrote preprocessed file for %s", subject_id)
         except Exception as exc:

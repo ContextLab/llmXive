@@ -27,22 +27,22 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 Starting Brain Dynamics and Creativity Pipeline...
 CRITICAL ERROR: Behavioral JSON file not found in raw data.
 
-2026-11-03 13:07:37,509 INFO root: Pipeline execution started.
-2026-11-03 13:07:37,509 ERROR root: CRITICAL ERROR: Behavioral JSON file not found in raw data.
+2026-11-03 16:25:09,819 INFO root: Pipeline execution started.
+2026-11-03 16:25:09,820 ERROR root: CRITICAL ERROR: Behavioral JSON file not found in raw data.
 
 - python code/main.py --window-length 30 --permutations 10000 -> rc=1
 Starting Brain Dynamics and Creativity Pipeline...
 CRITICAL ERROR: Behavioral JSON file not found in raw data.
 
-2026-11-03 13:07:37,781 INFO root: Pipeline execution started.
-2026-11-03 13:07:37,781 ERROR root: CRITICAL ERROR: Behavioral JSON file not found in raw data.
+2026-11-03 16:25:10,279 INFO root: Pipeline execution started.
+2026-11-03 16:25:10,280 ERROR root: CRITICAL ERROR: Behavioral JSON file not found in raw data.
 
 - python code/main.py --sweep-windows -> rc=1
 Starting Brain Dynamics and Creativity Pipeline...
 CRITICAL ERROR: Behavioral JSON file not found in raw data.
 
-2026-11-03 13:07:38,051 INFO root: Pipeline execution started.
-2026-11-03 13:07:38,051 ERROR root: CRITICAL ERROR: Behavioral JSON file not found in raw data.
+2026-11-03 16:25:10,732 INFO root: Pipeline execution started.
+2026-11-03 16:25:10,732 ERROR root: CRITICAL ERROR: Behavioral JSON file not found in raw data.
 
 
 ## Declared deliverables still missing
@@ -52,35 +52,6 @@ CRITICAL ERROR: Behavioral JSON file not found in raw data.
 - data/interim/permutation_results.csv
 - data/interim/sensitivity_summary.csv
 - data/raw/manifest.json
-
-## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
-
-Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
-
-- **Download / stream** this exact data URL directly (do NOT `pip install` it — it is a data file, not a package): `https://raw.githubusercontent.com/OpenNeuroDatasets/ds000224/master/participants.tsv`
-- **Verified**: streaming a sample yielded **10** real records with fields: participant_id, gender, age, education_degree, education_years.
-- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
-
-```python
-import pandas as pd, urllib.request, io
-url = 'https://raw.githubusercontent.com/OpenNeuroDatasets/ds000224/master/participants.tsv'
-with urllib.request.urlopen(url) as resp:
-    data = resp.read().decode('utf-8')
-df = pd.read_csv(io.StringIO(data), sep='\t')
-print(f'RECORDS={len(df)}')
-mapping = {
-    'participant_id': 'participant_id',
-    'age': 'age',
-    'sex': 'sex',
-    'education': 'education_level',
-    'education_level': 'education_level',
-    'creative_achievement_score': 'creative_achievement_score'
-}
-fields = [mapping[col] for col in df.columns if col in mapping]
-print('FIELDS=' + ','.join(fields))
-```
-
-Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 

@@ -1,6 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-11-03T13:08:18Z",
-  "project_id": "PROJ-518-investigating-the-relationship-between-b"
+  "updated_at": "2026-11-03T16:25:55Z",
+  "project_id": "PROJ-518-investigating-the-relationship-between-b",
+  "replan_rounds": 1
 }
