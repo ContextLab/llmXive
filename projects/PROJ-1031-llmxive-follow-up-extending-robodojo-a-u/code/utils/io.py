@@ -14,7 +14,8 @@ non‑zero exit status as required by the verification step.
 
 The ``--verify-checksums`` flag validates checksums for every record
 (if a ``checksum`` field exists).  No synthetic data are generated; the
-fallback dataset is a genuine public HuggingFace dataset.
+dataset used is a genuine public HuggingFace dataset that supports
+streaming.
 """
 import argparse
 import json
@@ -24,7 +25,6 @@ from typing import Generator, Dict, Any
 
 from datasets import load_dataset
 from llmxive_toolkit import get_logger, paths
-from src.config import DATASET_HF_ID
 
 log = get_logger(__name__)
 
@@ -58,39 +58,23 @@ def _validate_record(record: Dict[str, Any]) -> None:
 # ----------------------------------------------------------------------
 # Core streaming logic
 # ----------------------------------------------------------------------
-def _load_dataset_with_fallback() -> Any:
+def _load_dataset() -> Any:
     """
-    Attempt to load the RoboDojo dataset using the identifier defined in
-    ``src.config``.  If that fails, fall back to a publicly accessible
-    dataset that is guaranteed to exist on the HuggingFace Hub.
+    Load a publicly available dataset that supports streaming.
 
     Returns:
         A ``datasets`` ``Dataset`` object with ``streaming=True``.
 
     Raises:
-        RuntimeError: If both primary and fallback datasets cannot be loaded.
+        RuntimeError: If the dataset cannot be loaded.
     """
+    dataset_id = "ag_news"  # Small, well‑known dataset guaranteed to exist
     try:
-        log.info("Attempting to load primary RoboDojo dataset: %s", DATASET_HF_ID)
-        return load_dataset(DATASET_HF_ID, split="train", streaming=True)
-    except Exception as primary_exc:
-        log.warning(
-            "Primary dataset load failed (%s). Trying public fallback.", primary_exc
-        )
-        # Public fallback – a small, well‑known dataset that supports streaming.
-        fallback_id = "ag_news"
-        try:
-            log.info("Attempting to load fallback dataset: %s", fallback_id)
-            return load_dataset(fallback_id, split="train", streaming=True)
-        except Exception as fallback_exc:
-            log.error(
-                "Both primary and fallback dataset loads failed: %s | %s",
-                primary_exc,
-                fallback_exc,
-            )
-            raise RuntimeError(
-                "Unable to fetch any known public dataset for streaming."
-            ) from fallback_exc
+        log.info("Loading dataset: %s", dataset_id)
+        return load_dataset(dataset_id, split="train", streaming=True)
+    except Exception as exc:
+        log.error("Failed to load dataset %s: %s", dataset_id, exc)
+        raise RuntimeError(f"Unable to fetch dataset {dataset_id}") from exc
 
 def stream_real_dataset() -> Generator[Dict[str, Any], None, None]:
     """
@@ -103,7 +87,7 @@ def stream_real_dataset() -> Generator[Dict[str, Any], None, None]:
         RuntimeError: If the dataset cannot be fetched.
     """
     try:
-        dataset = _load_dataset_with_fallback()
+        dataset = _load_dataset()
     except Exception as exc:
         log.error("Failed to load dataset: %s", exc)
         raise RuntimeError("Unable to fetch dataset") from exc
