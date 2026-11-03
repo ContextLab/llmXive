@@ -1,21 +1,18 @@
 """
 code/utils/io.py
 -----------------
-Utility module for loading a dataset with streaming and basic checksum validation.
+Utility module for loading the RoboDojo dataset with streaming and checksum validation.
 
 The script can be executed as a module:
     python -m code.utils.io --test
     python -m code.utils.io --verify-checksums
 
-The ``--test`` flag streams the first record from the selected split and
-prints an identifier (``task_id`` or ``id`` if present).  Any failure to
-fetch the dataset or a checksum mismatch raises an exception, causing a
-non‑zero exit status as required by the verification step.
+The `--test` flag streams the first record from the 'real' split and
+prints an identifier (task_id or id). Any failure to fetch the dataset
+raises a RuntimeError, causing a non-zero exit status.
 
-The ``--verify-checksums`` flag validates checksums for every record
-(if a ``checksum`` field exists).  No synthetic data are generated; the
-dataset used is a genuine public HuggingFace dataset that supports
-streaming.
+The `--verify-checksums` flag validates checksums for every record
+(if a `checksum` field exists in the data).
 """
 import argparse
 import json
@@ -24,25 +21,20 @@ import sys
 from typing import Generator, Dict, Any
 
 from datasets import load_dataset
-from llmxive_toolkit import get_logger, paths
+from llmxive_toolkit import get_logger
 
 log = get_logger(__name__)
 
-# ----------------------------------------------------------------------
-# Helper functions
-# ----------------------------------------------------------------------
 def _record_checksum(record: Dict[str, Any]) -> str:
-    """Calculate SHA‑256 checksum of a JSON‑serialised record."""
+    """Calculate SHA-256 checksum of a JSON-serialised record."""
     record_bytes = json.dumps(record, sort_keys=True).encode("utf-8")
     return hashlib.sha256(record_bytes).hexdigest()
 
 def _validate_record(record: Dict[str, Any]) -> None:
     """
     Validate a single record.
-
-    If the record contains a ``checksum`` field, it is compared against the
-    computed SHA‑256 hash of the whole record (excluding the ``checksum``
-    field itself).  A mismatch raises ``ValueError``.
+    If the record contains a `checksum` field, it is compared against the
+    computed SHA-256 hash of the record (excluding the checksum field).
     """
     expected = record.get("checksum")
     if expected is not None:
@@ -55,59 +47,43 @@ def _validate_record(record: Dict[str, Any]) -> None:
                 f"expected {expected}, got {computed}"
             )
 
-# ----------------------------------------------------------------------
-# Core streaming logic
-# ----------------------------------------------------------------------
 def _load_dataset() -> Any:
     """
-    Load a publicly available dataset that supports streaming.
-
-    Returns:
-        A ``datasets`` ``Dataset`` object with ``streaming=True``.
-
-    Raises:
-        RuntimeError: If the dataset cannot be loaded.
+    Load the RoboDojo dataset from HuggingFace with streaming enabled.
     """
-    dataset_id = "ag_news"  # Small, well‑known dataset guaranteed to exist
+    dataset_id = "robodojo"
     try:
         log.info("Loading dataset: %s", dataset_id)
-        return load_dataset(dataset_id, split="train", streaming=True)
+        # trust_remote_code=True is often required for dataset loading scripts on HF
+        return load_dataset(dataset_id, split="real", streaming=True, trust_remote_code=True)
     except Exception as exc:
         log.error("Failed to load dataset %s: %s", dataset_id, exc)
         raise RuntimeError(f"Unable to fetch dataset {dataset_id}") from exc
 
 def stream_real_dataset() -> Generator[Dict[str, Any], None, None]:
     """
-    Stream records from the chosen dataset.
-
-    Yields:
-        Dictionaries representing individual records.
-
-    Raises:
-        RuntimeError: If the dataset cannot be fetched.
+    Stream records from the RoboDojo 'real' split.
     """
     try:
         dataset = _load_dataset()
     except Exception as exc:
-        log.error("Failed to load dataset: %s", exc)
+        log.error("Dataset loading failed: %s", exc)
         raise RuntimeError("Unable to fetch dataset") from exc
 
     for record in dataset:
-        # Basic validation – raise on checksum mismatch if the field exists.
         _validate_record(record)
         yield record
 
-# ----------------------------------------------------------------------
-# CLI helpers
-# ----------------------------------------------------------------------
 def test_stream() -> None:
     """
-    Streams a single record, prints its identifier, and exits with status 0
-    on success.  Any exception propagates and will cause a non‑zero exit
-    code.
+    Streams a single record, prints its identifier, and exits.
     """
     gen = stream_real_dataset()
-    first_record = next(gen)  # Will raise StopIteration if dataset is empty
+    try:
+        first_record = next(gen)
+    except StopIteration:
+        raise RuntimeError("Dataset is empty")
+    
     task_identifier = (
         first_record.get("task_id")
         or first_record.get("id")
@@ -118,11 +94,7 @@ def test_stream() -> None:
 
 def verify_checksums() -> None:
     """
-    Verify checksums for the entire dataset.
-
-    Streams all records, validates each (if a ``checksum`` field is present),
-    and logs a summary.  The function exits with status 0 on success,
-    otherwise any exception propagates and results in a non‑zero exit code.
+    Verify checksums for the entire streamed dataset.
     """
     count = 0
     for _ in stream_real_dataset():
@@ -131,12 +103,12 @@ def verify_checksums() -> None:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        description="Utility for streaming a dataset (primary RoboDojo or fallback)."
+        description="Utility for streaming the RoboDojo dataset."
     )
     parser.add_argument(
         "--test",
         action="store_true",
-        help="Stream a single record and exit (used for verification).",
+        help="Stream a single record and exit.",
     )
     parser.add_argument(
         "--verify-checksums",
@@ -151,12 +123,11 @@ def main(argv: list[str] | None = None) -> int:
         elif args.verify_checksums:
             verify_checksums()
         else:
-            # Default behavior: just stream without explicit validation
             count = 0
             for _ in stream_real_dataset():
                 count += 1
             log.info("Streamed %d records from the dataset.", count)
-    except Exception as exc:  # pragma: no cover – any exception is a failure
+    except Exception as exc:
         log.error("Dataset streaming failed: %s", exc)
         return 1
 

@@ -92,14 +92,10 @@ ModuleNotFoundError: No module named 'torch'
 
 - python code/utils/io.py --verify-checksums -> rc=1
 
-2026-11-03 19:21:48,572 INFO __main__: Loading dataset: ag_news
-2026-11-03 19:21:48,613 INFO httpx2: HTTP Request: GET https://huggingface.co/api/datasets/ag_news "HTTP/1.1 307 Temporary Redirect"
-2026-11-03 19:21:48,629 INFO httpx2: HTTP Request: GET https://huggingface.co/api/datasets/fancyzhx/ag_news "HTTP/1.1 200 OK"
-2026-11-03 19:21:48,760 INFO httpx2: HTTP Request: GET https://huggingface.co/api/datasets/ag_news "HTTP/1.1 307 Temporary Redirect"
-2026-11-03 19:21:48,777 INFO httpx2: HTTP Request: GET https://huggingface.co/api/datasets/fancyzhx/ag_news "HTTP/1.1 200 OK"
-2026-11-03 19:21:49,006 ERROR __main__: Failed to load dataset ag_news: Invalid HF URI 'hf://datasets/ag_news@eb185aade064a813bc0b7f42de02595523103ca4/data/train-*'. Repository id must be 'namespace/name', got 'ag_news'.
-2026-11-03 19:21:49,006 ERROR __main__: Failed to load dataset: Unable to fetch dataset ag_news
-2026-11-03 19:21:49,006 ERROR __main__: Dataset streaming failed: Unable to fetch dataset
+2026-11-03 23:10:48,685 INFO __main__: Loading dataset: robodojo
+2026-11-03 23:10:48,754 ERROR __main__: Failed to load dataset robodojo: Dataset 'robodojo' doesn't exist on the Hub or cannot be accessed.
+2026-11-03 23:10:48,754 ERROR __main__: Dataset loading failed: Unable to fetch dataset robodojo
+2026-11-03 23:10:48,754 ERROR __main__: Dataset streaming failed: Unable to fetch dataset
 
 - python -c "import pandas as pd; print(pd.read_parquet('data/interim/execution_logs.parquet').head())" -> rc=1
 
@@ -142,7 +138,7 @@ ERROR code/tests/unit/test_stats.py
 ERROR code/tests/unit/test_stats_analysis.py
 ERROR code/tests/unit/test_vision_encoder.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 15 errors during collection !!!!!!!!!!!!!!!!!!!
-============================== 15 errors in 1.60s ==============================
+============================== 15 errors in 1.61s ==============================
 
 
 
