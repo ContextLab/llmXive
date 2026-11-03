@@ -28700,7 +28700,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-03T13:08:08.358956+00:00",
+  "generated_at": "2026-11-03T13:17:21.046774+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -67111,6 +67111,14 @@
       "last_run_log": [
         {
           "agent": "tasker",
+          "duration_s": 4.176814,
+          "ended_at": "2026-11-03T13:07:52.004397Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-03T13:07:47.827583Z"
+        },
+        {
+          "agent": "tasker",
           "duration_s": 2.752449,
           "ended_at": "2026-11-03T08:07:22.313896Z",
           "model": "zai-org.glm-5.3",
@@ -67180,14 +67188,6 @@
           "model": "google.gemma-4-31B-it",
           "outcome": "success",
           "started_at": "2026-10-22T21:07:11.830626Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 274.824632,
-          "ended_at": "2026-10-22T10:12:51.425624Z",
-          "model": "google.gemma-4-31B-it",
-          "outcome": "success",
-          "started_at": "2026-10-22T10:08:16.600992Z"
         }
       ],
       "paper_status": null,
@@ -124857,7 +124857,7 @@
           ]
         },
         {
-          "contributions": 20,
+          "contributions": 21,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -124910,6 +124910,14 @@
       "id": "PROJ-518-investigating-the-relationship-between-b",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 83.018004,
+          "ended_at": "2026-11-03T13:07:37.269654Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-11-03T13:06:14.251650Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 61.191111,
@@ -124981,14 +124989,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-18T15:25:43.791018Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 30.478427,
-          "ended_at": "2026-10-18T15:25:43.787315Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-18T15:25:13.308888Z"
         }
       ],
       "paper_status": null,
@@ -175640,6 +175640,14 @@
       "last_run_log": [
         {
           "agent": "planner",
+          "duration_s": 168.409897,
+          "ended_at": "2026-11-03T13:09:27.951688Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-03T13:06:39.541791Z"
+        },
+        {
+          "agent": "planner",
           "duration_s": 174.014136,
           "ended_at": "2026-11-02T15:09:47.200840Z",
           "model": "zai-org.glm-5.3",
@@ -175709,14 +175717,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-10-29T13:09:10.415518Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 169.449776,
-          "ended_at": "2026-10-29T12:10:50.931023Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-10-29T12:08:01.481247Z"
         }
       ],
       "paper_status": null,
@@ -175897,6 +175897,42 @@
     }
   ],
   "recent_activity": [
+    {
+      "agent": "planner",
+      "duration_s": 168.409897,
+      "ended_at": "2026-11-03T13:09:27.951688Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-997-llmxive-follow-up-extending-the-mirage-o",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-11-03T13:06:39.541791Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 4.176814,
+      "ended_at": "2026-11-03T13:07:52.004397Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-187-evaluating-the-statistical-properties-of",
+      "project_stage": "planned",
+      "severity": "hard",
+      "started_at": "2026-11-03T13:07:47.827583Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 83.018004,
+      "ended_at": "2026-11-03T13:07:37.269654Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-518-investigating-the-relationship-between-b",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-11-03T13:06:14.251650Z"
+    },
     {
       "agent": "implementer",
       "duration_s": 3.257115,
@@ -181947,42 +181983,6 @@
       "project_stage": "in_progress",
       "severity": "hard",
       "started_at": "2026-10-31T15:06:01.789686Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 3.981323,
-      "ended_at": "2026-10-31T15:06:01.011693Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-971-llmxive-follow-up-extending-in-context-w",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-10-31T15:05:57.030370Z"
-    },
-    {
-      "agent": "planner",
-      "duration_s": 160.976502,
-      "ended_at": "2026-10-31T14:08:35.592538Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-728-autocorrelation-of-the-m-bius-function-i",
-      "project_stage": "clarified",
-      "severity": "hard",
-      "started_at": "2026-10-31T14:05:54.616036Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 50.743309,
-      "ended_at": "2026-10-31T14:08:20.443443Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-1031-llmxive-follow-up-extending-robodojo-a-u",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-31T14:07:29.700134Z"
     }
   ],
   "reviewed_preprints": [
