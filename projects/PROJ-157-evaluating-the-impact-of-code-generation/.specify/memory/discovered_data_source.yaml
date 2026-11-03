@@ -1,16 +1,9 @@
 status: none
-intent: EvalPlus HumanEval dataset with OpenAI HumanEval reference solutions pip install
-  python package dataset
-required_fields:
-- problem_id
-- problem_description
-- human_solution_code
-- human_solution_language
-- llm_model_name
-- llm_generated_solution_code
-- llm_generated_solution_language
-- generation_timestamp
-- generation_status
-cache_key: 4f17ca34b815f6cddae7346ed47f30234ac49bf39412eb33a1aa3a5374ba59dc
-searched_at: '2026-11-02T04:12:43.561565+00:00'
+intent: '### User Story 1 - Dataset Acquisition and Preparation (Priority: P1) The
+  system MUST acquire a balanced dataset of programming challenges containing both
+  human-written reference solutions and LLM-generated variants. This is the foundational
+  step; without valid, paired data, no security analysis can'
+required_fields: []
+cache_key: b6c1af95181869437a87e7f198276914ba45b3eb31021d0ea2df82bf512f604c
+searched_at: '2026-11-03T02:10:19.349470+00:00'
 retry_count: 1
