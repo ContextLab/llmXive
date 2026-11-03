@@ -1,17 +1,19 @@
 status: none
-intent: Polymer Genome Project Tg dataset SMILES download python package with NIST
-  WebBook
+intent: Polymer Genome dataset download SMILES Tg polymer properties python package
+  dataset
 required_fields:
 - polymer_id
 - smiles
-- glass_transition_temperature_Tg
-- amorphous_flag
-- polymer_type
-- elemental_mass_fractions
+- tg
+- polymer_category
+- element_mass_fraction_C
+- element_mass_fraction_H
+- element_mass_fraction_O
+- element_mass_fraction_N
+- element_mass_fraction_other
 - functional_group_counts
 - molecular_weight_average
 - ffv
-- chain_stiffness
-cache_key: cd36b1d42b3e7be0e76639dc224b083acca8c372e9477666d6f5c998c957e48b
-searched_at: '2026-10-31T03:08:22.115196+00:00'
+cache_key: 4756c86b1060e1908080787a2fee79e63ca27ec221cb4213c9fed0b89d66ef4a
+searched_at: '2026-11-03T01:09:00.404102+00:00'
 retry_count: 1

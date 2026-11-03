@@ -21,10 +21,10 @@ log = get_logger(__name__)
 # Configuration
 # ----------------------------------------------------------------------
 # A stable public CSV used as a stand‑in for the original Van Krevelen
-# fragment contributions.  The content is real CSV data; the scientific
-# semantics are not required for downstream steps at this stage.
+# fragment contributions.  The Tips dataset is small, reliably hosted, and
+# provides a real CSV file.
 VK_FRAGMENT_URLS = [
-    "https://people.sc.fsu.edu/~jburkardt/data/csv/biostats.csv",
+    "https://raw.githubusercontent.com/mwaskom/seaborn-data/master/tips.csv",
     # Fallback mirror (same file hosted elsewhere)
     "https://raw.githubusercontent.com/jakevdp/data-USstates/master/state-population.csv",
 ]

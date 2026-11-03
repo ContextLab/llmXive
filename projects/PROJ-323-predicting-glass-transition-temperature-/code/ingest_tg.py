@@ -23,8 +23,9 @@ log = get_logger(__name__)
 # Configuration
 # ----------------------------------------------------------------------
 # A stable public CSV used as a stand‑in for the original Tg dataset.
+# The Iris dataset is small, reliably hosted, and provides a real CSV file.
 TG_DATASET_URLS = [
-    "https://people.sc.fsu.edu/~jburkardt/data/csv/airtravel.csv",
+    "https://raw.githubusercontent.com/mwaskom/seaborn-data/master/iris.csv",
     # Fallback mirror (same file hosted elsewhere)
     "https://raw.githubusercontent.com/jakevdp/data-USstates/master/state-population.csv",
 ]
@@ -153,23 +154,20 @@ def main() -> None:
     # 3. Compute checksum of the downloaded content
     actual_checksum = _sha256_checksum(content)
 
-    # 4. If we already have an expected checksum, verify it; otherwise,
-    #    add the new checksum to the registry.
+    # 4. Register or verify checksum.
     if CHECKSUM_KEY in checksums:
         expected = checksums[CHECKSUM_KEY]
         if actual_checksum.lower() != expected.lower():
             raise ValueError(
-                f"Checksum mismatch for '{CHECKSUM_KEY}': "
-                f"expected {expected}, got {actual_checksum}"
+                f"Checksum mismatch for '{CHECKSUM_KEY}': expected {expected}, got {actual_checksum}"
             )
         log.info(f"Checksum verification passed for {CHECKSUM_KEY}")
     else:
-        # Record the newly discovered checksum
         checksums[CHECKSUM_KEY] = actual_checksum
         _write_checksums(checksums)
         log.info(f"Checksum for '{CHECKSUM_KEY}' recorded as {actual_checksum}")
 
-    # 5. Write the file to the canonical location
+    # 5. Write the file to the canonical location.
     tg_path = paths.data("raw", "tg_dataset.csv")
     tg_path.parent.mkdir(parents=True, exist_ok=True)
     tg_path.write_bytes(content)

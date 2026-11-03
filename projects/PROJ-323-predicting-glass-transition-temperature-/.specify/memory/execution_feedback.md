@@ -8,7 +8,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python -m code.ingest --check -> rc=1
 
-2026-10-31 03:08:00,304 ERROR __main__: Checksums file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-323-predicting-glass-transition-temperature-/data/checksums.json
+2026-11-03 01:07:35,347 ERROR __main__: Checksums file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-323-predicting-glass-transition-temperature-/data/checksums.json
 
 - python -m pytest -m contract -> rc=5
 ======================
@@ -27,7 +27,7 @@ tests/test_memory_usage.py:20
     @pytest.mark.timeout(300)
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-====================== 7 deselected, 2 warnings in 0.30s =======================
+====================== 7 deselected, 2 warnings in 0.22s =======================
 
 
 
