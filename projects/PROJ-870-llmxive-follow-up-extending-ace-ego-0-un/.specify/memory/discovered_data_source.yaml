@@ -1,16 +1,18 @@
 status: none
-intent: download VLA egocentric video dataset and ACE-Ego-0 reliability scores python
-  package dataset
+intent: download VLA egocentric RGB video dataset and ACE-Ego-0 reference python package
+  dataset
 required_fields:
-- video_id
-- frame_id
-- timestamp
-- exposure
-- focal_length
+- episode_id
+- segment_id
+- frame_index
 - image_entropy
 - hand_detection_confidence
 - lighting_metric
+- timestamp
+- exposure_time
+- focal_length
+- rgb_frame_path
 - dynamic_reliability_score
-cache_key: 68a3eaa884e371786281b5fb1be522143d59b3fdeee9b744d8f8ce71b7595c1a
-searched_at: '2026-11-03T03:08:55.766666+00:00'
+cache_key: 0e16346e26aec2e9fda0e499923469c960c3be6035ee84bfd7bb886b6651d29e
+searched_at: '2026-11-03T08:09:59.771073+00:00'
 retry_count: 1
