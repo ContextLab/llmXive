@@ -1,14 +1,28 @@
-status: none
-intent: download Human Connectome Project resting state fMRI OpenNeuro ds000224 python
-  package dataset
+status: verified
+kind: data_url
+ref: https://raw.githubusercontent.com/OpenNeuroDatasets/ds000224/master/participants.tsv
+access_python: "import pandas as pd, urllib.request, io\nurl = 'https://raw.githubusercontent.com/OpenNeuroDatasets/ds000224/master/participants.tsv'\n\
+  with urllib.request.urlopen(url) as resp:\n    data = resp.read().decode('utf-8')\n\
+  df = pd.read_csv(io.StringIO(data), sep='\\t')\nprint(f'RECORDS={len(df)}')\nmapping\
+  \ = {\n    'participant_id': 'participant_id',\n    'age': 'age',\n    'sex': 'sex',\n\
+  \    'education': 'education_level',\n    'education_level': 'education_level',\n\
+  \    'creative_achievement_score': 'creative_achievement_score'\n}\nfields = [mapping[col]\
+  \ for col in df.columns if col in mapping]\nprint('FIELDS=' + ','.join(fields))"
+record_count: 10
+sample_fields:
+- participant_id
+- gender
+- age
+- education_degree
+- education_years
+field_coverage: 0.5
 required_fields:
 - participant_id
-- resting_state_fmri_nifti_path
-- divergent_thinking_score
+- resting_state_fmri_path
 - age
 - sex
-- education
-- scan_session_id
-cache_key: 94ac2e28759c0e4b96b6451d3c871b215d36beae661a5a85b78f5811ca863b67
-searched_at: '2026-11-03T09:08:38.642762+00:00'
-retry_count: 1
+- education_level
+- creative_achievement_score
+intent: Human Connectome Project resting state fMRI OpenNeuro ds000224 python package
+  dataset
+cache_key: 86a6f9416ec4e0ca53e331d7eae4bae84d36b762edb866c13820b3b0aa260c2a

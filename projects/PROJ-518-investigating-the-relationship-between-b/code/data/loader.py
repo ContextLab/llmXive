@@ -7,6 +7,7 @@ from typing import List, Dict, Any, Optional
 from dataclasses import dataclass
 import logging
 import pandas as pd
+import time
 
 # Project utilities
 from llmxive_toolkit import paths, get_logger
@@ -93,6 +94,33 @@ def _save_manifest(subject_ids: List[str]) -> None:
         json.dump({"subject_ids": subject_ids}, f, indent=2)
 
 
+def _download_with_retry(url: str, dest: Path, max_retries: int = 3, backoff: float = 2.0) -> None:
+    """
+    Download a file with simple exponential backoff retry logic.
+    Raises the underlying exception after exhausting retries.
+    """
+    attempt = 0
+    while attempt < max_retries:
+        try:
+            log.info(f"Downloading {url} → {dest} (attempt {attempt + 1})")
+            with requests.get(url, stream=True, timeout=120) as r:
+                r.raise_for_status()
+                with open(dest, "wb") as f:
+                    for chunk in r.iter_content(chunk_size=8192):
+                        if chunk:
+                            f.write(chunk)
+            log.info(f"Finished downloading {dest.name}")
+            return
+        except Exception as e:
+            attempt += 1
+            log.warning(f"Download failed (attempt {attempt}/{max_retries}): {e}")
+            if attempt >= max_retries:
+                raise
+            sleep_time = backoff ** attempt
+            log.info(f"Retrying after {sleep_time:.1f}s...")
+            time.sleep(sleep_time)
+
+
 def fetch_hcp_data(subject_id: str) -> Path:
     """
     Downloads raw fMRI (resting‑state) and behavioral JSON for a specific subject
@@ -128,27 +156,15 @@ def fetch_hcp_data(subject_id: str) -> Path:
     fmri_rel_path = f"sub-{subject_id}/func/sub-{subject_id}_task-rest_bold.dtseries.nii"
     behav_rel_path = f"sub-{subject_id}/phenotype/sub-{subject_id}_behav.json"
 
-    def _download(url: str, dest: Path) -> None:
-        """Download a single file with streaming and raise on HTTP errors."""
-        log.info(f"Downloading {url} → {dest}")
-        with requests.get(url, stream=True, timeout=60) as r:
-            r.raise_for_status()
-            with open(dest, "wb") as f:
-                for chunk in r.iter_content(chunk_size=8192):
-                    if chunk:
-                        f.write(chunk)
-        log.info(f"Finished downloading {dest.name}")
-
-    # Append download query parameter required by OpenNeuro to trigger raw file download
     fmri_url = f"{base_url}/{fmri_rel_path}?download=1"
     behav_url = f"{base_url}/{behav_rel_path}?download=1"
 
     fmri_dest = target_dir / Path(fmri_rel_path).name
     behav_dest = target_dir / Path(behav_rel_path).name
 
-    # Perform downloads (will raise if HTTP error)
-    _download(fmri_url, fmri_dest)
-    _download(behav_url, behav_dest)
+    # Perform downloads with retry logic
+    _download_with_retry(fmri_url, fmri_dest)
+    _download_with_retry(behav_url, behav_dest)
 
     # Verify CAQ availability immediately after download
     try:
