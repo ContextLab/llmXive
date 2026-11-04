@@ -1,14 +1,7 @@
 last_used: linus-pauling
-last_used_at: '2026-11-04T16:07:20.803098+00:00'
-last_outcome: abstained
+last_used_at: '2026-11-04T18:05:39.320623+00:00'
+last_outcome: model_error
 history:
-- slug: ada-lovelace
-  started_at: '2026-10-11T14:05:50.271699+00:00'
-  ended_at: '2026-10-11T16:06:56.795985+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/reviews/research/ada-lovelace-simulated__2026-10-11__research.md
 - slug: alan-turing
   started_at: '2026-10-11T16:06:56.795985+00:00'
   ended_at: '2026-10-11T18:06:01.515542+00:00'
@@ -1140,3 +1133,7 @@ history:
   started_at: '2026-11-04T12:07:39.060858+00:00'
   ended_at: '2026-11-04T16:07:20.803098+00:00'
   outcome: abstained
+- slug: marie-curie
+  started_at: '2026-11-04T16:07:20.803098+00:00'
+  ended_at: '2026-11-04T18:05:39.320623+00:00'
+  outcome: model_error
