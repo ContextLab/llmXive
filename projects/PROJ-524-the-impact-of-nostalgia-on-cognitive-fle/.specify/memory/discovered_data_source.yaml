@@ -1,6 +1,6 @@
 status: none
-intent: OpenNeuro Wisconsin Card Sorting Test dataset MMSE normative scores python
-  package dataset
+intent: Wisconsin Card Sorting Test dataset nostalgia control condition MMSE scores
+  demographics python package dataset
 required_fields:
 - participant_id
 - condition
@@ -10,8 +10,6 @@ required_fields:
 - age
 - education_years
 - gender
-- audio_sha256_checksum
-- random_assignment_seed
-cache_key: 58a22e5a0a9dbdf03b4fde9715f37e7d59ead5d76704c3bf3ce618b40b9762aa
-searched_at: '2026-11-03T18:13:14.286051+00:00'
+cache_key: 1b1e8f04ad9556891b0a91c003d81211a066718a93fecb03099697bf99892c1a
+searched_at: '2026-11-04T16:08:46.328364+00:00'
 retry_count: 1
