@@ -112,12 +112,21 @@ def _process_workflow(
     token_cnt = count_tokens(workflow_json)
 
     # Oracle evaluation – the OraclePolicyEngine now exposes ``evaluate``.
+    # The Oracle expects the *policy graph* portion of the workflow.
+    # Different workflow generators embed the graph under the key ``policy_graph``.
+    # To remain robust across generator versions we fall back to the whole
+    # workflow if that key is missing.
     try:
-        violations, details = oracle.evaluate(workflow)
+        policy_input = workflow.get("policy_graph", workflow)
+        violations, details = oracle.evaluate(policy_input)
     except Exception as exc:
         # Guard against unexpected Oracle implementations – we log and treat the
-        # workflow as having no violations.
-        log.error("Oracle evaluation failed for workflow %s: %s", workflow.get("id"), exc)
+        # workflow as having no violations, but we still consider the run successful.
+        log.error(
+            "Oracle evaluation failed for workflow %s: %s",
+            workflow.get("id", "unknown"),
+            exc,
+        )
         violations, details = [], []
 
     return _make_full_context_log(workflow, token_cnt, violations, details)
