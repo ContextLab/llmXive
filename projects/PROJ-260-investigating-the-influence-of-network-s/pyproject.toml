@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "amorphous-heat-conduction"
 version = "0.1.0"
 description = "Investigating the influence of network structure on heat conduction in amorphous solids"
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 dependencies = [
     "numpy",
     "scipy",
@@ -41,28 +41,3 @@ addopts = [
 [tool.black]
 line-length = 88
 target-version = ['py311']
-include = '\\.pyi?$'
-# Exclude all source code to avoid black formatting checks
-exclude = '''
-src/.*
-'''
-
-[tool.ruff]
-line-length = 88
-target-version = "py311"
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-]
-ignore = [
-    "E501", # line too long (black handles this)
-    "B008", # do not perform function calls in argument defaults
-]
-
-[tool.ruff.isort]
-known-first-party = ["src", "tests"]
-force-sort-within-sections = true

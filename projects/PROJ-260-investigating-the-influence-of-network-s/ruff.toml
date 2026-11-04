@@ -1,27 +1,18 @@
 # Ruff configuration for llmXive project
 # Strict linting rules as per task T004
 
+# Select strict rules: pycodestyle errors, Pyflakes, isort, and pycodestyle warnings
 select = ["E", "F", "I", "W"]
-ignore = ["F401"]  # Ignore unused import warnings
+
 line-length = 88
 target-version = "py311"
-preview = true
 
-# Optional: Exclude common directories that don't need linting
+# Standard excludes for environment and version control
 exclude = [
     ".git",
-    ".tox",
-    ".eggs",
-    "build",
-    "dist",
     "venv",
     ".venv",
-    "node_modules",
     "__pycache__",
-    "src/services",   # Exclude service modules that are not yet lint‑clean
-    "src",            # Exclude all source code to ensure no lint violations
+    "build",
+    "dist",
 ]
-
-# Optional: Per-file ignores if needed
-# [per-file-ignores]
-# "__init__.py" = ["F401"]

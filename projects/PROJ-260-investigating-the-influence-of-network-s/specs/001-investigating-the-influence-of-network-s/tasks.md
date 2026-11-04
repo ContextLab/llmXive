@@ -11,22 +11,22 @@ artifact paths and an explicit verification step.
 | Goal | Produce a reproducible directory layout, dependency list, and a runnable CLI that can be demonstrated on a tiny real dataset. |
 |------|-----------------------------------------------------------------------------------------------------------------------------------|
 
-- [X] **T001**  Create the full data‑directory hierarchy  
+- [~] **T001**  Create the full data‑directory hierarchy  
   `data/raw/`, `data/derived/`, `data/derived/topology/`, `data/derived/vdos/`, `data/derived/reference/`, `data/derived/correlation/`, `data/metadata/`  
   and write a machine‑generated tree listing to `docs/design/data_tree.txt`.  
   **Verification**: `cat docs/design/data_tree.txt` must contain all seven directories (one per line).
 
-- [X] **T002**  Create the output‑directory hierarchy `outputs/`, `outputs/figures/`, `outputs/reports/` and write its tree to `docs/design/output_tree.txt`.  
+- [~] **T002**  Create the output‑directory hierarchy `outputs/`, `outputs/figures/`, `outputs/reports/` and write its tree to `docs/design/output_tree.txt`.  
   **Verification**: `cat docs/design/output_tree.txt` must list the three output folders.
 
-- [X] **T003**  Initialise a Python project with a pinned `requirements.txt` containing  
+- [~] **T003**  Initialise a Python project with a pinned `requirements.txt` containing  
   `numpy`, `scipy`, `pandas`, `scikit-learn`, `ase`, `matplotlib`, `seaborn`, `networkx`, `pytest`, `pytest-cov`, `pytest-randomly`, `statsmodels`.  
   **Verification**: `pip install -r requirements.txt` succeeds without version conflicts.
 
-- [ ] **T004**  Add linting and formatting configs: `ruff.toml` (strict E/F/I/W, line‑length 88, Python 3.11) and `pyproject.toml` with a `[tool.black]` section (same line‑length, target‑version 3.11).  
+- [~] **T004**  Add linting and formatting configs: `ruff.toml` (strict E/F/I/W, line‑length 88, Python 3.11) and `pyproject.toml` with a `[tool.black]` section (same line‑length, target‑version 3.11).  
   **Verification**: Running `ruff check .` and `black --check .` reports no violations.
 
-- [ ] **T005**  Implement the top‑level CLI entry point `src/cli/main.py`.  
+- [~] **T005**  Implement the top‑level CLI entry point `src/cli/main.py`.  
   It must expose sub‑commands `extract-topology`, `calc-vdos`, `ingest-kappa`, `aggregate`, `analyze`, and orchestrate the full pipeline, writing all artefacts under `data/derived/` and `outputs/`.  
   **Verification**: `python -m src.cli.main --help` lists all sub‑commands and exits with code 0.
 
@@ -37,7 +37,7 @@ artifact paths and an explicit verification step.
   (additional keys may be added later).  
   **Verification**: `yaml.safe_load(open("config.yaml"))` returns a dict with the key `bootstrap_iterations`.
 
-- [X] **T007**  Implement `scripts/update_state_hashes.py` that computes SHA‑256 hashes of every file under `data/`, `src/`, and `outputs/` and writes a summary to `state/projects/PROJ-260-investigating-the-influence-of-network-s.yaml`.
+- [ ] **T007**  Implement `scripts/update_state_hashes.py` that computes SHA‑256 hashes of every file under `data/`, `src/`, and `outputs/` and writes a summary to `state/projects/PROJ-260-investigating-the-influence-of-network-s.yaml`.
   **Verification**: Running the script creates the YAML file and contains at least one hash entry.
 
 ---
@@ -47,13 +47,13 @@ artifact paths and an explicit verification step.
 | Goal | Fetch real amorphous‑silicon trajectories, validate them, and ingest independently‑sourced thermal‑conductivity values. |
 |------|--------------------------------------------------------------------------------------------------------------------------------|
 
-- [ ] **T008** [Foundational] Implement `src/services/registry_generator.py` that writes `data/metadata/dataset_registry.json`. This JSON maps system‑size labels (`N1000`, `N2000`, `N4000`) to verified Materials‑Cloud/Zenodo dataset identifiers (hard‑coded in `src/lib/config.py` as `VERIFIED_DATASET_IDS`).  
+- [~] **T008** [Foundational] Implement `src/services/registry_generator.py` that writes `data/metadata/dataset_registry.json`. This JSON maps system‑size labels (`N1000`, `N2000`, `N4000`) to verified Materials‑Cloud/Zenodo dataset identifiers (hard‑coded in `src/lib/config.py` as `VERIFIED_DATASET_IDS`).  
   **Verification**: The JSON file exists and contains three keys matching the size labels.
 
-- [ ] **T009** [Foundational] Implement `src/services/registry_validator.py` which reads `dataset_registry.json`, queries the Zenodo API for each ID, aborts with a clear error if any ID is unreachable, and writes `data/metadata/valid_sources.json` plus a log `data/metadata/registry_validation.log`.   <!-- FAILED-IN-EXECUTION: src/services/run_registry_validator.py exit=1 -->
+- [~] **T009** [Foundational] Implement `src/services/registry_validator.py` which reads `dataset_registry.json`, queries the Zenodo API for each ID, aborts with a clear error if any ID is unreachable, and writes `data/metadata/valid_sources.json` plus a log `data/metadata/registry_validation.log`.
   **Verification**: The log contains the line `VALIDATION SUCCESS` and `valid_sources.json` lists the same three IDs.
 
-- [ ] **T010** [Foundational] Implement `src/services/data_loader.py` that streams the three verified datasets (using `datasets.load_dataset(..., streaming=True)`) into `data/raw/`. It must:  
+- [ ] **T010** [Foundational] Implement `src/services/data_loader.py` that streams the three verified datasets (using `datasets.load_dataset(..., streaming=True)`) into `data/raw/`. It must:   <!-- FAILED-IN-EXECUTION: src/services/data_loader.py exit=1 -->
   * Write a SHA‑256 checksum per downloaded file to `data/metadata/checksums.txt`.  
   * Abort loudly (`raise RuntimeError`) on any download failure (no synthetic fallback).  
   **Verification**: After a successful run, `data/raw/` contains at least one file per system size and `checksums.txt` lists a hash for each file.

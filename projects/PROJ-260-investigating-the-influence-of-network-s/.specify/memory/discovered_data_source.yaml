@@ -1,6 +1,6 @@
 status: none
-intent: THZ-Alencar amorphous silicon MD trajectory velocities dataset Materials Cloud
-  Zenodo python package dataset
+intent: amorphous silicon MD trajectory dataset Materials Cloud aSi-2023-Ref THZ-Alencar
+  python package dataset
 required_fields:
 - atom_id
 - element
@@ -10,7 +10,8 @@ required_fields:
 - vx
 - vy
 - vz
-- time_step
-cache_key: 8027f3943cd2ded39b99e6463accc4424cfec1483c713e0abe3d2d3b1e4a06d7
-searched_at: '2026-10-10T17:35:43.930445+00:00'
+- timestep
+- box_dimensions
+cache_key: 19d738ba91033bd1e8c612d001907301fbe4c8f88435e2316a17f2c1b9357403
+searched_at: '2026-11-04T03:27:08.512165+00:00'
 retry_count: 1

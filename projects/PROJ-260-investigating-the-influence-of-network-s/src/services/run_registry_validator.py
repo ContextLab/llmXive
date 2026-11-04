@@ -1,9 +1,3 @@
-"""
-Helper script to invoke the registry validator as a standalone step.
-This script is added to the run‑book so that the required artefacts
-`data/metadata/valid_sources.json` and `data/metadata/registry_validation.log`
-are generated before the rest of the pipeline runs.
-"""
 import sys
 from pathlib import Path
 

@@ -1,15 +1,17 @@
 """
-Unit Tests for Registry Generator (T055a)
+Unit Tests for Registry Generator (T008)
 """
 import json
 import pytest
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 import sys
 import os
 
 # Ensure the src directory is in the path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+project_root = Path(__file__).parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
 from src.services.registry_generator import generate_registry, write_registry
 
@@ -60,10 +62,8 @@ class TestRegistryGenerator:
         with pytest.raises(ValueError, match="Registry generation failed"):
             generate_registry(mock_verified_ids)
 
-    @patch("src.services.registry_generator.get_project_root")
-    def test_write_registry_creates_file(self, mock_get_root, tmp_path):
+    def test_write_registry_creates_file(self, tmp_path):
         """Test that write_registry creates the JSON file correctly."""
-        mock_get_root.return_value = tmp_path
         registry = {
             "N1000": ["id_1"],
             "N2000": ["id_2"]
@@ -77,10 +77,8 @@ class TestRegistryGenerator:
             loaded_data = json.load(f)
         assert loaded_data == registry
 
-    @patch("src.services.registry_generator.get_project_root")
-    def test_write_registry_creates_directories(self, mock_get_root, tmp_path):
+    def test_write_registry_creates_directories(self, tmp_path):
         """Test that write_registry creates parent directories if they don't exist."""
-        mock_get_root.return_value = tmp_path
         registry = {"N1000": ["id_1"]}
         # Deep nested path that doesn't exist
         output_path = tmp_path / "deep" / "nested" / "path" / "registry.json"

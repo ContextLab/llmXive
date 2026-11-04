@@ -27,6 +27,10 @@ T005:
 T006:
   task: b1ab9edd8752ee2ff6463e7301496a5301481e8922c5ef3184bc49791b1d32ef
 T007:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/PROJ-260-investigating-the-influence-of-network-s.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
   task: ffc208af6382b0460d36701c187737620171febe6bf629e36a14074fc72f5c72
 T008:
   reason: The generated `data/metadata/dataset_registry.json` uses keys `"1000"`,
@@ -41,6 +45,8 @@ T009:
     exit=1'
   task: 80b813a659e274cad51f93264a366534a758d5a8b5b2926c3c839434357a4efd
 T010:
+  reason: 'Requested task execution failed; rerun successfully: src/services/data_loader.py
+    exit=1'
   task: 3a539b6151c282fcc0085146558cb210b0291224f44c34889e15753ef00b54c5
 T011:
   task: 73e14d37631347a2f4e313a0913f933e91f8eb86126b977f51ab69dfaed5aa01
