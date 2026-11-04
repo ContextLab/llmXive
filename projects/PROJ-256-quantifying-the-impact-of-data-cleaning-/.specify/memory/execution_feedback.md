@@ -12,7 +12,7 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/sensitivity.py: self-declared fabricated metric — “…lder         inc_rate = 0.1 # Placeholder                  results["fpr"].append({"k": k, "fpr"…”; 3 command(s) failed: python -m src.data_loader download_all (rc=1); python -m src.main run_all (rc=1); python -m pytest -m contract (rc=2); 4 declared deliverable(s) absent: data/processed/baseline_metrics.json; data/processed/cleaned_metrics.json; data/processed/comparison_report.json
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/sensitivity.py: self-declared fabricated metric — “…lder         inc_rate = 0.1 # Placeholder                  results["fpr"].append({"k": k, "fpr"…”; 3 command(s) failed: python -m src.data_loader download_all (rc=1); python -m src.main run_all (rc=1); python -m pytest -m contract (rc=5); 4 declared deliverable(s) absent: data/processed/baseline_metrics.json; data/processed/cleaned_metrics.json; data/processed/comparison_report.json
 
 ## Failing / missing run-book commands
 
@@ -24,33 +24,14 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-256-quantifying-the-impact-of-data-cleaning-/bin/python: Error while finding module specification for 'src.main' (ModuleNotFoundError: No module named 'src')
 
-- python -m pytest -m contract -> rc=2
-ests/test_outlier_threshold_sweep.py
-ERROR tests/test_t013_baseline_output.py
-ERROR tests/test_t013_record_baseline_metrics.py
-ERROR tests/test_t023_cleaned_metrics.py
-ERROR tests/test_t023_reanalyze_cleaned_variants.py
-ERROR tests/test_t030_dataset_size_sensitivity.py
-ERROR tests/test_t032_null_fpr.py
-ERROR tests/test_t032_permutation_null_fpr.py
-ERROR tests/test_t033_outlier_threshold_sweep.py
-ERROR tests/test_t040_comparison_report.py
-ERROR tests/test_t040_create_comparison_report.py
-ERROR tests/test_t041_final_report.py
-ERROR tests/unit/test_acquisition.py
-ERROR tests/unit/test_comparison_report.py
-ERROR tests/unit/test_data_loader.py
-ERROR tests/unit/test_reporting_t027.py
-ERROR tests/unit/test_t023_reanalyze.py
-ERROR tests/unit/test_t030_dataset_size_sensitivity.py
-ERROR tests/unit/test_t030_size_binning.py
-ERROR tests/unit/test_t032_permutation_null.py
-ERROR tests/unit/test_t033_threshold_sweep.py
-ERROR tests/unit/test_t037_ci_width_reporting.py
-ERROR tests/unit/test_t039_exclusion.py
-ERROR tests/unit/test_t040.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 34 errors during collection !!!!!!!!!!!!!!!!!!!
-================ 106 deselected, 1 warning, 34 errors in 2.00s =================
+- python -m pytest -m contract -> rc=5
+============================= test session starts ==============================
+platform linux -- Python 3.11.17, pytest-8.2.0, pluggy-1.7.0
+rootdir: /home/runner/work/llmXive/llmXive
+configfile: pyproject.toml
+collected 0 items
+
+============================ no tests ran in 0.16s =============================
 
 
 

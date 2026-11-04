@@ -15,10 +15,32 @@ import openml
 import pandas as pd
 import jsonschema
 
-from config import get_config
-from utils import setup_logging, compute_file_checksum
+# Import utilities; if they are missing, provide minimal fallbacks.
+try:
+    from utils import setup_logging, compute_file_checksum
+except ImportError:  # pragma: no cover
+    # Minimal logger setup
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
 
-logger = setup_logging(log_level="INFO")
+    def setup_logging(log_level: str = "INFO"):
+        """Fallback logger that returns the root logger."""
+        logging.basicConfig(level=getattr(logging, log_level.upper(), logging.INFO))
+        return logging.getLogger(__name__)
+
+    import hashlib
+
+    def compute_file_checksum(file_path: str) -> str:
+        """Compute SHA‑256 checksum of a file."""
+        sha256 = hashlib.sha256()
+        with open(file_path, "rb") as f:
+            for chunk in iter(lambda: f.read(8192), b""):
+                sha256.update(chunk)
+        return sha256.hexdigest()
+else:
+    logger = setup_logging(log_level="INFO")
+
+from config import get_config
 
 # ----------------------------------------------------------------------
 # Dataset specifications
@@ -108,8 +130,6 @@ def _download_openml_dataset(openml_id: int, raw_dir: Path) -> Path:
     and return the path to the written CSV file.
     """
     logger.info(f"Downloading OpenML dataset ID {openml_id}")
-    # The OpenML library may return data in parquet format; pyarrow is now
-    # declared as a dependency so pandas can read it.
     dataset = openml.datasets.get_dataset(openml_id)
     X, y, _, _ = dataset.get_data(dataset_format="dataframe")
     df = X.copy()
@@ -128,7 +148,6 @@ def _download_csv_from_url(url: str, dest_path: Path) -> Path:
     logger.info(f"Downloading CSV from URL: {url}")
     # pandas can read directly from HTTP URLs.
     df = pd.read_csv(url, header=None)
-    # Preserve the original header‑less nature of the UCI files.
     df.to_csv(dest_path, index=False, header=False)
     logger.info(f"CSV downloaded to {dest_path}")
     return dest_path

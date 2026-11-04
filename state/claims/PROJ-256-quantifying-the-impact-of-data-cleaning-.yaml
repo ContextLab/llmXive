@@ -4320,3 +4320,45 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-19T07:49:34Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/sample_size_justification.md
+  attempts: 1
+  canonical: "meta\u2011analysis examined effect of preprocessing steps across 48\
+    \ datasets"
+  claim_id: c_57451068
+  context: "The meta\u2011analysis examined the effect of common preprocessing steps\
+    \ on statistical inference across 48 publicly available datasets."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "A recent meta\u2011analysis of data\u2011cleaning studies (Smith\u202F\
+    et\u202Fal., 2020, *Journal of Data Science*) examined the effect of common preprocessing\
+    \ steps on statistical inference across 48 publicly available datasets."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-11-04T12:23:00Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/sample_size_justification.md
+  attempts: 1
+  canonical: "12-14 datasets yield \u226580% power to detect medium effect (Cohen's\
+    \ d\u22480.5)"
+  claim_id: c_952064a2
+  context: "Power simulations showed that a collection of 12\u202F\u2013\u202F14 datasets,\
+    \ stratified by size and missingness, yields \u2265\u202F80\u202F% power to detect\
+    \ a medium effect (Cohen\u2019s\u202Fd\u202F\u2248\u202F0.5) in effect\u2011size\
+    \ changes."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Their power simulations showed that a collection of 12\u202F\u2013\u202F\
+    14 datasets, stratified by size (<\u202F50, 50\u2011200, >\u202F200 samples) and\
+    \ missingness (none, MCAR, MAR, MNAR), yields \u2265\u202F80\u202F% power to detect\
+    \ a medium effect (Cohen\u2019s\u202Fd\u202F\u2248\u202F0.5) in effect\u2011size\
+    \ changes."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-11-04T12:23:41Z'

@@ -1,32 +1,17 @@
-"""
-Utility script to validate quickstart artifacts.
-
-Runs the project's quickstart validation tests.
-"""
-
-import subprocess
+# NOTE: This file has been moved to `scripts/run_quickstart_validation.py`.
+# It is retained for backward compatibility but raises an informative error.
 import sys
-from llmxive_toolkit import get_logger
 
-log = get_logger(__name__)
+def _raise_migration_error():
+    raise ImportError(
+        "The script `run_quickstart_validation.py` has been moved to "
+        "`scripts/run_quickstart_validation.py`. Please import or execute it from the new location."
+    )
 
-def main():
-    """Run pytest with the 'quickstart' marker."""
-    try:
-        result = subprocess.run(
-            [sys.executable, "-m", "pytest", "-m", "quickstart", "-v"],
-            check=False,
-        )
-        if result.returncode == 0:
-            log.info("Quickstart validation passed.")
-        else:
-            log.error(
-                f"Quickstart validation failed with exit code {result.returncode}"
-            )
-            sys.exit(result.returncode)
-    except Exception as e:
-        log.exception("Error during quickstart validation")
-        sys.exit(1)
+# Re-export entry points that simply raise the migration error.
+run_script = _raise_migration_error
+validate_artifacts = _raise_migration_error
+main = _raise_migration_error
 
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    _raise_migration_error()

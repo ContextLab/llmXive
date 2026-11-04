@@ -1,15 +1,12 @@
 status: none
-intent: download UCI Wine Quality OpenML dataset 1862 Malawi booklets HW4_CLASSIFICATION_mnar
-  python package dataset
+intent: download UCI Wine Quality OpenML Malawi booklets HW4_CLASSIFICATION_mnar python
+  package dataset
 required_fields:
-- role
-- dataset_name
-- size
-- bin
-- missingness_level
-- verified_url
-- loader
-- baseline_cleaning_variants
-cache_key: 256a3a3475c0427fd40fb6d361b489370a61a03bc7e4328787c6d8dfaf0a97ba
-searched_at: '2026-10-19T07:51:15.592623+00:00'
+- feature_columns
+- target_column
+- missingness_type
+- dataset_size
+- source_url
+cache_key: 4a2d5efaf5fb9771010b2736d14ce06c3c146f02de03fc56d0b4441f29f0c13f
+searched_at: '2026-11-04T12:25:08.410611+00:00'
 retry_count: 1

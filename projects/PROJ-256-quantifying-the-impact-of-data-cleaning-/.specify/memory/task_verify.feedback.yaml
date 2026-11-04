@@ -6,6 +6,7 @@ T001:
     change are missing.
   task: aa3130272e9e8c4dfe6d4d69af2f6c75e91fde332a4ef313c2536b57704a2d9c
 T002:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_power_analysis.py'
   task: 35ddba82552914e7577d56269b35d3460006bf1405b3e4711f5c84672b3dd161
 T003:
   reason: "The `sample_size_justification.md` file exists but contains 172 words,\
