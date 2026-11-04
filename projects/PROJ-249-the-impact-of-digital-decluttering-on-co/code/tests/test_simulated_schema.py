@@ -27,6 +27,6 @@ def test_simulated_measurement_records_valid(schema_path: Path, data_path: Path)
     If the CSV violates the schema the test will fail, highlighting the exact
     issue.
     """
-    # The helper raises on validation failure; a successful call means the
-    # simulated data is schema‑compliant.
+    # The helper raises on validation failure; a successful call means
+    # the simulated data is schema‑compliant.
     validate_csv_against_schema(schema_path, data_path)

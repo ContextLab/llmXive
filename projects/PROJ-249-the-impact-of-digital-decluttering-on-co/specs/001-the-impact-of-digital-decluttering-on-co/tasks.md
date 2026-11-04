@@ -63,7 +63,7 @@ The goal is to implement a reproducible, end‑to‑end pipeline that evaluates 
   **File path(s)**: `code/validation/simulate_study.py`, `data/raw/*sim*`  
   **Verification**: Script runs without error and prints a summary; `ls data/raw/*sim*` shows the expected files.
 
-- [ ] T003b **Validate the simulated measurement records against `contracts/dataset.schema.yaml`.**   <!-- FAILED-IN-EXECUTION: code/validation/validate_schema.py exit=1 -->
+- [ ] T003b **Validate the simulated measurement records against `contracts/dataset.schema.yaml`.**   <!-- FAILED-IN-EXECUTION: code/validation/validate_schema.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/validation/validate_schema.py exit=1 -->
   *Execute `code/validation/validate_schema.py --schema contracts/dataset.schema.yaml --data data/raw/measurement_records_sim.csv`. Any violation must raise an exception (no silent correction).*  
   **File path(s)**: `code/validation/validate_schema.py` (shared validator)  
   **Verification**: `pytest code/tests/test_simulated_schema.py` asserts successful validation.

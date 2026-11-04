@@ -1,17 +1,14 @@
 status: none
-intent: OpenML baseline cognitive emotional metrics dataset SART OSPAN PSS-10 PANAS
-  python package dataset
+intent: OpenNeuro SART Ospan PSS-10 PANAS baseline dataset python package dataset
 required_fields:
 - participant_id
-- pseudonym_id
-- timestamp
+- session_timestamp
 - sart_commission_errors
 - sart_omission_errors
-- sart_reaction_time_mean
-- ospan_total_score
+- ospan_score
 - pss10_total_score
 - panas_positive_affect_score
 - panas_negative_affect_score
-cache_key: f0243516407309ba11ec9f696b1b24bb2acf0c1f06849b6271c9db17f2cebe2e
-searched_at: '2026-11-04T06:14:30.556418+00:00'
+cache_key: ff4660c77c4401e322db15b53518b901d2ac5d3ad55f3b7515cef2659940bd55
+searched_at: '2026-11-04T07:09:24.497157+00:00'
 retry_count: 1
