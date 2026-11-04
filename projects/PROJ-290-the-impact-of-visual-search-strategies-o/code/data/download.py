@@ -17,6 +17,8 @@ try:
     from huggingface_hub import snapshot_download, HfApi
     from datasets import load_dataset, Dataset
 except ImportError as e:
+    # We raise a specific error if the libraries are missing, 
+    # but the pyarrow/numpy conflict is handled via requirements.txt
     raise ImportError(
         "The 'huggingface_hub' and 'datasets' libraries are required. Install them via pip."
     ) from e
@@ -88,7 +90,7 @@ def find_dataset_id(logger: logging.Logger, explicit_id: Optional[str] = None) -
         logger.info(f"Using user-supplied dataset identifier: {explicit_id}")
         return explicit_id
 
-    # Broader search queries to avoid the previous "No dataset found" failure
+    # Broader search queries to avoid "No dataset found" failure
     search_queries = ["gaze emotion", "eye tracking face", "fixation emotion", "gaze face", "eye-tracking"]
     api = HfApi()
     
@@ -104,9 +106,6 @@ def find_dataset_id(logger: logging.Logger, explicit_id: Optional[str] = None) -
         except Exception as e:
             logger.warning(f"Search for '{query}' failed: {e}")
     
-    # If search fails, we try a known fallback that is often used in eye-tracking research 
-    # if it exists on HF, otherwise we must fail to avoid fabrication.
-    # For this implementation, we fail loudly if no real match is found.
     raise RuntimeError("No real eye-tracking emotion dataset found on HuggingFace Hub matching the required columns.")
 
 def download_raw_archive(dataset_id: str, target_dir: Path, logger: logging.Logger) -> Path:

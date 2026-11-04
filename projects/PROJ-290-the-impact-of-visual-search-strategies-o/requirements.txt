@@ -1,2 +1,3 @@
-huggingface_hub
 datasets
+huggingface_hub
+pyarrow==14.0.1

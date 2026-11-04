@@ -1,6 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-11-02T10:08:25Z",
-  "project_id": "PROJ-290-the-impact-of-visual-search-strategies-o"
+  "updated_at": "2026-11-04T17:12:03Z",
+  "project_id": "PROJ-290-the-impact-of-visual-search-strategies-o",
+  "replan_rounds": 1
 }
