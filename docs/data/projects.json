@@ -28700,7 +28700,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-04T06:13:35.496874+00:00",
+  "generated_at": "2026-11-04T06:28:35.410134+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -77596,7 +77596,7 @@
           ]
         },
         {
-          "contributions": 54,
+          "contributions": 56,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -77637,6 +77637,22 @@
       "id": "PROJ-249-the-impact-of-digital-decluttering-on-co",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 39.392993,
+          "ended_at": "2026-11-04T06:13:27.231817Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-11-04T06:12:47.838824Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 244.511307,
+          "ended_at": "2026-11-04T06:12:47.835121Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-11-04T06:08:43.323814Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 47.162588,
@@ -77700,22 +77716,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-11-03T23:07:35.043363Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 23.98327,
-          "ended_at": "2026-11-03T23:07:35.040526Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-11-03T23:07:11.057256Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 37.648977,
-          "ended_at": "2026-10-24T11:47:52.882570Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-24T11:47:15.233593Z"
         }
       ],
       "paper_status": null,
@@ -81794,6 +81794,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 4.043146,
+          "ended_at": "2026-11-04T06:19:41.548602Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-04T06:19:37.505456Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 300.687355,
           "ended_at": "2026-09-30T16:03:16.013716Z",
           "model": "qwen.qwen3.5-122b",
@@ -81863,14 +81871,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-09-26T18:47:48.867889Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 57.247498,
-          "ended_at": "2026-09-26T18:47:48.865483Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-26T18:46:51.617985Z"
         }
       ],
       "paper_status": null,
@@ -175923,6 +175923,42 @@
   "recent_activity": [
     {
       "agent": "implementer",
+      "duration_s": 4.043146,
+      "ended_at": "2026-11-04T06:19:41.548602Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-266-machine-learning-prediction-of-fracture-",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-11-04T06:19:37.505456Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 39.392993,
+      "ended_at": "2026-11-04T06:13:27.231817Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-249-the-impact-of-digital-decluttering-on-co",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-11-04T06:12:47.838824Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 244.511307,
+      "ended_at": "2026-11-04T06:12:47.835121Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-249-the-impact-of-digital-decluttering-on-co",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-11-04T06:08:43.323814Z"
+    },
+    {
+      "agent": "implementer",
       "duration_s": 4.671748,
       "ended_at": "2026-11-04T06:12:42.561641Z",
       "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
@@ -181968,42 +182004,6 @@
       "project_stage": "in_progress",
       "severity": "hard",
       "started_at": "2026-11-01T10:06:10.985252Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 3.898174,
-      "ended_at": "2026-11-01T10:06:13.089573Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-366-quantifying-the-influence-of-network-top",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-11-01T10:06:09.191399Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 5.859414,
-      "ended_at": "2026-11-01T10:06:10.538594Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-829-llmxive-follow-up-extending-fashionchame",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-11-01T10:06:04.679180Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 2.941867,
-      "ended_at": "2026-11-01T10:06:07.538634Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-868-llmxive-follow-up-extending-locateanythi",
-      "project_stage": "planned",
-      "severity": "hard",
-      "started_at": "2026-11-01T10:06:04.596767Z"
     }
   ],
   "reviewed_preprints": [
