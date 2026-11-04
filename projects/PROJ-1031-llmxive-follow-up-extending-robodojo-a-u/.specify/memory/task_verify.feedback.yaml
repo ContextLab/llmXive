@@ -25,6 +25,8 @@ T005:
 T006:
   task: abd7356315f6c50f45ddeed105d5b608658d81d4e707209e0b11f51f948c99a1
 T006a:
+  reason: 'Requested task execution failed; rerun successfully: code/analysis/mapping_evaluation.py
+    exit=2'
   task: ae721d11f1dac1b9b3b3050088713ac73e983cf0e19e62bbb983edc5699ee5ba
 T007:
   task: acbe95e6a71e8c92ebc812da73cc59b782d1385790a21d25a67ba3065c9e3908

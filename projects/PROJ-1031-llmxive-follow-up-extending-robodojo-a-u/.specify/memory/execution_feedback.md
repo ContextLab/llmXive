@@ -10,92 +10,74 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 - code/src/executor.py: self-declared fabricated metric — “…ction time                  # Mock result for demonstration if no real…”
 
-## ⚠ DATA-UNAVAILABLE failure — switch to a REAL, REACHABLE data source
-
-These commands failed because the external dataset is NOT reachable AS WRITTEN on the free CI runner: a Hugging Face dataset that was renamed (canonical names like `openai_humaneval` now require a `namespace/name`), had its loading script removed (`datasets` >= 3 dropped `trust_remote_code` script datasets), is gated, or needs network the runner lacks. RE-TRYING THE DOWNLOAD AS-IS WILL NEVER SUCCEED. Fix it with REAL data, in this order:
-
-1. CORRECT the source: use the dataset's current canonical id (`namespace/name`), a public mirror, or a direct file URL, and stream / download only a SMALL REAL SAMPLE (the first N rows, one split, a few files). A verified real source may be injected below — use it.
-2. If that exact dataset is truly unreachable, switch to a DIFFERENT but genuinely-public dataset that supports the SAME analysis/metric, and say so honestly in the README.
-3. Do NOT substitute synthetic / fake / hand-built data for the real dataset. A result computed on invented data is NOT a real finding and is REJECTED by the deterministic fabrication gate — swapping in synthetic data is the single most common reason this loop never converges. The ONLY exception is a project whose OWN research question is about synthetic / simulated data (its idea says so).
-4. If, after the above, NO real data can be obtained on the CI runner, do NOT fabricate a result: leave the run to FAIL so it escalates honestly (model-tier escalation / re-plan), rather than producing a fake finding.
-
-- `python code/utils/io.py --verify-checksums`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/src/executor.py: self-declared fabricated metric — “…ction time                  # Mock result for demonstration if no real…”; 9 command(s) failed: python code/src/main.py --stage download (rc=1); python code/src/main.py --stage embed --tasks 18 (rc=1); python code/src/main.py --stage plan --tasks 18 (rc=1); 2 declared deliverable(s) absent: data/interim/baseline_results.parquet; data/interim/execution_logs.parquet
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/src/executor.py: self-declared fabricated metric — “…ction time                  # Mock result for demonstration if no real…”; 8 command(s) failed: python code/src/main.py --stage download (rc=1); python code/src/main.py --stage embed --tasks 18 (rc=1); python code/src/main.py --stage plan --tasks 18 (rc=1); 3 declared deliverable(s) absent: data/interim/baseline_results.parquet; data/interim/execution_logs.parquet; data/interim/mapping_metrics.parquet
 
 ## Failing / missing run-book commands
 
 - python code/src/main.py --stage download -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 24, in <module>
-    from src.vision_encoder import create_vision_encoder
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/vision_encoder.py", line 8, in <module>
-    import torch
-ModuleNotFoundError: No module named 'torch'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 25, in <module>
+    from src.planner import AStarPlanner, create_planner, run_planning_pipeline
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/planner.py", line 19, in <module>
+    from src.config import PLANNING_TIMEOUT_S, RAM_LIMIT_GB
+ImportError: cannot import name 'RAM_LIMIT_GB' from 'src.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/config.py)
 
 - python code/src/main.py --stage embed --tasks 18 -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 24, in <module>
-    from src.vision_encoder import create_vision_encoder
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/vision_encoder.py", line 8, in <module>
-    import torch
-ModuleNotFoundError: No module named 'torch'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 25, in <module>
+    from src.planner import AStarPlanner, create_planner, run_planning_pipeline
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/planner.py", line 19, in <module>
+    from src.config import PLANNING_TIMEOUT_S, RAM_LIMIT_GB
+ImportError: cannot import name 'RAM_LIMIT_GB' from 'src.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/config.py)
 
 - python code/src/main.py --stage plan --tasks 18 -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 24, in <module>
-    from src.vision_encoder import create_vision_encoder
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/vision_encoder.py", line 8, in <module>
-    import torch
-ModuleNotFoundError: No module named 'torch'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 25, in <module>
+    from src.planner import AStarPlanner, create_planner, run_planning_pipeline
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/planner.py", line 19, in <module>
+    from src.config import PLANNING_TIMEOUT_S, RAM_LIMIT_GB
+ImportError: cannot import name 'RAM_LIMIT_GB' from 'src.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/config.py)
 
 - python code/src/main.py --stage execute --mode oracle -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 24, in <module>
-    from src.vision_encoder import create_vision_encoder
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/vision_encoder.py", line 8, in <module>
-    import torch
-ModuleNotFoundError: No module named 'torch'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 25, in <module>
+    from src.planner import AStarPlanner, create_planner, run_planning_pipeline
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/planner.py", line 19, in <module>
+    from src.config import PLANNING_TIMEOUT_S, RAM_LIMIT_GB
+ImportError: cannot import name 'RAM_LIMIT_GB' from 'src.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/config.py)
 
 - python code/src/main.py --stage execute --mode real -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 24, in <module>
-    from src.vision_encoder import create_vision_encoder
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/vision_encoder.py", line 8, in <module>
-    import torch
-ModuleNotFoundError: No module named 'torch'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 25, in <module>
+    from src.planner import AStarPlanner, create_planner, run_planning_pipeline
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/planner.py", line 19, in <module>
+    from src.config import PLANNING_TIMEOUT_S, RAM_LIMIT_GB
+ImportError: cannot import name 'RAM_LIMIT_GB' from 'src.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/config.py)
 
 - python code/src/main.py --stage baseline_gpu --subset 5 -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 24, in <module>
-    from src.vision_encoder import create_vision_encoder
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/vision_encoder.py", line 8, in <module>
-    import torch
-ModuleNotFoundError: No module named 'torch'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 25, in <module>
+    from src.planner import AStarPlanner, create_planner, run_planning_pipeline
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/planner.py", line 19, in <module>
+    from src.config import PLANNING_TIMEOUT_S, RAM_LIMIT_GB
+ImportError: cannot import name 'RAM_LIMIT_GB' from 'src.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/config.py)
 
 - python code/src/main.py --stage analyze -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 24, in <module>
-    from src.vision_encoder import create_vision_encoder
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/vision_encoder.py", line 8, in <module>
-    import torch
-ModuleNotFoundError: No module named 'torch'
-
-- python code/utils/io.py --verify-checksums -> rc=1
-
-2026-11-03 23:10:48,685 INFO __main__: Loading dataset: robodojo
-2026-11-03 23:10:48,754 ERROR __main__: Failed to load dataset robodojo: Dataset 'robodojo' doesn't exist on the Hub or cannot be accessed.
-2026-11-03 23:10:48,754 ERROR __main__: Dataset loading failed: Unable to fetch dataset robodojo
-2026-11-03 23:10:48,754 ERROR __main__: Dataset streaming failed: Unable to fetch dataset
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 25, in <module>
+    from src.planner import AStarPlanner, create_planner, run_planning_pipeline
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/planner.py", line 19, in <module>
+    from src.config import PLANNING_TIMEOUT_S, RAM_LIMIT_GB
+ImportError: cannot import name 'RAM_LIMIT_GB' from 'src.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/config.py)
 
 - python -c "import pandas as pd; print(pd.read_parquet('data/interim/execution_logs.parquet').head())" -> rc=1
 
@@ -116,11 +98,10 @@ Traceback (most recent call last):
 FileNotFoundError: [Errno 2] No such file or directory: 'data/interim/execution_logs.parquet'
 
 - python -m pytest code/tests/ -v -> rc=2
-pt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-code/tests/unit/test_vision_encoder.py:9: in <module>
-    import torch
-E   ModuleNotFoundError: No module named 'torch'
+sis import perform_wilcoxon_test, calculate_rank_biserial_correlation
+code/src/stats_analysis.py:22: in <module>
+    from src.config import (
+E   ImportError: cannot import name 'RAM_LIMIT_GB' from 'src.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/config.py)
 =========================== short test summary info ============================
 ERROR code/tests/contract/test_execution_outcome.py
 ERROR code/tests/integration/test_executor_logging.py
@@ -136,9 +117,8 @@ ERROR code/tests/unit/test_oracle_executor.py
 ERROR code/tests/unit/test_planner.py
 ERROR code/tests/unit/test_stats.py
 ERROR code/tests/unit/test_stats_analysis.py
-ERROR code/tests/unit/test_vision_encoder.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 15 errors during collection !!!!!!!!!!!!!!!!!!!
-============================== 15 errors in 1.61s ==============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 14 errors during collection !!!!!!!!!!!!!!!!!!!
+============================== 14 errors in 2.94s ==============================
 
 
 
@@ -146,6 +126,7 @@ ERROR code/tests/unit/test_vision_encoder.py
 
 - data/interim/baseline_results.parquet
 - data/interim/execution_logs.parquet
+- data/interim/mapping_metrics.parquet
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
@@ -161,3 +142,6 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/tests/integration/test_executor_logging.py` — NOT invoked by the run-book
     - `code/tests/integration/test_failure_logging.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/interim/execution_logs.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/interim/mapping_metrics.parquet` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis/mapping_evaluation.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/interim/mapping_metrics.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

@@ -20,11 +20,11 @@ The following checklist implements the smallest complete study that satisfies ev
   - **Files**: `code/pyproject.toml`, `code/.ruff.toml`, `code/.black.toml`.  
   - **Verification**: `ruff --config code/.ruff.toml .` returns no errors; `black --check code/` exits with status 0.
 
-- [X] T003 **Create data directory hierarchy (project‑owned paths only)**  
+- [~] T003 **Create data directory hierarchy (project‑owned paths only)**  
   - **Paths**: `data/raw/`, `data/interim/`, `data/processed/`, `data/final/`.  
   - **Verification**: `tree -d data` lists the four sub‑folders; no files are placed outside `data/`.
 
-- [ ] T004 **Add verified RoboDojo dataset download script**   <!-- FAILED-IN-EXECUTION: code/utils/io.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/utils/io.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/utils/run_io_test.sh exit=1 --> <!-- FAILED-IN-EXECUTION: code/utils/io.py exit=1; code/utils/run_io_test.sh exit=1 --> <!-- FAILED-IN-EXECUTION: code/utils/run_io_test.sh exit=1 --> <!-- FAILED-IN-EXECUTION: code/utils/io.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/utils/io.py exit=1 -->
+- [ ] T004 **Add verified RoboDojo dataset download script**   <!-- FAILED-IN-EXECUTION: code/utils/io.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/utils/io.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/utils/io.py exit=1; code/utils/run_io_test.sh exit=1 --> <!-- FAILED-IN-EXECUTION: code/utils/io.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/utils/io.py exit=1 -->
   - **File**: `code/utils/io.py` – uses `datasets.load_dataset("robodojo", split="real", streaming=True)` with checksum validation.  
   - **Verification**: Executing `python -m code.utils.io --test` streams at least one record and raises on any fetch error (no silent fallback).
 
@@ -32,15 +32,15 @@ The following checklist implements the smallest complete study that satisfies ev
 
 ## Phase 1 – First End‑to‑End Analysis (single‑task prototype)
 
-- [ ] T005 **Implement CPU‑only semantic encoder**  
+- [~] T005 **Implement CPU‑only semantic encoder**  
   - **File**: `code/models/semantic_encoder.py` – loads a frozen MobileViT (`torchvision.models.mobilenet_v3_small(pretrained=True)`), runs on `device="cpu"` with `torch.no_grad()`, outputs a 512‑dim embedding saved to `data/interim/semantic_embeddings.parquet`.  
   - **Verification**: After running `python -m code.models.semantic_encoder --task-id T001`, the parquet file contains a row with `embedding_vector` length 512 and `task_id == "T001"`.
 
-- [ ] T006 **Map embeddings to SymbolicState with ambiguity detection (FR‑002, FR‑011)**  
+- [~] T006 **Map embeddings to SymbolicState with ambiguity detection (FR‑002, FR‑011)**  
   - **File**: `code/models/symbolic_state.py` – converts each embedding into a `SymbolicState` parquet row (`data/interim/symbolic_states.parquet`). If multiple candidate states have equal score, sets `mapping_confidence = "low"` and logs an `AmbiguousMapping` event.  
   - **Verification**: Running the mapper on the embedding from T005 produces a `SymbolicState` row; for an intentionally ambiguous embedding the log file `data/interim/mapping_log.txt` contains the string `AmbiguousMapping`.
 
-- [ ] T006a **Evaluate precision and recall of embedding‑to‑SymbolicState mapping (FR‑013)**  
+- [ ] T006a **Evaluate precision and recall of embedding‑to‑SymbolicState mapping (FR‑013)**   <!-- FAILED-IN-EXECUTION: code/analysis/mapping_evaluation.py exit=2 -->
   - **File**: `code/analysis/mapping_evaluation.py` – loads a manually annotated ground‑truth dataset of ≥30 tasks, compares predicted SymbolicState predicates to ground truth, computes precision and recall, and writes results to `data/interim/mapping_metrics.parquet` conforming to `contracts/symbolic_state.schema.yaml`.  
   - **Verification**: After execution, the parquet file contains `precision` and `recall` columns within `[0,1]`.
 

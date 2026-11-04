@@ -1,15 +1,14 @@
 status: none
-intent: download RoboDojo parquet task metadata dataset pip install datasets python
-  package dataset
+intent: RoboDojo task metadata parquet download python package dataset
 required_fields:
 - task_id
 - scene_name
-- object_pose
-- object_orientation
-- pose_threshold
-- orientation_threshold
-- affordances
-- semantic_embedding
-cache_key: 7016bc91307bbaef1cee92273f3ef749c1f8ca1b6d09ccbfa85a671326e98348
-searched_at: '2026-11-03T23:13:52.806882+00:00'
+- object_poses
+- goal_state
+- success_pose_threshold
+- success_orientation_threshold
+- affordance_graph
+- semantic_embedding_vector
+cache_key: 2d3c36e5d4df601b3dfa50bd4835d680eaebdced27a4988ce48734bc19990f98
+searched_at: '2026-11-04T01:15:25.337581+00:00'
 retry_count: 1
