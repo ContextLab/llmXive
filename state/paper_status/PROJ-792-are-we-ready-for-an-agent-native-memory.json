@@ -11,12 +11,12 @@
         "page": 32
       }
     ],
-    "audited_at": "2026-11-04T12:20:07.432384+00:00"
+    "audited_at": "2026-11-04T12:52:44.706516+00:00"
   },
   "repair_rounds": 3,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-792-are-we-ready-for-an-agent-native-memory",
-  "updated_at": "2026-11-04T12:20:07.432398+00:00"
+  "updated_at": "2026-11-04T12:52:44.706528+00:00"
 }
