@@ -73,7 +73,7 @@ The goal is to implement a reproducible, end‑to‑end pipeline that evaluates 
   **File path(s)**: `code/validation/generate_checksums.py`, `data/checksums.sha256`  
   **Verification**: `sha256sum -c data/checksums.sha256` exits with all OK; `tests/integration/test_checksum.py` checks that the manifest contains entries for at least five simulated files.
 
-- [ ] T003d **Produce a smoke‑analysis result on the simulated dataset and confirm values.**   <!-- FAILED-IN-EXECUTION: code/validation/produce_smoke_results.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/validation/produce_smoke_results.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/validation/produce_smoke_results.py exit=1 -->
+- [ ] T003d **Produce a smoke‑analysis result on the simulated dataset and confirm values.**   <!-- FAILED-IN-EXECUTION: code/validation/produce_smoke_results.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/validation/produce_smoke_results.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/validation/produce_smoke_results.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/validation/run_produce_smoke_results.sh exit=1 -->
   *Run `code/validation/produce_smoke_results.py` which invokes the full analysis pipeline on the simulated data and writes `data/results/smoke_results.json`.*  
   *After generation, a quick sanity check confirms that each metric’s `mean_change` is a finite number and that `method_used` is either `"bootstrap"` or `"wilcoxon"`.*  
   **File path(s)**: `code/validation/produce_smoke_results.py`, `data/results/smoke_results.json`  

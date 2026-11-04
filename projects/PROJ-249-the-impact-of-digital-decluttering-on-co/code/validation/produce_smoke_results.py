@@ -11,17 +11,15 @@ format that conforms to ``contracts/analysis.schema.yaml``.
 """
 
 import json
-import math
 from datetime import datetime
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from scipy import stats
 
 from llmxive_toolkit import paths, get_logger
 
-# Import the effect‑size helper (does not depend on utils)
+# Import the effect‑size helper
 from code.analysis.effect_sizes import calculate_cohens_d
 
 log = get_logger(__name__)
@@ -143,12 +141,12 @@ def _generate_simulated_measurements(csv_path: Path, n_participants: int = 20, s
                 base = rng.uniform(20, 40)  # positive affect
 
             # Post value is baseline shifted by a small effect (d ≈ 0.3)
-            # We approximate the shift as 0.3 * std_dev of the baseline distribution.
-            shift = 0.3 * rng.standard_deviation()
+            # Approximate the shift as 0.3 * a standard normal draw.
+            shift = 0.3 * rng.standard_normal()
             post = base + shift
 
             timestamp_base = datetime.utcnow().isoformat() + "Z"
-            timestamp_post = (datetime.utcnow()).isoformat() + "Z"
+            timestamp_post = datetime.utcnow().isoformat() + "Z"
 
             rows.append({
                 "id": f"{participant_id}_{metric}_baseline",
