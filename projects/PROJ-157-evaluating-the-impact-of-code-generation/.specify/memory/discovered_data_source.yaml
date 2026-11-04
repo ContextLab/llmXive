@@ -1,19 +1,15 @@
 status: none
-intent: Codeforces C++ competitive programming solutions dataset with LLM variants
-  python package dataset
+intent: download Codeforces C++ reference solutions dataset python package dataset
 required_fields:
 - problem_id
-- contest_id
-- title
-- difficulty_rating
+- problem_title
+- problem_tags
 - language
 - human_solution_code
-- human_solution_compilation_status
-- llm_model_name
+- model_name
 - llm_generated_code
-- llm_generation_timestamp
-- llm_solution_compilation_status
-- source_url
-cache_key: d26bc9056df2d1150f147ac219ebd68b99157f87b9e286762e732aca8a0407b6
-searched_at: '2026-11-04T00:13:54.849037+00:00'
+- generation_timestamp
+- compilation_status
+cache_key: b6039cdc624b845f12fdac7a856a2cfe7892b804631f5bcc3de83576da165da7
+searched_at: '2026-11-04T22:13:33.223584+00:00'
 retry_count: 1
