@@ -28700,7 +28700,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-04T21:16:47.145258+00:00",
+  "generated_at": "2026-11-04T22:05:23.510238+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -83694,6 +83694,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 4.252266,
+          "ended_at": "2026-11-04T21:13:23.229722Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-04T21:13:18.977456Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 4.851404,
           "ended_at": "2026-10-27T15:21:28.459344Z",
           "model": "zai-org.glm-5.3",
@@ -83763,14 +83771,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-09-04T15:31:12.721936Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 29.7601,
-          "ended_at": "2026-09-04T15:31:12.718802Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-04T15:30:42.958702Z"
         }
       ],
       "paper_status": null,
@@ -86119,6 +86119,14 @@
       "last_run_log": [
         {
           "agent": "personality",
+          "duration_s": 1.087692,
+          "ended_at": "2026-11-04T22:05:07.444527+00:00",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "abstained",
+          "started_at": "2026-11-04T22:05:06.356835+00:00"
+        },
+        {
+          "agent": "personality",
           "duration_s": 5.505564,
           "ended_at": "2026-11-04T18:05:39.320623+00:00",
           "model": "openai.gpt-oss-120b",
@@ -86188,14 +86196,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "failed",
           "started_at": "2026-10-28T09:17:09.410800Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 431.315864,
-          "ended_at": "2026-10-12T04:22:17.746703Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-12T04:15:06.430839Z"
         }
       ],
       "paper_status": null,
@@ -141675,6 +141675,14 @@
       "last_run_log": [
         {
           "agent": "planner",
+          "duration_s": 173.164298,
+          "ended_at": "2026-11-04T21:11:31.330849Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-04T21:08:38.166551Z"
+        },
+        {
+          "agent": "planner",
           "duration_s": 212.354274,
           "ended_at": "2026-11-03T23:12:16.444092Z",
           "model": "zai-org.glm-5.3",
@@ -141744,14 +141752,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-10-29T11:06:34.937610Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 134.22467,
-          "ended_at": "2026-10-29T08:10:00.610359Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-10-29T08:07:46.385689Z"
         }
       ],
       "paper_status": null,
@@ -175954,6 +175954,45 @@
   ],
   "recent_activity": [
     {
+      "agent": "personality",
+      "display_name": "Marie Curie (simulated)",
+      "duration_s": 1.087692,
+      "ended_at": "2026-11-04T22:05:07.444527+00:00",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "model_kind": "personality_simulator",
+      "outcome": "abstained",
+      "personality_slug": "marie-curie",
+      "project_id": "PROJ-290-the-impact-of-visual-search-strategies-o",
+      "project_stage": "clarified",
+      "severity": "soft",
+      "started_at": "2026-11-04T22:05:06.356835+00:00"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 4.252266,
+      "ended_at": "2026-11-04T21:13:23.229722Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-275-statistical-analysis-of-publicly-availab",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-11-04T21:13:18.977456Z"
+    },
+    {
+      "agent": "planner",
+      "duration_s": 173.164298,
+      "ended_at": "2026-11-04T21:11:31.330849Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-735-transferability-of-dft-d3-dispersion-to-",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-11-04T21:08:38.166551Z"
+    },
+    {
       "agent": "research_question_validator",
       "duration_s": 3.133144,
       "ended_at": "2026-11-04T21:09:01.382094Z",
@@ -182000,45 +182039,6 @@
       "project_stage": "in_progress",
       "severity": "hard",
       "started_at": "2026-11-02T02:07:41.748977Z"
-    },
-    {
-      "agent": "personality",
-      "display_name": "Stephen Wolfram (simulated)",
-      "duration_s": 9.462039,
-      "ended_at": "2026-11-02T02:06:29.475652+00:00",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "model_kind": "personality_simulator",
-      "outcome": "model_error",
-      "personality_slug": "stephen-wolfram",
-      "project_id": "PROJ-272-statistical-analysis-of-publicly-availab",
-      "project_stage": "clarified",
-      "severity": "hard",
-      "started_at": "2026-11-02T02:06:20.013613+00:00"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 8.140749,
-      "ended_at": "2026-11-02T01:22:32.647094Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-200-the-impact-of-incidental-music-on-autobi",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-11-02T01:22:24.506345Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 4.230979,
-      "ended_at": "2026-11-02T01:08:01.100277Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-033-predicting-material-properties-from-comp",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-11-02T01:07:56.869298Z"
     }
   ],
   "reviewed_preprints": [
