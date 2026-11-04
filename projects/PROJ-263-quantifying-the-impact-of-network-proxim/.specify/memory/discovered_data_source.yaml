@@ -1,13 +1,13 @@
 status: none
-intent: OpenFlights airport routes network dataset latitude longitude scale-free python
-  package dataset
+intent: real world scale free network with latitude longitude coordinates python package
+  dataset
 required_fields:
 - node_id
 - latitude
 - longitude
-- source
-- target
+- source_node_id
+- target_node_id
 - edge_weight
-cache_key: 2c2c616f92a2545c4b0f7ce00ebba067fdfe22df407f53befa6e64aa02315a66
-searched_at: '2026-11-04T03:09:14.672998+00:00'
+cache_key: 6b72e9fbe3be69e4513f05dd433fabd5823bd973e2d897c190861254e005a964
+searched_at: '2026-11-04T23:18:46.238834+00:00'
 retry_count: 1
