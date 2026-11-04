@@ -1,17 +1,15 @@
 status: none
-intent: download VLA egocentric video dataset with ACE-Ego-0 reference and RoboCasa
-  python package dataset
+intent: download VLA egocentric video dataset parquet ACE-Ego-0 reference python package
+  dataset
 required_fields:
-- video_id
-- segment_id
+- episode_id
 - frame_timestamp
+- image_entropy
+- hand_detection_confidence
+- lighting_metric
 - camera_exposure
 - camera_focal_length
-- frame_image_path
-- hand_detection_confidence
-- image_entropy
-- lighting_metric
 - dynamic_reliability_score
-cache_key: e5b82bdb4dcc62cbebc2336c5993ffe27d731db490ba40c85b637767306f6c24
-searched_at: '2026-11-03T19:34:06.168209+00:00'
+cache_key: 14dd6f3394d95c65ddf3f0db41b2b70002aeac6986bdcc6fc96c98ae0dc53aea
+searched_at: '2026-11-04T10:09:15.051797+00:00'
 retry_count: 1
