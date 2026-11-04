@@ -1,13 +1,10 @@
 status: none
-intent: LDBC Social Network Benchmark query logs dataset download python package ldbc_snb_datagen
+intent: LDBC Social Network Benchmark interactive workload python package dataset
 required_fields:
 - query_id
 - query_text
 - plan_depth
 - source_type
-- latency_ms
-- cpu_time_ms
-- memory_mb
-cache_key: 1c119e79c8906051ebad63b81f0bc81b1eee4edda31a93739183c40c173dd1a8
-searched_at: '2026-11-03T17:07:20.481423+00:00'
+cache_key: 4bf66045af968cdc472083203f68f4ac516a542e29ec2659374e5f9739898820
+searched_at: '2026-11-04T15:10:55.798605+00:00'
 retry_count: 1
