@@ -1,9 +1,25 @@
-status: none
-intent: download GSM8K train test parquet dataset and BigBench logical subset python
-  package dataset
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: 'import sys
+
+  from datasets import load_dataset
+
+
+  ds = load_dataset("openai/gsm8k", "main", split="train")
+
+  print(f"RECORDS={len(ds)}")
+
+  print("FIELDS=" + ",".join(ds.column_names))'
+record_count: 7473
+sample_fields:
+- question
+- answer
+field_coverage: 0.5
 required_fields:
 - question
 - answer
-cache_key: ea425ffe1b4205b49ad543010ba8194bb854a23a6d013bd1468ac06f4038c287
-searched_at: '2026-11-03T14:08:51.856410+00:00'
-retry_count: 1
+- solution
+- metadata
+intent: huggingface datasets GSM8K bigbench logical deduction python package dataset
+cache_key: 8208d7668057427d0969a4dce4d7c264d358cbc095cba854ff60ce6442dd3522
