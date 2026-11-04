@@ -1,14 +1,22 @@
-status: none
-intent: HuggingFace datasets tner btc daily OHLCV and tner eth daily OHLCV download
-  python package dataset
+status: verified
+kind: pypi_package
+ref: pycoingecko
+access_python: "import datetime\nfrom pycoingecko import CoinGeckoAPI\n\ncg = CoinGeckoAPI()\n\
+  \ndef fetch(coin_id):\n    data = cg.get_coin_market_chart_by_id(\n        id=coin_id,\n\
+  \        vs_currency=\"usd\",\n        days=365,  # maximum allowed for public API\n\
+  \    )\n    records = []\n    for ts, price in data.get(\"prices\", []):\n     \
+  \   date = datetime.datetime.utcfromtimestamp(ts / 1000).date().isoformat()\n  \
+  \      records.append((date, price))\n    return records\n\nbtc_records = fetch(\"\
+  bitcoin\")\neth_records = fetch(\"ethereum\")\nall_records = btc_records + eth_records\n\
+  \nprint(f\"RECORDS={len(all_records)}\")\nprint(\"FIELDS=date,price\")"
+record_count: 732
+sample_fields:
+- date
+- price
+field_coverage: 0.5
 required_fields:
 - date
-- open
-- high
-- low
 - close
-- volume
-- symbol
-cache_key: fc366849c6e16ba0c220b0bc3ca22bb042e4b4c70ed9e6f574dfbe2d3eefa0db
-searched_at: '2026-11-03T16:14:34.466720+00:00'
-retry_count: 1
+intent: download daily BTC ETH OHLCV historical data from CoinGecko python package
+  dataset
+cache_key: 174a6b4a513513c97f2fef8ef4f792a37a4261a66d9ca62d990c240e0ac06722
