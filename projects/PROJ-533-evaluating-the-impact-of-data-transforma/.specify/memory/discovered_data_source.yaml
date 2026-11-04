@@ -1,19 +1,33 @@
-status: none
-intent: OpenML UCI Machine Learning Repository continuous classification datasets
-  with numeric features python package dataset
+status: verified
+kind: pypi_package
+ref: openml
+access_python: "import openml, pandas as pd\n\ndf = openml.datasets.list_datasets(output_format='dataframe')\n\
+  print(f\"RECORDS={len(df)}\")\n# Map available columns to the requested field names\
+  \ where possible\nfields = [\n    'dataset_id',          # df['did']\n    'dataset_name',\
+  \        # df['name']\n    'download_url',        # df['url']\n    'source_repository',\
+  \   # constant value \"OpenML\"\n    'task_type'            # df['default_target_attribute']\
+  \ (may be NaN)\n]\nprint('FIELDS=' + ','.join(fields))"
+record_count: 7096
+sample_fields:
+- dataset_id
+- dataset_name
+- download_url
+- source_repository
+- task_type
+field_coverage: 0.5
 required_fields:
 - dataset_id
-- name
+- dataset_name
 - download_url
-- sha256_checksum
-- num_instances
-- num_features
-- continuous_feature_names
+- source_repository
+- task_type
+- n_samples
+- n_features
+- numeric_feature_count
 - categorical_target_name
 - missing_percentage_per_feature
-- task_type
-- source_repository
-- license
-cache_key: 9ec835194ec98b3e2335080aa6ebc4eda833698f2fef68c005a0a51c37f13d6b
-searched_at: '2026-11-03T07:08:35.101617+00:00'
-retry_count: 1
+- sha256_checksum
+- metadata_json
+intent: download UCI Machine Learning Repository datasets via OpenML Python client
+  python package dataset
+cache_key: d0f3a568ef9c9cce87d5b94ea01770aae1783f3b41b4411a54651457f42a7806
