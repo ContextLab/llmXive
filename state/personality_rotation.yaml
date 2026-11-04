@@ -1,14 +1,7 @@
 last_used: freeman-dyson
-last_used_at: '2026-11-04T00:06:49.638406+00:00'
-last_outcome: abstained
+last_used_at: '2026-11-04T02:07:12.324016+00:00'
+last_outcome: model_error
 history:
-- slug: john-von-neumann
-  started_at: '2026-10-11T00:05:22.077939+00:00'
-  ended_at: '2026-10-11T02:18:48.474309+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/reviews/research/john-von-neumann-simulated__2026-10-11__research.md
 - slug: linus-pauling
   started_at: '2026-10-11T02:18:48.474309+00:00'
   ended_at: '2026-10-11T04:06:08.360327+00:00'
@@ -1161,3 +1154,7 @@ history:
   started_at: '2026-11-03T20:14:39.522216+00:00'
   ended_at: '2026-11-04T00:06:49.638406+00:00'
   outcome: abstained
+- slug: geoffrey-west
+  started_at: '2026-11-04T00:06:49.638406+00:00'
+  ended_at: '2026-11-04T02:07:12.324016+00:00'
+  outcome: model_error
