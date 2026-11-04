@@ -1,14 +1,15 @@
 status: none
-intent: Defects4J benchmark Chart Time Math dataset download python package dataset
+intent: human subject interaction logs bug localization Defects4J v2.0 python package
+  dataset
 required_fields:
 - participant_id
-- task_id
 - condition
+- task_id
+- project_name
+- method_name
 - timestamp_ms
 - selected_line_number
 - ground_truth_buggy_line
-- project_name
-- buggy_method_name
-cache_key: e579c0bee34741d8fcb4a3dbe23ef360cde47069392fae11af2c208f6fef9cc5
-searched_at: '2026-11-03T11:07:21.290633+00:00'
+cache_key: f81cad92f6cc21b8273d4688ba820cf0b06381627316d8a513fe024415e37445
+searched_at: '2026-11-04T09:08:23.082380+00:00'
 retry_count: 1
