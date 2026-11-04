@@ -1,9 +1,19 @@
 status: none
-intent: '### User Story 1 - Dataset Acquisition and Preparation (Priority: P1) The
-  system MUST acquire a balanced dataset of programming challenges containing both
-  human-written reference solutions and LLM-generated variants. This is the foundational
-  step; without valid, paired data, no security analysis can'
-required_fields: []
-cache_key: b6c1af95181869437a87e7f198276914ba45b3eb31021d0ea2df82bf512f604c
-searched_at: '2026-11-03T02:10:19.349470+00:00'
+intent: Codeforces C++ competitive programming solutions dataset with LLM variants
+  python package dataset
+required_fields:
+- problem_id
+- contest_id
+- title
+- difficulty_rating
+- language
+- human_solution_code
+- human_solution_compilation_status
+- llm_model_name
+- llm_generated_code
+- llm_generation_timestamp
+- llm_solution_compilation_status
+- source_url
+cache_key: d26bc9056df2d1150f147ac219ebd68b99157f87b9e286762e732aca8a0407b6
+searched_at: '2026-11-04T00:13:54.849037+00:00'
 retry_count: 1
