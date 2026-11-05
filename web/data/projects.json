@@ -28700,7 +28700,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-05T06:06:26.565025+00:00",
+  "generated_at": "2026-11-05T06:11:08.073859+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -61203,6 +61203,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 4.644434,
+          "ended_at": "2026-11-05T06:07:12.446062Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-05T06:07:07.801628Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 5.010207,
           "ended_at": "2026-11-04T08:08:18.011061Z",
           "model": "zai-org.glm-5.3",
@@ -61272,14 +61280,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-10-29T03:07:53.500039Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 5.926875,
-          "ended_at": "2026-10-28T23:07:28.685190Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-10-28T23:07:22.758315Z"
         }
       ],
       "paper_status": null,
@@ -175971,6 +175971,18 @@
   "recent_activity": [
     {
       "agent": "implementer",
+      "duration_s": 4.644434,
+      "ended_at": "2026-11-05T06:07:12.446062Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-153-decoding-regulatory-element-contribution",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-11-05T06:07:07.801628Z"
+    },
+    {
+      "agent": "implementer",
       "duration_s": 5.770663,
       "ended_at": "2026-11-05T06:05:58.576314Z",
       "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
@@ -182043,18 +182055,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-11-02T09:20:44.332356Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 20.436474,
-      "ended_at": "2026-11-02T09:20:44.328303Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-897-llmxive-follow-up-extending-swe-explore",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-11-02T09:20:23.891829Z"
     }
   ],
   "reviewed_preprints": [
