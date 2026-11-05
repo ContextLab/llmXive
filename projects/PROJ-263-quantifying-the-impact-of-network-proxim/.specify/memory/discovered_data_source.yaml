@@ -1,12 +1,12 @@
 status: none
-intent: OpenFlights world airline network dataset with coordinates Network Repository
-  python package dataset
+intent: OpenFlights airport network, KONECT US power grid, CAIDA AS dataset python
+  package dataset
 required_fields:
 - node_id
 - latitude
 - longitude
 - edge_source
 - edge_target
-cache_key: 6ec8862b2b2d4e04c5543bf184d72897349787c6eb668a1a9ed1aa185338d25d
-searched_at: '2026-11-05T04:13:35.832983+00:00'
+cache_key: 6b9d5753a29d01bf9791c8f9773dede430434a01e83b6c783e009e37e0e43766
+searched_at: '2026-11-05T22:07:22.438044+00:00'
 retry_count: 1
