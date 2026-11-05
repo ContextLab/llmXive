@@ -1,10 +1,12 @@
 status: none
-intent: LDBC Social Network Benchmark interactive workload python package dataset
+intent: LDBC SNB benchmark query workload with plan depth annotations download python
+  package dataset
 required_fields:
 - query_id
 - query_text
 - plan_depth
 - source_type
-cache_key: 4bf66045af968cdc472083203f68f4ac516a542e29ec2659374e5f9739898820
-searched_at: '2026-11-04T15:10:55.798605+00:00'
+- expected_result_size
+cache_key: c47138933ba9fa624125c81867b5308405b6fa37755b10cff914d62330b82843
+searched_at: '2026-11-05T14:06:43.519098+00:00'
 retry_count: 1
