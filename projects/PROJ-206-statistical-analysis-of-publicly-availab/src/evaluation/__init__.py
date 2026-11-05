@@ -1,1 +1,1 @@
-# Initialize the evaluation sub-module
+# Sub-module for predictive accuracy metrics and statistical meta-analysis.

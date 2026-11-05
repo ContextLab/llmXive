@@ -1,1 +1,1 @@
-# Initialize the utils sub-module
+# Sub-module for shared utilities, configuration, and logging.

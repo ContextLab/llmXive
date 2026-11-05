@@ -68,7 +68,7 @@
   verification_status: verified
   verified_against_url: https://abcnews.com/politics
   verified_at: '2026-07-04T18:28:11.812036Z'
-- artifact_hash: 1c091a27e9ac73a6c751d1556f1a8872a4cd96d6659401f84884122a8586bcf7
+- artifact_hash: ad902cc973980f8dd08c08f3c4313db562713039109d2ed13085de538df53fcf
   artifact_path: projects/PROJ-206-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -79,4 +79,4 @@
   value: https://projects.fivethirtyeight.com/polls/`
   verification_status: pending
   verified_against_url: https://abcnews.com/politics
-  verified_at: '2026-11-05T15:09:25.828246Z'
+  verified_at: '2026-11-05T19:10:08.436966Z'

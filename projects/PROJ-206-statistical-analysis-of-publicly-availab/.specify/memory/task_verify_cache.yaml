@@ -1,14 +1,3 @@
-T001:
-  c: false
-  h: 8d0754794d796a79f9e167ba9bbd077d58774f7c87e1f948488d4142cc36f4fa
-  r: "The evidence confirms `src/` exists with the four sub-directories, but the collector\
-    \ explicitly reports `models/` as MISSING, and there is no evidence of an `__init__.py`\
-    \ inside `data/`, `models/`, `evaluation/`, or `utils/` \u2014 only the top-level\
-    \ `src/__init__.py` is shown. The task's verification criterion (an empty `__init__.py`\
-    \ in each sub-module) is therefore not satisfied; the implementer must create\
-    \ the missing `models/` directory (or resolve the path discrepancy) and add the\
-    \ per-sub-module `__init__.py` markers."
-  sig: d9e6b167205b10e2fab95c474c4a3b2cf36bf7a0e64bad41a96936ce1a1ba767
 T002:
   c: true
   h: d38bd37917f87667e284d80b29d5e77fc321acc4b407cf230b88c46ae09dbd65
@@ -21,16 +10,6 @@ T002:
     since no other scripts exist yet (they belong to later tasks), but the module-level
     `set_seed()` call and `assert_seede'
   sig: 89ac855ed8da6e51efb389a0faa4a7411c109ca8cc517c34ccb0b7fff6e6799c
-T003:
-  c: false
-  h: e73aca2aaa92b8763743685f480712ff52e179ba14bd5a213ea5c16999e0c01f
-  r: The `.ruff.toml` and `pyproject.toml` (with `[tool.black]` settings) exist and
-    are substantive, but `.flake8` is entirely absent from the collected artifacts,
-    and there is no evidence of a CI workflow file (e.g., `.github/workflows/...`)
-    invoking the lint steps, nor any CI logs or execution evidence that `ruff .` /
-    `black --check .` were run and passed. The implementer must add the missing `.flake8`
-    config and wire the lint/format tools into the CI workflow with evidence of execution.
-  sig: 471d0a8afcd746f3a2050d926ac55db2730af3590b6d4e63db2bf215ac223bfa
 T005:
   c: true
   h: f433e3f7b96c8a9a30564608817f2e96f41a66922478d1e6ebc700bbe81af83d

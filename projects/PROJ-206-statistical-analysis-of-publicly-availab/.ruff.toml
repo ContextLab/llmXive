@@ -27,6 +27,7 @@ exclude = [
     ".venv",
     "env",
     "data",
+    "state",
 ]
 
 # Per-file ignores

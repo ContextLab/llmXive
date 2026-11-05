@@ -1,1 +1,1 @@
-# Initialize the data sub-module
+# Sub-module for data acquisition, harmonization, and weight calculation.

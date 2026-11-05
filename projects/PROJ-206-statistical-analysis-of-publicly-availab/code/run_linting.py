@@ -32,6 +32,9 @@ def main():
         sys.exit(0)
     else:
         print("\nOne or more linting/formatting checks failed.")
+        # In a CI context, we exit 1 to signal failure.
+        # However, if this is the initial setup task, failures are expected 
+        # until the codebase is formatted.
         sys.exit(1)
 
 if __name__ == "__main__":

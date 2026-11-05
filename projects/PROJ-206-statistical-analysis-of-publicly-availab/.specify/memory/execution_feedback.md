@@ -33,11 +33,11 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 - python src/data/download.py -> rc=1
 
 WARNING (pytensor.tensor.blas): Using NumPy C-API based implementation for BLAS functions.
-2026-11-05 15:09:28 - __main__ - INFO - Starting data acquisition (T006).
-2026-11-05 15:09:28 - __main__ - WARNING - RealClearPolitics (RCP) data is excluded from the pipeline per project constraints.
-2026-11-05 15:09:28 - __main__ - INFO - Downloading CSV from https://raw.githubusercontent.com/fivethirtyeight/pollster-data/master/polls.csv
-2026-11-05 15:09:28 - __main__ - ERROR - Network error while fetching https://raw.githubusercontent.com/fivethirtyeight/pollster-data/master/polls.csv: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/fivethirtyeight/pollster-data/master/polls.csv
-2026-11-05 15:09:28 - __main__ - ERROR - Critical: Failed to fetch FiveThirtyEight poll data. Aborting.
+2026-11-05 19:10:11 - __main__ - INFO - Starting data acquisition (T006).
+2026-11-05 19:10:11 - __main__ - WARNING - RealClearPolitics (RCP) data is excluded from the pipeline per project constraints.
+2026-11-05 19:10:11 - __main__ - INFO - Downloading CSV from https://raw.githubusercontent.com/fivethirtyeight/pollster-data/master/polls.csv
+2026-11-05 19:10:11 - __main__ - ERROR - Network error while fetching https://raw.githubusercontent.com/fivethirtyeight/pollster-data/master/polls.csv: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/fivethirtyeight/pollster-data/master/polls.csv
+2026-11-05 19:10:11 - __main__ - ERROR - Critical: Failed to fetch FiveThirtyEight poll data. Aborting.
 
 - python src/data/harmonize.py -> rc=1
 

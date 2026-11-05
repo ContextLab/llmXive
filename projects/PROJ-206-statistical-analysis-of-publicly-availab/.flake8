@@ -1,6 +1,10 @@
 [flake8]
+# Match Black's line length
 max-line-length = 88
-extend-ignore = E203
+# E203: whitespace before ':' (not PEP 8 compliant, but used by Black)
+# W503: line break before binary operator (not PEP 8 compliant, but used by Black)
+extend-ignore = E203, W503
+# Exclude standard non-source directories
 exclude = 
     .git,
     __pycache__,
@@ -9,4 +13,5 @@ exclude =
     venv,
     .venv,
     data,
-    state
+    state,
+    .mypy_cache
