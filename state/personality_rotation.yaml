@@ -1,14 +1,7 @@
-last_used: richard-feynman
-last_used_at: '2026-11-05T10:04:38.001043+00:00'
-last_outcome: model_error
+last_used: rosalind-franklin
+last_used_at: '2026-11-05T14:05:14.252024+00:00'
+last_outcome: abstained
 history:
-- slug: eric-kandel
-  started_at: '2026-10-12T02:21:59.499955+00:00'
-  ended_at: '2026-10-12T04:16:16.503273+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/reviews/research/eric-kandel-simulated__2026-10-12__research.md
 - slug: freeman-dyson
   started_at: '2026-10-12T04:16:16.503273+00:00'
   ended_at: '2026-10-12T06:09:05.190015+00:00'
@@ -1122,3 +1115,7 @@ history:
   started_at: '2026-11-05T04:06:27.432272+00:00'
   ended_at: '2026-11-05T10:04:38.001043+00:00'
   outcome: model_error
+- slug: rosalind-franklin
+  started_at: '2026-11-05T10:04:38.001043+00:00'
+  ended_at: '2026-11-05T14:05:14.252024+00:00'
+  outcome: abstained
