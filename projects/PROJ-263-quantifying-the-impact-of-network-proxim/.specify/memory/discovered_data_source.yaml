@@ -1,13 +1,12 @@
 status: none
-intent: real world scale free network with latitude longitude coordinates python package
-  dataset
+intent: download scale-free network with geographic coordinates Gowalla OpenFlights
+  python package dataset
 required_fields:
 - node_id
 - latitude
 - longitude
-- source_node_id
-- target_node_id
-- edge_weight
-cache_key: 6b72e9fbe3be69e4513f05dd433fabd5823bd973e2d897c190861254e005a964
-searched_at: '2026-11-04T23:18:46.238834+00:00'
+- edge_source
+- edge_target
+cache_key: 8a3f1cdf099e6b7b93ca48f970e8c1aaacb1d95b6f525d6a7dd7a998b925e0b7
+searched_at: '2026-11-05T00:14:34.622091+00:00'
 retry_count: 1
