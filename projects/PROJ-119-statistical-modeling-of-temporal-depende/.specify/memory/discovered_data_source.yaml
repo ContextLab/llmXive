@@ -1,22 +1,13 @@
-status: verified
-kind: pypi_package
-ref: pycoingecko
-access_python: "import datetime\nfrom pycoingecko import CoinGeckoAPI\n\ncg = CoinGeckoAPI()\n\
-  \ndef fetch(coin_id):\n    data = cg.get_coin_market_chart_by_id(\n        id=coin_id,\n\
-  \        vs_currency=\"usd\",\n        days=365,  # maximum allowed for public API\n\
-  \    )\n    records = []\n    for ts, price in data.get(\"prices\", []):\n     \
-  \   date = datetime.datetime.utcfromtimestamp(ts / 1000).date().isoformat()\n  \
-  \      records.append((date, price))\n    return records\n\nbtc_records = fetch(\"\
-  bitcoin\")\neth_records = fetch(\"ethereum\")\nall_records = btc_records + eth_records\n\
-  \nprint(f\"RECORDS={len(all_records)}\")\nprint(\"FIELDS=date,price\")"
-record_count: 732
-sample_fields:
-- date
-- price
-field_coverage: 0.5
+status: none
+intent: download daily OHLCV Bitcoin Ethereum dataset python package dataset
 required_fields:
 - date
+- open
+- high
+- low
 - close
-intent: download daily BTC ETH OHLCV historical data from CoinGecko python package
-  dataset
-cache_key: 174a6b4a513513c97f2fef8ef4f792a37a4261a66d9ca62d990c240e0ac06722
+- volume
+- asset
+cache_key: 32531372c566bf3269118e4c43503e34943293d2b30c5966a6b4cb40437d9c76
+searched_at: '2026-11-05T13:09:04.266025+00:00'
+retry_count: 1
