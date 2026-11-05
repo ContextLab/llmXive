@@ -8,7 +8,6 @@ required_fields:
 - inclination_uncertainty_deg
 - stellar_surface_density
 - gas_surface_density
-- total_baryonic_surface_density
-cache_key: 692a881c27cfbdf13c4423c9b274bbf11d621ba613616ceb92e348415429970c
-searched_at: '2026-10-12T13:06:41.514562+00:00'
+cache_key: 42bb53b06fcb4dd4960068ecc7c76a61f198fe1d0339f19480e65dc923839faf
+searched_at: '2026-11-05T15:08:08.901714+00:00'
 retry_count: 1

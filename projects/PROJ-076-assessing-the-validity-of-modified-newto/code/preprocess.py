@@ -143,6 +143,25 @@ def extract_rotation_curves(
     return df
 
 
+def _load_config_with_defaults() -> Dict[str, Any]:
+    """
+    Load configuration, falling back to sensible defaults for missing keys.
+    """
+    try:
+        cfg = get_config()
+    except Exception:
+        cfg = {}
+
+    # Ensure the top‑level 'data' dict exists
+    data_cfg = cfg.get("data", {})
+    # Provide defaults required by this script
+    data_cfg.setdefault("source_dir", "data/raw")
+    data_cfg.setdefault("processed_dir", "data/processed")
+    data_cfg.setdefault("metadata_path", "data/metadata.yaml")
+    cfg["data"] = data_cfg
+    return cfg
+
+
 def main() -> int:
     """
     End‑to‑end preprocessing pipeline (T013 → T014 → T015).
@@ -153,21 +172,7 @@ def main() -> int:
     4. Write ``filtered_galaxies.csv``.
     5. Update ``metadata.yaml`` with processing timestamp and version.
     """
-    # ------------------------------------------------------------------
-    # Configuration handling – we use ``config.get_config`` if the
-    # configuration file exists; otherwise we fall back to defaults.
-    # ------------------------------------------------------------------
-    try:
-        cfg = get_config()
-    except Exception:
-        # Minimal fallback configuration
-        cfg = {
-            "data": {
-                "source_dir": "data/raw",
-                "processed_dir": "data/processed",
-                "metadata_path": "data/metadata.yaml",
-            }
-        }
+    cfg = _load_config_with_defaults()
 
     raw_dir = Path(cfg["data"]["source_dir"])
     processed_dir = Path(cfg["data"]["processed_dir"])

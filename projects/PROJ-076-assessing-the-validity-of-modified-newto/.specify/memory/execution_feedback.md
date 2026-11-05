@@ -19,27 +19,22 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/download.py -> rc=1
 
-2026-10-12 13:05:45 - __main__ - INFO - [T012] SPARC Data Download: Starting SPARC data download
-2026-10-12 13:05:45 - __main__ - INFO - Downloading SPARC data from https://datadryad.org/stash/downloads/file_stream/270916
-2026-10-12 13:05:45 - __main__ - ERROR - Invalid URL: https://datadryad.org/stash/downloads/file_stream/270916
-2026-10-12 13:05:45 - __main__ - ERROR - [T012] SPARC Data Download: Failed to download SPARC data
-2026-10-12 13:05:45 - __main__ - ERROR - SPARC data download failed
+2026-11-05 15:07:37 - __main__ - INFO - [T012] SPARC Data Download: Starting SPARC data download
+2026-11-05 15:07:37 - __main__ - INFO - Downloading SPARC data from https://astroweb.cwru.edu/SPARC/datafiles/SPARC_data.zip
+2026-11-05 15:07:37 - __main__ - ERROR - Invalid URL: https://astroweb.cwru.edu/SPARC/datafiles/SPARC_data.zip
+2026-11-05 15:07:37 - __main__ - ERROR - [T012] SPARC Data Download: Failed to download SPARC data
+2026-11-05 15:07:37 - __main__ - ERROR - SPARC data download failed
 
 - python code/preprocess.py -> rc=1
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-076-assessing-the-validity-of-modified-newto/code/preprocess.py", line 231, in <module>
-    exit(main())
-         ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-076-assessing-the-validity-of-modified-newto/code/preprocess.py", line 172, in main
-    raw_dir = Path(cfg["data"]["source_dir"])
-                   ~~~~~~~~~~~^^^^^^^^^^^^^^
-KeyError: 'source_dir'
+2026-11-05 15:07:38 - __main__ - INFO - Parsing galaxy directory: data/raw
+2026-11-05 15:07:38 - __main__ - INFO - Parsed 0 galaxies from data/raw
+2026-11-05 15:07:38 - __main__ - ERROR - No galaxy files found – aborting preprocessing.
 
 - python code/residuals.py -> rc=1
 
-2026-10-12 13:05:46 - __main__ - INFO - Starting residual analysis pipeline
-2026-10-12 13:05:46 - __main__ - ERROR - Filtered data not found: data/processed/filtered_galaxies.csv
+2026-11-05 15:07:39 - __main__ - INFO - Starting residual analysis pipeline
+2026-11-05 15:07:39 - __main__ - ERROR - Filtered data not found: data/processed/filtered_galaxies.csv
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-076-assessing-the-validity-of-modified-newto/code/residuals.py", line 430, in <module>
     main()
@@ -49,9 +44,9 @@ FileNotFoundError: Required data file not found: data/processed/filtered_galaxie
 
 - python code/sensitivity.py -> rc=1
 
-2026-10-12 13:05:47 - __main__ - INFO - Running sensitivity analysis script.
-2026-10-12 13:05:47 - __main__ - ERROR - Required input file missing: /home/runner/work/llmXive/llmXive/projects/PROJ-076-assessing-the-validity-of-modified-newto/results/fit_summary.csv
-2026-10-12 13:05:47 - __main__ - ERROR - Please ensure T025 has been run to generate fit_summary.csv.
+2026-11-05 15:07:40 - __main__ - INFO - Running sensitivity analysis script.
+2026-11-05 15:07:40 - __main__ - ERROR - Required input file missing: /home/runner/work/llmXive/llmXive/projects/PROJ-076-assessing-the-validity-of-modified-newto/results/fit_summary.csv
+2026-11-05 15:07:40 - __main__ - ERROR - Please ensure T025 has been run to generate fit_summary.csv.
 
 - python -m pytest tests/unit/ -> rc=2
 ty-of-modified-newto
@@ -63,7 +58,7 @@ ___________________ ERROR collecting tests/unit/test_mond.py ___________________
 ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-076-assessing-the-validity-of-modified-newto/tests/unit/test_mond.py'.
 Hint: make sure your test modules/packages have valid Python names.
 Traceback:
-/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/importlib/__init__.py:126: in import_module
     return _bootstrap._gcd_import(name[level:], package, level)
 tests/unit/test_mond.py:6: in <module>
     from code.models.mond import mond_simple, A0
@@ -71,12 +66,11 @@ E   ImportError: cannot import name 'A0' from 'code.models.mond' (/home/runner/w
 =========================== short test summary info ============================
 ERROR tests/unit/test_mond.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 0.76s ===============================
+=============================== 1 error in 1.08s ===============================
 
 
 - python -m pytest tests/contract/ -> rc=1
-ader = parsers.TextReader(src, **kwds)
-parsers.pyx:581: in pandas._libs.parsers.TextReader.__cinit__
+581: in pandas._libs.parsers.TextReader.__cinit__
     ???
 E   pandas.errors.EmptyDataError: No columns to parse from file
 __________________________ test_compute_summary_stats __________________________
@@ -84,14 +78,15 @@ tests/contract/test_sensitivity_summary.py:78: in test_compute_summary_stats
     assert stats['avg_mond_pass_rate'] == 0.67  # (0.5+0.6+0.7+0.75+0.8)/5
 E   assert 0.6699999999999999 == 0.67
 =========================== short test summary info ============================
-FAILED tests/contract/test_dataset_schema.py::TestDatasetSchema::test_constraint_violation_fails_validation
+FAILED tests/contract/test_dataset_schema.py::test_dataset_schema_structure
+FAILED tests/contract/test_dataset_schema.py::test_dataset_schema_with_sample_data
 FAILED tests/contract/test_schemas.py::test_dataset_schema_structure - Assert...
 FAILED tests/contract/test_schemas.py::test_fit_results_schema_structure - As...
 FAILED tests/contract/test_schemas.py::test_dataset_schema_with_sample_data
 FAILED tests/contract/test_schemas.py::test_fit_results_schema_with_sample_data
 FAILED tests/contract/test_sensitivity_summary.py::test_load_sensitivity_data_valid_file
 FAILED tests/contract/test_sensitivity_summary.py::test_compute_summary_stats
-=================== 7 failed, 38 passed, 2 skipped in 0.70s ====================
+=================== 8 failed, 16 passed, 2 skipped in 0.90s ====================
 
 
 - python -m pytest tests/integration/ -> rc=2
@@ -111,7 +106,7 @@ ERROR tests/integration/test_generate_fit_summary.py
 ERROR tests/integration/test_statistics.py
 ERROR tests/integration/test_verdict_generation.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
-======================== 13 warnings, 3 errors in 0.89s ========================
+======================== 13 warnings, 3 errors in 1.35s ========================
 
 
 
