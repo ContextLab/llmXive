@@ -10,12 +10,8 @@ T001:
 T002:
   task: 735db3d15b2e002b6bf308c472a4f34dfad0adf05dbccf2e3906bba824daf0e2
 T003:
-  reason: The `.ruff.toml` and `pyproject.toml` (with `[tool.black]` settings) exist
-    and are substantive, but `.flake8` is entirely absent from the collected artifacts,
-    and there is no evidence of a CI workflow file (e.g., `.github/workflows/...`)
-    invoking the lint steps, nor any CI logs or execution evidence that `ruff .` /
-    `black --check .` were run and passed. The implementer must add the missing `.flake8`
-    config and wire the lint/format tools into the CI workflow with evidence of execution.
+  reason: 'Requested task execution failed; rerun successfully: code/run_linting.py
+    exit=1'
   task: ae7c8f823f24f88d74d67d91be3423a87f469c77f7be90ff414758ac88609dac
 T004:
   reason: 'the task writes platform-owned path(s) inside the project: `state/projects/`

@@ -14,7 +14,7 @@ The checklist follows the platform‑required format. Checked boxes (`[X]`) indi
 - [X] T002 Create `requirements.txt` pinned to exact versions (pandas, numpy, scipy, pymc v5, arviz, requests, pyyaml, statsmodels, pytest) and implement `src/utils/config.py` to pin global random seeds for `numpy`, `random`, and `PyMC` to ensure absolute reproducibility (Constitution I).  
   - **Verification**: `pip install -r requirements.txt` succeeds; `src/utils/config.py` contains a `set_seed()` function that is called at the start of all scripts.
 
-- [ ] T003 Add linting and formatting configuration files (`.ruff.toml`, `.flake8`, `pyproject.toml` with Black settings) and ensure they are invoked by the CI workflow.  
+- [ ] T003 Add linting and formatting configuration files (`.ruff.toml`, `.flake8`, `pyproject.toml` with Black settings) and ensure they are invoked by the CI workflow.   <!-- FAILED-IN-EXECUTION: code/run_linting.py exit=1 -->
   - **File paths**: `.ruff.toml`, `.flake8`, `pyproject.toml` (project root).  
   - **Verification**: Running `ruff .` and `black --check .` passes; CI logs show lint step executed.
 

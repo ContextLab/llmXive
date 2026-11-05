@@ -1,1 +1,1 @@
-"""PROJ-206 source package: election poll aggregation analysis."""
+# Initialize the src package

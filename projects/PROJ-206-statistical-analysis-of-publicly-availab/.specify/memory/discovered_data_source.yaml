@@ -1,13 +1,14 @@
 status: none
-intent: FiveThirtyEight US election poll dataset MIT Election Data Science Lab python
+intent: download FiveThirtyEight poll dataset MIT Election Data and Science Lab python
   package dataset
 required_fields:
 - pollster
 - poll_date
 - candidate
-- candidate_margin
+- poll_margin
 - sample_size
-- poll_result
-cache_key: 174e13b4ce74d0e59d362e033086b87760e6e03e28db1e2d6f26b4dc43e21c6c
-searched_at: '2026-10-21T06:34:03.252330+00:00'
+- pollster_weight
+- election_result
+cache_key: 0c8d99d8dac5b40848355a1e5eba8ae0e4ba3138f907ad66f5d2ab2fafe29d66
+searched_at: '2026-11-05T15:09:53.047153+00:00'
 retry_count: 1
