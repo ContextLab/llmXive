@@ -1,25 +1,37 @@
 status: verified
 kind: pypi_package
 ref: datasets
-access_python: 'import sys
-
-  from datasets import load_dataset
+access_python: 'import datasets
 
 
-  ds = load_dataset("openai/gsm8k", "main", split="train")
+  # Load all splits of the dataset using a valid config name
 
-  print(f"RECORDS={len(ds)}")
+  dataset_dict = datasets.load_dataset(''openai/gsm8k'', ''main'')
 
-  print("FIELDS=" + ",".join(ds.column_names))'
-record_count: 7473
+
+  # Count total records across all splits
+
+  total_records = sum(len(split) for split in dataset_dict.values())
+
+  print(f''RECORDS={total_records}'')
+
+
+  # Extract field names from the first record of the first split
+
+  first_split = next(iter(dataset_dict.values()))
+
+  sample_record = first_split[0]
+
+  print(''FIELDS='' + '',''.join(sample_record.keys()))'
+record_count: 8792
 sample_fields:
 - question
 - answer
-field_coverage: 0.5
+field_coverage: 0.667
 required_fields:
 - question
 - answer
 - solution
-- metadata
-intent: huggingface datasets GSM8K bigbench logical deduction python package dataset
-cache_key: 8208d7668057427d0969a4dce4d7c264d358cbc095cba854ff60ce6442dd3522
+intent: download GSM8K train test parquet and BigBench logical deduction dataset python
+  package dataset
+cache_key: 26ae849feb68377e54583370e9c0952acb96d29369bfbb87401f1ae86379f76c
