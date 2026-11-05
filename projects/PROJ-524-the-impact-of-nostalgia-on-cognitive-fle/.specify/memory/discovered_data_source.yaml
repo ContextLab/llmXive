@@ -1,15 +1,16 @@
 status: none
-intent: Wisconsin Card Sorting Test dataset nostalgia control condition MMSE scores
-  demographics python package dataset
+intent: Wisconsin Card Sorting Test dataset MMSE reference download python package
+  dataset
 required_fields:
 - participant_id
 - condition
-- wcst_perseverative_errors
-- wcst_categories_completed
+- audio_stimulus_id
+- perseverative_errors
+- categories_completed
 - mmse_score
 - age
 - education_years
 - gender
-cache_key: 1b1e8f04ad9556891b0a91c003d81211a066718a93fecb03099697bf99892c1a
-searched_at: '2026-11-04T16:08:46.328364+00:00'
+cache_key: e8f26099fbed7daec6d3b50cbbdb1c3c2e6e326761fb6a325168574b6c0f26a3
+searched_at: '2026-11-05T16:08:10.086810+00:00'
 retry_count: 1
