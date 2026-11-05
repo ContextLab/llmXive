@@ -1,0 +1,7 @@
+{
+  "effect_size_r": 0.3,
+  "target_power": 0.8,
+  "alpha": 0.05,
+  "required_sample_size_N": 85,
+  "methodology": "Fisher's z-transformation approximation"
+}

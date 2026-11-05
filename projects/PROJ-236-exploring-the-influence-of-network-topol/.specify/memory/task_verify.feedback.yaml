@@ -162,6 +162,10 @@ T050:
 T051:
   task: 66bc064a1f6e243348964e4d2a2258b95ee4031f3a09113156a8dd45ed3adca7
 T052:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/PROJ-236-exploring-the-influence-of-network-topol.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
   task: 2f03a30c9a422bce72a2910aa52b2708c146b46886caa1c03d0073430f719f06
 T059:
   task: 8327c9f4d9c2bd23559c040fc6d86a31faf57513b30ac41cbe85b12af83f1a91

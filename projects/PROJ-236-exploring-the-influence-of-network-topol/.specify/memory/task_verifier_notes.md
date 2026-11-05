@@ -22,4 +22,5 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T042** — declared artifact(s) missing/empty/invalid: tests/unit/test_power_law_fit.py
 - **T044** — declared artifact(s) missing/empty/invalid: data/analysis/plots/metric_vs_kappa.png, tests/unit/test_plot_generation.py
 - **T045** — declared artifact(s) missing/empty/invalid: data/analysis/plots/powerlaw_fit.png, tests/unit/test_plot_generation.py
+- **T052** — the task writes platform-owned path(s) inside the project: `state/projects/PROJ-236-exploring-the-influence-of-network-topol.yaml` (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform owns state/ and derives artifact hashes at verification time. Re-scope the step to write only project-owned outputs.
 - **T068** — declared artifact(s) missing/empty/invalid: data/metadata/graph_manifest.json, tests/unit/test_graph_manifest.py
