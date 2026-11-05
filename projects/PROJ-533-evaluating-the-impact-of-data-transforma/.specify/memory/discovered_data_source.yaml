@@ -1,33 +1,19 @@
-status: verified
-kind: pypi_package
-ref: openml
-access_python: "import openml, pandas as pd\n\ndf = openml.datasets.list_datasets(output_format='dataframe')\n\
-  print(f\"RECORDS={len(df)}\")\n# Map available columns to the requested field names\
-  \ where possible\nfields = [\n    'dataset_id',          # df['did']\n    'dataset_name',\
-  \        # df['name']\n    'download_url',        # df['url']\n    'source_repository',\
-  \   # constant value \"OpenML\"\n    'task_type'            # df['default_target_attribute']\
-  \ (may be NaN)\n]\nprint('FIELDS=' + ','.join(fields))"
-record_count: 7096
-sample_fields:
-- dataset_id
-- dataset_name
-- download_url
-- source_repository
-- task_type
-field_coverage: 0.5
+status: none
+intent: UCI Machine Learning Repository OpenML HuggingFace datasets python package
+  dataset
 required_fields:
 - dataset_id
-- dataset_name
+- name
 - download_url
-- source_repository
-- task_type
+- sha256_checksum
 - n_samples
 - n_features
-- numeric_feature_count
+- continuous_feature_names
 - categorical_target_name
-- missing_percentage_per_feature
-- sha256_checksum
-- metadata_json
-intent: download UCI Machine Learning Repository datasets via OpenML Python client
-  python package dataset
-cache_key: d0f3a568ef9c9cce87d5b94ea01770aae1783f3b41b4411a54651457f42a7806
+- target_type
+- shapiro_wilk_pvalues
+- missing_rate_per_feature
+- source_repository
+cache_key: c4d5bcb052b5fa91d08987e1f3610ad6c7b2b0dffdaa19a35bed7f613bbed6d1
+searched_at: '2026-11-05T03:08:48.182753+00:00'
+retry_count: 1
