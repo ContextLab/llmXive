@@ -1,14 +1,7 @@
-last_used: marie-curie
-last_used_at: '2026-11-05T00:06:46.089940+00:00'
-last_outcome: model_error
+last_used: richard-feynman
+last_used_at: '2026-11-05T02:04:55.644378+00:00'
+last_outcome: abstained
 history:
-- slug: dan-rockmore
-  started_at: '2026-10-11T20:05:27.648754+00:00'
-  ended_at: '2026-10-11T22:08:58.586159+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-737-assessing-uncertainty-quantification-tec/reviews/research/dan-rockmore-simulated__2026-10-11__research.md
 - slug: daniel-kahneman
   started_at: '2026-10-11T22:08:58.586159+00:00'
   ended_at: '2026-10-12T00:05:57.820929+00:00'
@@ -1131,3 +1124,7 @@ history:
   started_at: '2026-11-04T22:05:07.444527+00:00'
   ended_at: '2026-11-05T00:06:46.089940+00:00'
   outcome: model_error
+- slug: richard-feynman
+  started_at: '2026-11-05T00:06:46.089940+00:00'
+  ended_at: '2026-11-05T02:04:55.644378+00:00'
+  outcome: abstained
