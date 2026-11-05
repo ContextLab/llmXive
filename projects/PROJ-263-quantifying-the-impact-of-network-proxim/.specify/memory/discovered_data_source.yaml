@@ -1,5 +1,5 @@
 status: none
-intent: download scale-free network with geographic coordinates Gowalla OpenFlights
+intent: OpenFlights world airline network dataset with coordinates Network Repository
   python package dataset
 required_fields:
 - node_id
@@ -7,6 +7,6 @@ required_fields:
 - longitude
 - edge_source
 - edge_target
-cache_key: 8a3f1cdf099e6b7b93ca48f970e8c1aaacb1d95b6f525d6a7dd7a998b925e0b7
-searched_at: '2026-11-05T00:14:34.622091+00:00'
+cache_key: 6ec8862b2b2d4e04c5543bf184d72897349787c6eb668a1a9ed1aa185338d25d
+searched_at: '2026-11-05T04:13:35.832983+00:00'
 retry_count: 1
