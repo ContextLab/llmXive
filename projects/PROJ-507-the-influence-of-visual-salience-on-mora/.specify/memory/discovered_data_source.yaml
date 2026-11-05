@@ -1,15 +1,11 @@
 status: none
-intent: CodedotAI code_clippy OpenAI CLIP BERT MoralD CLMM benchmark python package
-  dataset
+intent: CodedotAI Visual Genome CLIP BERT MoralD CLMM python package dataset
 required_fields:
-- image_url
 - image_id
-- metadata
-- bbox_xmin
-- bbox_ymin
-- bbox_xmax
-- bbox_ymax
+- image_url
+- bounding_boxes
+- region_label
 - moral_ambiguity_label
-cache_key: f233baf59c0696c4de762613f5bca3265e9a5199a43fae4474ba2992696fbd73
-searched_at: '2026-10-30T18:28:53.260869+00:00'
+cache_key: b5edfc60a4456809fd2951c2786747898359d2249bee55460d13a6f03bc73b50
+searched_at: '2026-11-05T21:16:06.035768+00:00'
 retry_count: 1
