@@ -28700,7 +28700,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-05T17:16:47.378479+00:00",
+  "generated_at": "2026-11-05T18:05:43.191962+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -113713,6 +113713,14 @@
       "last_run_log": [
         {
           "agent": "personality",
+          "duration_s": 1.654264,
+          "ended_at": "2026-11-05T18:05:20.925280+00:00",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "abstained",
+          "started_at": "2026-11-05T18:05:19.271016+00:00"
+        },
+        {
+          "agent": "personality",
           "duration_s": 4.902444,
           "ended_at": "2026-11-05T16:05:25.728682+00:00",
           "model": "openai.gpt-oss-120b",
@@ -113782,14 +113790,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-10-06T16:27:06.405801Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 412.969048,
-          "ended_at": "2026-10-06T16:26:08.716547Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-06T16:19:15.747499Z"
         }
       ],
       "paper_status": null,
@@ -176002,6 +176002,21 @@
   ],
   "recent_activity": [
     {
+      "agent": "personality",
+      "display_name": "Stephen Wolfram (simulated)",
+      "duration_s": 1.654264,
+      "ended_at": "2026-11-05T18:05:20.925280+00:00",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "model_kind": "personality_simulator",
+      "outcome": "abstained",
+      "personality_slug": "stephen-wolfram",
+      "project_id": "PROJ-452-predicting-gene-essentiality-from-protei",
+      "project_stage": "planned",
+      "severity": "soft",
+      "started_at": "2026-11-05T18:05:19.271016+00:00"
+    },
+    {
       "agent": "planner",
       "duration_s": 148.598385,
       "ended_at": "2026-11-05T17:08:26.312915Z",
@@ -182066,18 +182081,6 @@
       "project_stage": "clarified",
       "severity": "hard",
       "started_at": "2026-11-02T20:07:46.225203Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 3.098796,
-      "ended_at": "2026-11-02T20:08:44.461026Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-353-investigating-the-effectiveness-of-diffe",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-11-02T20:08:41.362230Z"
     }
   ],
   "reviewed_preprints": [
