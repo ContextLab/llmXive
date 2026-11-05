@@ -28700,7 +28700,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-05T19:06:03.778460+00:00",
+  "generated_at": "2026-11-05T19:13:43.305581+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -141723,6 +141723,14 @@
       "last_run_log": [
         {
           "agent": "planner",
+          "duration_s": 183.793113,
+          "ended_at": "2026-11-05T19:08:24.654095Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-05T19:05:20.860982Z"
+        },
+        {
+          "agent": "planner",
           "duration_s": 173.164298,
           "ended_at": "2026-11-04T21:11:31.330849Z",
           "model": "zai-org.glm-5.3",
@@ -141792,14 +141800,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-10-29T14:08:24.443424Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 194.034647,
-          "ended_at": "2026-10-29T11:09:48.972257Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-10-29T11:06:34.937610Z"
         }
       ],
       "paper_status": null,
@@ -176002,6 +176002,18 @@
   ],
   "recent_activity": [
     {
+      "agent": "planner",
+      "duration_s": 183.793113,
+      "ended_at": "2026-11-05T19:08:24.654095Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-735-transferability-of-dft-d3-dispersion-to-",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-11-05T19:05:20.860982Z"
+    },
+    {
       "agent": "implementer",
       "duration_s": 7.504077,
       "ended_at": "2026-11-05T19:05:30.120216Z",
@@ -182069,18 +182081,6 @@
       "project_stage": "clarified",
       "severity": "ok",
       "started_at": "2026-11-02T21:16:35.032245Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 122.190145,
-      "ended_at": "2026-11-02T21:16:35.028692Z",
-      "failure_reason": "",
-      "model": "google.gemma-4-31B-it",
-      "outcome": "success",
-      "project_id": "PROJ-365-predicting-molecular-diffusion-coefficie",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-11-02T21:14:32.838547Z"
     }
   ],
   "reviewed_preprints": [
