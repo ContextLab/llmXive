@@ -57,7 +57,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Implement `code/config.py` to define specific keys: `SEED=42`, `CORRUPTION_RATE=0.1 `, `WORKFLOW_COUNT=500 `, `SWEEP_RATES=[0.05, 0.10, 0.20]`, and directory paths for `RAW_DATA_DIR`, `PROCESSED_DATA_DIR`, `STATE_DIR`.
+- [~] T004 Implement `code/config.py` to define specific keys: `SEED=42`, `CORRUPTION_RATE=0.1 `, `WORKFLOW_COUNT=500 `, `SWEEP_RATES=[0.05, 0.10, 0.20]`, and directory paths for `RAW_DATA_DIR`, `PROCESSED_DATA_DIR`, `STATE_DIR`.
 - [ ] T009 Create `code/main.py` orchestration skeleton with CLI arguments (`--seed`, `--count`, `--resume`), checkpoint file format (update `state/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses.yaml` with `checkpoint` key containing `last_workflow_id` and `status`), and resume logic flow (load checkpoint from YAML, skip completed IDs, process remaining). **CRITICAL**: This checkpoint logic MUST support resuming both the *generation* phase (US1) and the *execution* phase (US2) if interrupted.
 - [ ] T017a [P] Implement data hygiene utility: Create `code/utils/checksum_manager.py` to calculate SHA256 for files and provide a method to update the project's YAML state file (`state/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses.yaml`) with `artifact_hashes` map. Do NOT run this yet; just implement the utility.
 - [ ] T006 Implement `code/generators/__init__.py` and base schema definitions for Workflow Definition and Ground Truth.
@@ -82,12 +82,12 @@
 
 ### Implementation for User Story 1
 
-- [X] T012 [P] [US1] Implement `code/generators/workflow_generator.py` to create deterministic multi-agent workflows with tool outputs and decision trees.
+- [~] T012 [P] [US1] Implement `code/generators/workflow_generator.py` to create deterministic multi-agent workflows with tool outputs and decision trees.
 - [ ] T013 [US1] Implement ground truth serialization in `code/generators/workflow_generator.py`: Store to `data/raw/workflows/{workflow_id}_ground_truth.json` (one file per workflow) with SHA256 hash.
 - [ ] T014 [US1] Implement validation logic in `code/generators/workflow_generator.py::validate_workflow_schema`: Use the schema defined in `code/generators/schemas.py` (T006b) to validate generated workflows. Explicitly verify that all necessary variables (tool outputs, snapshots) required by the reconstruction protocol (SC-005) are present.
 - [ ] T015 [US1] Implement checkpointing logic in `code/main.py` to resume workflow generation from the last completed ID on timeout (implementation of T009 skeleton).
 - [ ] T015b [US1] Generate and store pre-computed reference hash: **Run after T012/T013 execution completes**. Create script `scripts/gen_ref_hash.py` to compute hash of the first workflow (seed 42) and update `state/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses.yaml` with the hash under `artifact_hashes.reference_ground_truth`.
-- [X] T016 [US1] Add logging for workflow generation steps and hash verification in `code/generators/workflow_generator.py` to produce verifiable evidence of determinism.
+- [~] T016 [US1] Add logging for workflow generation steps and hash verification in `code/generators/workflow_generator.py` to produce verifiable evidence of determinism.
 - [ ] T017b [US1] Execute immediate checksumming: Run the `checksum_manager` utility (from T017a) to calculate SHA256 for **EVERY** file in `data/raw/workflows/` immediately after generation and register/update entries in `state/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses.yaml`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently

@@ -8,7 +8,8 @@ from config import load_state, save_state, ensure_directories, PROCESSED_DATA_DI
 
 logger = logging.getLogger(__name__)
 
-CORRUPTION_MAP_FILENAME = "corruption_log.json"
+# The central corruption map must be named exactly as the run‑book expects
+CORRUPTION_MAP_FILENAME = "corruption_map.json"
 
 def get_corruption_map_path() -> Path:
     """Return the absolute path to the central corruption log file."""

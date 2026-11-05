@@ -9,62 +9,30 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 - python code/main.py --phase generate --seed 42 --count 500 -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/code/main.py", line 25, in <module>
-    from generators.workflow_generator import (
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/code/generators/workflow_generator.py", line 18, in <module>
-    logging.FileHandler(os.path.join(STATE_DIR, 'generator.log'))
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 1181, in __init__
-    StreamHandler.__init__(self, self._open())
-                                 ^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 1213, in _open
-    return open_func(self.baseFilename, self.mode,
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/state/generator.log'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/code/main.py", line 38, in <module>
+    from reconstructors.reconstruction_engine import ReconstructionEngine
+ModuleNotFoundError: No module named 'reconstructors.reconstruction_engine'
 
 - python code/main.py --phase simulate --corruption-rates 0.05,0.10,0.20 --architectures event_log,session_first -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/code/main.py", line 25, in <module>
-    from generators.workflow_generator import (
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/code/generators/workflow_generator.py", line 18, in <module>
-    logging.FileHandler(os.path.join(STATE_DIR, 'generator.log'))
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 1181, in __init__
-    StreamHandler.__init__(self, self._open())
-                                 ^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 1213, in _open
-    return open_func(self.baseFilename, self.mode,
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/state/generator.log'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/code/main.py", line 38, in <module>
+    from reconstructors.reconstruction_engine import ReconstructionEngine
+ModuleNotFoundError: No module named 'reconstructors.reconstruction_engine'
 
 - python code/main.py --phase reconstruct --architectures event_log,session_first -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/code/main.py", line 25, in <module>
-    from generators.workflow_generator import (
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/code/generators/workflow_generator.py", line 18, in <module>
-    logging.FileHandler(os.path.join(STATE_DIR, 'generator.log'))
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 1181, in __init__
-    StreamHandler.__init__(self, self._open())
-                                 ^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 1213, in _open
-    return open_func(self.baseFilename, self.mode,
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/state/generator.log'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/code/main.py", line 38, in <module>
+    from reconstructors.reconstruction_engine import ReconstructionEngine
+ModuleNotFoundError: No module named 'reconstructors.reconstruction_engine'
 
 - python code/main.py --phase analyze --test cochrans_q -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/code/main.py", line 25, in <module>
-    from generators.workflow_generator import (
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/code/generators/workflow_generator.py", line 18, in <module>
-    logging.FileHandler(os.path.join(STATE_DIR, 'generator.log'))
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 1181, in __init__
-    StreamHandler.__init__(self, self._open())
-                                 ^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/logging/__init__.py", line 1213, in _open
-    return open_func(self.baseFilename, self.mode,
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/state/generator.log'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-927-llmxive-follow-up-extending-openrath-ses/code/main.py", line 38, in <module>
+    from reconstructors.reconstruction_engine import ReconstructionEngine
+ModuleNotFoundError: No module named 'reconstructors.reconstruction_engine'
 
 
 ## Declared deliverables still missing
