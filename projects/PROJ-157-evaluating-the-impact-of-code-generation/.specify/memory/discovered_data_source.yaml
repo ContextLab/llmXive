@@ -2,14 +2,12 @@ status: none
 intent: download Codeforces C++ reference solutions dataset python package dataset
 required_fields:
 - problem_id
-- problem_title
-- problem_tags
+- contest_id
+- problem_name
+- solution_code
 - language
-- human_solution_code
-- model_name
-- llm_generated_code
-- generation_timestamp
-- compilation_status
-cache_key: b6039cdc624b845f12fdac7a856a2cfe7892b804631f5bcc3de83576da165da7
-searched_at: '2026-11-04T22:13:33.223584+00:00'
+- source_url
+- tags
+cache_key: 73df7b77cdb0b8565ed3f8a47cd9ad47211d7effa413bd3b53a58d154534a2c7
+searched_at: '2026-11-05T20:09:35.170756+00:00'
 retry_count: 1
