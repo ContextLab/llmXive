@@ -1,18 +1,19 @@
 status: none
-intent: download PyCBC waveform models LALSuite gravitational wave simulated binary
-  black hole catalog python package dataset
+intent: LIGO Open Science Center GWTC-3 simulated binary black hole waveforms PyCBC
+  dataset python package dataset
 required_fields:
-- m1_solar_mass
-- m2_solar_mass
+- mass1_solar_masses
+- mass2_solar_masses
+- spin1z
+- spin2z
 - luminosity_distance_Mpc
-- spin1
-- spin2
-- inclination_angle
-- right_ascension
-- declination
-- waveform_time_series
-- sampling_rate
-- duration
-cache_key: 87f981f954970b32629215a3362816d66216904d093bf4c101c0937a6bddb4bb
-searched_at: '2026-11-05T01:08:25.150053+00:00'
+- inclination_angle_rad
+- coalescence_phase_rad
+- right_ascension_rad
+- declination_rad
+- polarization_angle_rad
+- sampling_rate_Hz
+- time_series_h_plus
+cache_key: c10511d399d1fa7e222eb86526ea96a3e1f2a1524a11dd91ac75cc25718fb17b
+searched_at: '2026-11-05T23:08:15.212584+00:00'
 retry_count: 1
