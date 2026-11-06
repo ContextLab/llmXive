@@ -22,19 +22,21 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-050-the-effect-of-priming-on-prosocial-behav/bin/python: Error while finding module specification for 'pipeline.run' (ModuleNotFoundError: No module named 'pipeline')
 
 - python code/00_check_dataset.py   # prints missing fields, exits if title missing -> rc=1
- File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-050-the-effect-of-priming-on-prosocial-behav/lib/python3.11/site-packages/datasets/load.py", line 2587, in load_dataset
+av/lib/python3.11/site-packages/datasets/load.py", line 2587, in load_dataset
     builder_instance = load_dataset_builder(
                        ^^^^^^^^^^^^^^^^^^^^^
   File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-050-the-effect-of-priming-on-prosocial-behav/lib/python3.11/site-packages/datasets/load.py", line 2259, in load_dataset_builder
     dataset_module = dataset_module_factory(
                      ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-050-the-effect-of-priming-on-prosocial-behav/lib/python3.11/site-packages/datasets/load.py", line 1906, in dataset_module_factory
-    raise FileNotFoundError(
-FileNotFoundError: Couldn't find a dataset script at /home/runner/work/llmXive/llmXive/projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/reddit/reddit.py or any data file in the same directory. Couldn't find 'reddit' on the Hugging Face Hub either: FileNotFoundError: datasets/reddit/reddit.py (repository not found). If the repo is private, make sure you are authenticated and your token has the required permissions.
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-050-the-effect-of-priming-on-prosocial-behav/lib/python3.11/site-packages/datasets/load.py", line 1904, in dataset_module_factory
+    raise e1 from None
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-050-the-effect-of-priming-on-prosocial-behav/lib/python3.11/site-packages/datasets/load.py", line 1850, in dataset_module_factory
+    raise DatasetNotFoundError(
+datasets.exceptions.DatasetNotFoundError: Dataset 'joshuaeisenstein/reddit' doesn't exist on the Hub or cannot be accessed. If the dataset is private or gated, make sure to log in with `huggingface-cli login` or visit the dataset page at https://huggingface.co/datasets/joshuaeisenstein/reddit to ask for access.
 
 - python code/01_ingest.py -> rc=1
-2026-11-03 18:21:42 - ingest_feasibility - INFO - === Starting T015b: Feasibility Check for FR-002c ===
-2026-11-03 18:21:42 - ingest_feasibility - ERROR - Feasibility check failed: get_logger() missing 1 required positional argument: 'name'
+2026-11-06 17:06:51 - ingest_feasibility - INFO - === Starting T015b: Feasibility Check for FR-002c ===
+2026-11-06 17:06:51 - ingest_feasibility - ERROR - Feasibility check failed: get_logger() missing 1 required positional argument: 'name'
 
 
 - python code/02_score.py -> rc=1
@@ -61,7 +63,7 @@ ______________ ERROR collecting tests/unit/test_power_analysis.py ______________
 ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/tests/unit/test_power_analysis.py'.
 Hint: make sure your test modules/packages have valid Python names.
 Traceback:
-/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/importlib/__init__.py:126: in import_module
     return _bootstrap._gcd_import(name[level:], package, level)
 tests/unit/test_power_analysis.py:18: in <module>
     import code._00_power_analysis as power_module
@@ -70,13 +72,40 @@ E   ModuleNotFoundError: No module named 'code._00_power_analysis'
 ERROR tests/unit/test_create_data_folders.py
 ERROR tests/unit/test_power_analysis.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 0.81s ===============================
+============================== 2 errors in 0.78s ===============================
 
 
 
 ## Declared deliverables still missing
 
 - data/processed/anonymized.csv
+
+## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
+
+Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
+
+- **Install**: add `datasets` to the project's `requirements.txt` and `pip install datasets`.
+- **Verified**: this loads **15034827** real records with fields: author, body, controversiality, created_utc, link_id, score, subreddit, subreddit_id, id.
+- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
+
+```python
+import itertools
+from datasets import load_dataset
+
+# Load dataset in streaming mode to avoid downloading the entire collection
+ds = load_dataset("fddemarco/pushshift-reddit-comments", split="train", streaming=True)
+
+# Get total number of records from dataset metadata
+records = ds.info.splits["train"].num_examples
+print(f"RECORDS={records}")
+
+# Retrieve a single example to list its fields
+sample = next(iter(ds))
+fields = list(sample.keys())
+print("FIELDS=" + ",".join(fields))
+```
+
+Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 

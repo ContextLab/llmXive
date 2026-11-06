@@ -1,13 +1,51 @@
-status: none
-intent: download pushshift reddit comments full archive via python package dataset
-required_fields:
-- comment_id
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: 'import itertools
+
+  from datasets import load_dataset
+
+
+  # Load dataset in streaming mode to avoid downloading the entire collection
+
+  ds = load_dataset("fddemarco/pushshift-reddit-comments", split="train", streaming=True)
+
+
+  # Get total number of records from dataset metadata
+
+  records = ds.info.splits["train"].num_examples
+
+  print(f"RECORDS={records}")
+
+
+  # Retrieve a single example to list its fields
+
+  sample = next(iter(ds))
+
+  fields = list(sample.keys())
+
+  print("FIELDS=" + ",".join(fields))'
+record_count: 15034827
+sample_fields:
 - author
 - body
+- controversiality
 - created_utc
+- link_id
+- score
 - subreddit
+- subreddit_id
+- id
+field_coverage: 0.667
+required_fields:
+- comment_id
+- author_id
+- subreddit
+- created_utc
+- body
+- parent_id
 - link_id
 - title
-cache_key: f8a29c96f314cdb274acbb73d83e7aa5004f3d8f4aae11db4d99f2f9057d5a12
-searched_at: '2026-11-03T18:22:16.708087+00:00'
-retry_count: 1
+- score
+intent: download pushshift reddit comments dataset with titles python package dataset
+cache_key: f52aaaef106d8ecf939643992f1cef3f32ee0564e360b240b59e842842396486

@@ -1,11 +1,11 @@
-- artifact_hash: f0be28501af71f45e89818c94ca760044a6b36b9508cefa496f9baeaffc0b5ef
+- artifact_hash: 9f460be8b2ea6815458a6f0380a8f49c3a95b1ea6c03cbe289cbb5ac08c7f18d
   artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/docs/dataset_acquisition.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: "reddit (orist) \u2013 Datasets"
+  fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/reddit
+  value: https://huggingface.co/datasets/joshuaeisenstein/reddit
   verification_status: pending
-  verified_against_url: https://huggingface.co/reddit/datasets
-  verified_at: '2026-11-03T18:20:35.320925Z'
+  verified_against_url: https://huggingface.co/datasets/joshuaeisenstein/reddit
+  verified_at: '2026-11-06T17:05:36.868239Z'

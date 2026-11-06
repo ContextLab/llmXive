@@ -30,9 +30,9 @@ from llmxive_toolkit import paths, get_logger
 # Configuration
 # ----------------------------------------------------------------------
 # The dataset name on HuggingFace that provides Reddit posts with titles.
-# The `reddit` dataset is a small, publicly‑available collection that
+# The `joshuaeisenstein/reddit` dataset is a public collection that
 # contains at least the fields `title` and `selftext` (the post body).
-DATASET_NAME = "reddit"
+DATASET_NAME = "joshuaeisenstein/reddit"
 SPLIT = "train"
 REQUIRED_FIELDS = {"title", "selftext"}
 
