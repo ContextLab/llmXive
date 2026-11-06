@@ -28700,7 +28700,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-06T06:08:10.877372+00:00",
+  "generated_at": "2026-11-06T06:13:59.106805+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -141201,6 +141201,14 @@
       "last_run_log": [
         {
           "agent": "planner",
+          "duration_s": 50.018125,
+          "ended_at": "2026-11-06T06:08:12.766941Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-06T06:07:22.748816Z"
+        },
+        {
+          "agent": "planner",
           "duration_s": 34.814202,
           "ended_at": "2026-11-05T08:08:28.559549Z",
           "model": "zai-org.glm-5.3",
@@ -141270,14 +141278,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-10-28T20:09:41.655556Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 45.514174,
-          "ended_at": "2026-10-27T22:08:46.104069Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-10-27T22:08:00.589895Z"
         }
       ],
       "paper_status": null,
@@ -176010,6 +176010,18 @@
   ],
   "recent_activity": [
     {
+      "agent": "planner",
+      "duration_s": 50.018125,
+      "ended_at": "2026-11-06T06:08:12.766941Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-728-autocorrelation-of-the-m-bius-function-i",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-11-06T06:07:22.748816Z"
+    },
+    {
       "agent": "implementer",
       "duration_s": 4.164953,
       "ended_at": "2026-11-06T06:07:23.727539Z",
@@ -182077,18 +182089,6 @@
       "project_stage": "in_progress",
       "severity": "hard",
       "started_at": "2026-11-03T09:06:18.166340Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 2.448724,
-      "ended_at": "2026-11-03T09:06:20.487753Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-169-predicting-the-elastic-moduli-of-2d-mate",
-      "project_stage": "planned",
-      "severity": "hard",
-      "started_at": "2026-11-03T09:06:18.039029Z"
     }
   ],
   "reviewed_preprints": [
