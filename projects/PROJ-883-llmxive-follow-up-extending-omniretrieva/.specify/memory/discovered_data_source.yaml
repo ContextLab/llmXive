@@ -1,12 +1,12 @@
 status: none
-intent: LDBC SNB benchmark query workload with plan depth annotations download python
-  package dataset
+intent: download LDBC SNB query workload dataset with plan depth and latency fields
+  python package dataset
 required_fields:
 - query_id
 - query_text
 - plan_depth
 - source_type
-- expected_result_size
-cache_key: c47138933ba9fa624125c81867b5308405b6fa37755b10cff914d62330b82843
-searched_at: '2026-11-05T14:06:43.519098+00:00'
+- latency_ms
+cache_key: 0195e165c1707edce9828c0758979d8470691262208e6b82a2a27807d950fd0f
+searched_at: '2026-11-06T12:07:28.842697+00:00'
 retry_count: 1
