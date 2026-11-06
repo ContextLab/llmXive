@@ -1,19 +1,21 @@
 status: verified
 kind: pypi_package
 ref: PubChemPy
-access_python: "import pubchempy as pcp\n\n# Retrieve 100 compounds matching a simple\
-  \ SMILES query (carbon atom)\ncompounds = pcp.get_compounds('C', 'smiles', listkey_count=100)\n\
-  \nrecords = []\nfor c in compounds:\n    smiles = getattr(c, 'isomeric_smiles',\
-  \ None) or getattr(c, 'canonical_smiles', None)\n    records.append({'CID': c.cid,\
-  \ 'SMILES': smiles})\n\nprint(f\"RECORDS={len(records)}\")\nprint(\"FIELDS=CID,SMILES\"\
-  )"
+access_python: "import pubchempy as pcp\n# Retrieve a sample of 100 compounds containing\
+  \ carbon (SMILES \"C\")\ncompounds = pcp.get_compounds('C', namespace='smiles',\
+  \ listkey_count=100)\nrecords = []\nfor c in compounds:\n    # canonical_smiles\
+  \ is a standard SMILES representation\n    smiles = getattr(c, 'canonical_smiles',\
+  \ None)\n    if smiles is None:\n        smiles = getattr(c, 'isomeric_smiles',\
+  \ None)\n    records.append({'cid': c.cid, 'smiles': smiles})\nprint(f\"RECORDS={len(records)}\"\
+  )\nprint(\"FIELDS=cid,smiles\")"
 record_count: 1
 sample_fields:
-- CID
-- SMILES
+- cid
+- smiles
 field_coverage: 1.0
 required_fields:
-- SMILES
-- CID
-intent: download PubChem compound SMILES parquet dataset python package dataset
-cache_key: f0af6db58833b317b1665ef68d9821ebaa44fea52fd4f97d262d94cbd711c0ec
+- smiles
+- cid
+intent: download PubChem small molecule parquet dataset for TDA analysis python package
+  dataset
+cache_key: 79bbe89290b7488235dfe7bdda4c759e414d8f8d50a2166f8082daa6e750be9a
