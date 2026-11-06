@@ -1,19 +1,17 @@
 status: none
-intent: LIGO Open Science Center GWTC-3 simulated binary black hole waveforms PyCBC
-  dataset python package dataset
+intent: LIGO Open Science Center GWTC-1 binary black hole waveform python package
+  dataset
 required_fields:
+- event_name
 - mass1_solar_masses
 - mass2_solar_masses
-- spin1z
-- spin2z
 - luminosity_distance_Mpc
-- inclination_angle_rad
-- coalescence_phase_rad
-- right_ascension_rad
-- declination_rad
-- polarization_angle_rad
-- sampling_rate_Hz
-- time_series_h_plus
-cache_key: c10511d399d1fa7e222eb86526ea96a3e1f2a1524a11dd91ac75cc25718fb17b
-searched_at: '2026-11-05T23:08:15.212584+00:00'
+- spin1
+- spin2
+- inclination_angle
+- polarization_angle
+- strain_time_series
+- sampling_rate_hz
+cache_key: 2542b5d7e573a9574c222224e9c8a4cb4a53a9f13251d2db4113ec7ebbe115a8
+searched_at: '2026-11-06T02:09:54.658040+00:00'
 retry_count: 1
