@@ -1,37 +1,11 @@
-status: verified
-kind: pypi_package
-ref: datasets
-access_python: 'import datasets
-
-
-  # Load all splits of the dataset using a valid config name
-
-  dataset_dict = datasets.load_dataset(''openai/gsm8k'', ''main'')
-
-
-  # Count total records across all splits
-
-  total_records = sum(len(split) for split in dataset_dict.values())
-
-  print(f''RECORDS={total_records}'')
-
-
-  # Extract field names from the first record of the first split
-
-  first_split = next(iter(dataset_dict.values()))
-
-  sample_record = first_split[0]
-
-  print(''FIELDS='' + '',''.join(sample_record.keys()))'
-record_count: 8792
-sample_fields:
-- question
-- answer
-field_coverage: 0.667
+status: none
+intent: download GSM8K train test splits and BIG-Bench logical subset python package
+  dataset
 required_fields:
 - question
 - answer
-- solution
-intent: download GSM8K train test parquet and BigBench logical deduction dataset python
-  package dataset
-cache_key: 26ae849feb68377e54583370e9c0952acb96d29369bfbb87401f1ae86379f76c
+- split
+- id
+cache_key: 83c99b43d22751a52f798f84d60baa49403c5b06ab79cbc1a0ef8bef4fe0dfd6
+searched_at: '2026-11-06T08:09:00.143079+00:00'
+retry_count: 1
