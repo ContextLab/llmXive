@@ -31,6 +31,8 @@ T007:
 T008:
   task: d0a7600456d8fff887e4b6c4a6ba89c196849262621b910d4fdda3b47d2a6b7b
 T009:
+  reason: 'Requested task execution failed; rerun successfully: code/data/preprocess.py
+    exit=1'
   task: 72c22c6237f91f123d555c53a8277d9cbe8d8dbdae5236e2630be410a2b107a7
 T010:
   task: c7a15e815549c39203b7332b2803bff60b0118902897fa0fa67457402ce14ff1

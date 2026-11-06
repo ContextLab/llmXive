@@ -74,7 +74,7 @@
   *File*: `code/models/vae_wrapper.py` implements `load_vae_cpu()` that **attempts to load `Qwen/Qwen-Image-VAE-2.0` on CPU only**. If loading fails (e.g., requires GPU), the script raises a fatal error and aborts the pipeline, fulfilling FR‑002. No fallback to tiny‑vae is performed.*  
   *Verification*: Unit test `tests/unit/test_vae_loader.py` asserts that the loaded model’s device is `"cpu"` and that a loading failure triggers a `RuntimeError`.
 
-- [ ] T009 [P] Extract ground‑truth region annotations.  
+- [ ] T009 [P] Extract ground‑truth region annotations.   <!-- FAILED-IN-EXECUTION: code/data/preprocess.py exit=1 -->
   *File*: `code/data/preprocess.py` reads `sample.parquet`, filters crops with modality “text” or “image”, computes overlap ratio, discards any with `overlap_ratio > 0.1`, and writes `data/interim/ground_truth.parquet`.*  
   *Verification*: `ground_truth.parquet` contains only rows with `modality` in {text, image} and `overlap_ratio ≤ 0.1`; a checksum file `data/results/ground_truth_checksum.json` is generated.
 

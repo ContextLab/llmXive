@@ -75,7 +75,7 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/llmxive-vae-geometric-analysis
   verified_at: '2026-10-11T18:31:56.481019Z'
-- artifact_hash: 4a8bdcce13c319c27d119eae09ca160e7b24512b76a7ff4c45e547335eeb6208
+- artifact_hash: 77682b284a6851f74c741cad30bc1df180a2f2614dd3956e2e4aeeae978b289a
   artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -85,8 +85,8 @@
   value: https://huggingface.co/datasets/omnineura/Omni-Doc-1`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/omnineura/Omni-Doc-1
-  verified_at: '2026-11-06T03:16:28.420439Z'
-- artifact_hash: 4a8bdcce13c319c27d119eae09ca160e7b24512b76a7ff4c45e547335eeb6208
+  verified_at: '2026-11-06T07:11:52.895851Z'
+- artifact_hash: 77682b284a6851f74c741cad30bc1df180a2f2614dd3956e2e4aeeae978b289a
   artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -96,4 +96,4 @@
   value: https://huggingface.co/Qwen/Qwen-Image-VAE-2.0`
   verification_status: pending
   verified_against_url: https://huggingface.co/Qwen/Qwen-Image-VAE-2.0
-  verified_at: '2026-11-06T03:16:28.420439Z'
+  verified_at: '2026-11-06T07:11:52.895851Z'

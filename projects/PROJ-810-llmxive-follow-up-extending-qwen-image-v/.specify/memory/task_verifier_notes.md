@@ -6,3 +6,4 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T003** — Checked `code/utils/logger.py` – it defines `get_logger` and seeds `random`, `numpy`, and `torch` on import. However, the required output file `data/raw/logger_init.json` is missing, so the seed‑recording part of the task is not satisfied. The logger works but the verification artifact does not exist.
 - **T005** — Requested task execution failed; rerun successfully: code/analysis/runtime_estimate.py exit=1
 - **T006** — Requested task execution failed; rerun successfully: code/data/download.py exit=1
+- **T009** — Requested task execution failed; rerun successfully: code/data/preprocess.py exit=1
