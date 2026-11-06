@@ -2,8 +2,9 @@
 Data loader module for the DragMesh‑2 dataset.
 
 This module fetches the DragMesh‑2 manifest from the HuggingFace Hub
-using the `datasets` library (which handles repository layout
-automatically).  The loader follows the *fail‑loud* principle: any
+using the `huggingface_hub` library (avoiding the `datasets` package
+which pulls in `pyarrow` and is incompatible with the environment's
+NumPy version).  The loader follows the *fail‑loud* principle: any
 network, authentication, or file‑not‑found problem raises an exception
 and halts the pipeline.
 """
@@ -14,11 +15,11 @@ from typing import Optional
 
 # Third‑party imports – must be present; otherwise we raise a clear error.
 try:
-    from datasets import load_dataset
+    from huggingface_hub import hf_hub_download
 except ImportError as exc:
     raise ImportError(
-        "The 'datasets' library is required to fetch DragMesh‑2. "
-        "Install it via: pip install datasets"
+        "The 'huggingface_hub' library is required to fetch DragMesh‑2. "
+        "Install it via: pip install huggingface_hub"
     ) from exc
 
 # Configure module‑level logger
@@ -35,24 +36,25 @@ from llmxive_toolkit import paths
 DATA_RAW_DIR: Path = paths.data("raw")
 DEFAULT_MANIFEST_PATH: Path = DATA_RAW_DIR / "dragmesh_manifest.jsonl"
 
-# HuggingFace dataset identifier (official DragMesh‑2 repository)
-HF_DATASET_ID = "dragmesh/dragmesh-2"
+# HuggingFace repository identifier for DragMesh‑2
+HF_REPO_ID = "dragmesh/dragmesh-2"
+# Expected filename inside the repo.  The official repo stores a line‑delimited
+# JSON manifest named exactly `dragmesh_manifest.jsonl`.
+HF_MANIFEST_FILENAME = "dragmesh_manifest.jsonl"
 
 def _ensure_raw_dir() -> None:
     """Ensure that the ``data/raw`` directory exists."""
     DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
     logger.info(f"Ensured directory exists: {DATA_RAW_DIR}")
 
-def _download_and_write_manifest(
-    output_path: Path,
-) -> Path:
+def _download_and_write_manifest(output_path: Path) -> Path:
     """
-    Download the DragMesh‑2 dataset using ``datasets.load_dataset`` and
-    write a line‑delimited JSON manifest to ``output_path``.
+    Download the DragMesh‑2 manifest using ``huggingface_hub`` and write it
+    to ``output_path``.
 
-    The function streams the dataset to avoid loading the entire
-    collection into memory (the dataset is modest in size, but streaming
-    is a safe default).
+    The function downloads the *single* manifest file from the repository.
+    It does **not** attempt to stream a full dataset, which would require
+    the ``datasets`` library and its heavy dependencies.
 
     Args:
         output_path: Destination path for the JSON‑Lines manifest.
@@ -61,38 +63,42 @@ def _download_and_write_manifest(
         Path to the written manifest file.
 
     Raises:
-        RuntimeError: If the dataset cannot be accessed or the written
-                      file is empty.
+        RuntimeError: If the downloaded file is empty.
     """
-    logger.info(f"Fetching DragMesh‑2 dataset '{HF_DATASET_ID}' via `datasets`.")
-    # Load the dataset in streaming mode; this works for most HF datasets.
+    logger.info(
+        f"Fetching manifest '{HF_MANIFEST_FILENAME}' from repo '{HF_REPO_ID}'."
+    )
     try:
-        ds = load_dataset(
-            HF_DATASET_ID,
-            split="train",
-            streaming=True,
+        # ``hf_hub_download`` returns the local path of the downloaded file.
+        downloaded_path = hf_hub_download(
+            repo_id=HF_REPO_ID,
+            filename=HF_MANIFEST_FILENAME,
+            repo_type="dataset",
         )
     except Exception as exc:
-        logger.error(f"Failed to load dataset {HF_DATASET_ID}: {exc}")
-        raise
+        logger.error(f"Failed to download manifest: {exc}")
+        raise RuntimeError("Unable to retrieve DragMesh‑2 manifest.") from exc
 
-    # Write each example as a JSON line.
-    with output_path.open("w", encoding="utf-8") as f:
-        count = 0
-        for example in ds:
-            # ``datasets`` returns dict‑like objects; we convert to plain dict.
-            f.write(f"{example}\n")
-            count += 1
-            # Safety guard: stop after an unreasonable number of rows.
-            if count > 10_000_000:
-                logger.error(
-                    "Dataset appears unexpectedly large; aborting after "
-                    f"{count} rows to protect resources."
-                )
-                raise RuntimeError("Dataset too large to write safely.")
-    if count == 0:
-        raise RuntimeError("Downloaded dataset is empty; no manifest generated.")
-    logger.info(f"Successfully wrote {count} rows to manifest at {output_path}")
+    # Verify the downloaded file is non‑empty.
+    if not Path(downloaded_path).exists() or Path(downloaded_path).stat().st_size == 0:
+        raise RuntimeError("Downloaded manifest is empty or missing.")
+
+    # Copy the file to the desired output location.
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with Path(downloaded_path).open("rb") as src, output_path.open("wb") as dst:
+        while True:
+            chunk = src.read(8192)
+            if not chunk:
+                break
+            dst.write(chunk)
+
+    # Final sanity check.
+    if output_path.stat().st_size == 0:
+        raise RuntimeError("Written manifest is empty after copy.")
+
+    logger.info(
+        f"Successfully wrote manifest ({output_path.stat().st_size} bytes) to {output_path}"
+    )
     return output_path
 
 def load_dragmesh_manifest(

@@ -17,22 +17,24 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/data_loader.py -> rc=1
-taset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/lib/python3.11/site-packages/datasets/__init__.py", line 22, in <module>
-    from .arrow_dataset import Dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 60, in <module>
-    import pyarrow as pa
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
-ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+rrect `repo_id` and `repo_type`.
+If you are trying to access a private or gated repo, make sure you are authenticated.
+Invalid username or password.
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/data_loader.py", line 19, in <module>
-    raise ImportError(
-ImportError: The 'datasets' library is required to fetch DragMesh‑2. Install it via: pip install datasets
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/data_loader.py", line 191, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/data_loader.py", line 171, in main
+    manifest_path = load_dragmesh_manifest()
+                    ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/data_loader.py", line 137, in load_dragmesh_manifest
+    return _download_and_write_manifest(output_path)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/data_loader.py", line 80, in _download_and_write_manifest
+    raise RuntimeError("Unable to retrieve DragMesh‑2 manifest.") from exc
+RuntimeError: Unable to retrieve DragMesh‑2 manifest.
 
 - python code/main.py --mode full  --num_objects 10  --seed 42 -> rc=2
 

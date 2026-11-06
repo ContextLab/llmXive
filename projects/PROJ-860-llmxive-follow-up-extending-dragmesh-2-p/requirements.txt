@@ -1,4 +1,4 @@
-# Core dependencies (pre‑installed in the environment)
+# Core dependencies (already available in the environment)
 numpy
 pandas
 scipy
@@ -12,8 +12,10 @@ requests
 jsonschema
 psutil
 
-# Additional dependencies required for this project
+# Additional required packages for this project
 pybullet==3.25.0
 torch==2.2.0+cpu
-huggingface_hub
-datasets
+huggingface_hub==0.23.0
+# Note: The 'datasets' package is intentionally omitted because it pulls in
+# 'pyarrow', which is incompatible with the environment's NumPy version.  We
+# use 'huggingface_hub' to fetch the manifest directly.

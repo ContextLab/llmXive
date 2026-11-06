@@ -1,14 +1,14 @@
 status: none
-intent: Download DragMesh-2 mesh dataset for articulated objects python package dataset
+intent: Download DragMesh-2 mesh dataset for articulated object simulation python
+  package dataset
 required_fields:
 - mesh_id
 - vertices
 - faces
+- normals
+- material_properties
+- default_friction_range
 - articulation_joints
-- joint_limits
-- initial_pose
-- object_category
-- metadata
-cache_key: b46793a8ea4687e95ffddaff7f1839bc89630e167cfd3ea633769a7b89921361
-searched_at: '2026-11-06T17:07:58.618696+00:00'
+cache_key: f5c1a51c0b80d6054517da11400549af9de3a65b5c5878223914b60ac6583f2e
+searched_at: '2026-11-06T19:08:18.854539+00:00'
 retry_count: 1
