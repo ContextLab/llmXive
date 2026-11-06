@@ -1,16 +1,16 @@
 status: none
-intent: Wisconsin Card Sorting Test dataset MMSE reference download python package
-  dataset
+intent: Wisconsin Card Sorting Test MMSE dataset download python package dataset
 required_fields:
 - participant_id
 - condition
 - audio_stimulus_id
+- audio_sha256
 - perseverative_errors
 - categories_completed
-- mmse_score
+- MMSE_score
 - age
 - education_years
 - gender
-cache_key: e8f26099fbed7daec6d3b50cbbdb1c3c2e6e326761fb6a325168574b6c0f26a3
-searched_at: '2026-11-05T16:08:10.086810+00:00'
+cache_key: 63b18ba3f2820c14be463aa85a4a746c2ebe3c1688e849af3d66289a160679d4
+searched_at: '2026-11-06T14:07:21.710620+00:00'
 retry_count: 1
