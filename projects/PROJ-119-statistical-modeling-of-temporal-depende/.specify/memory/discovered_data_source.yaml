@@ -1,13 +1,17 @@
 status: none
-intent: download daily OHLCV Bitcoin Ethereum dataset python package dataset
+intent: download daily OHLCV Bitcoin Ethereum dataset CoinGecko API Python package
 required_fields:
 - date
-- open
-- high
-- low
-- close
-- volume
-- asset
-cache_key: 32531372c566bf3269118e4c43503e34943293d2b30c5966a6b4cb40437d9c76
-searched_at: '2026-11-05T13:09:04.266025+00:00'
+- btc_open
+- btc_high
+- btc_low
+- btc_close
+- btc_volume
+- eth_open
+- eth_high
+- eth_low
+- eth_close
+- eth_volume
+cache_key: b46917c909e02c93bc5073e050db48fafe18ac722e414076ba3226c1684942ac
+searched_at: '2026-11-06T11:06:54.143826+00:00'
 retry_count: 1
