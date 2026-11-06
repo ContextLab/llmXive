@@ -70,7 +70,7 @@
 
 ## Phase 3 – Model loading & ground‑truth preprocessing  
 
-- [ ] T008 [P] CPU‑only Qwen‑Image‑VAE‑2.0 loader (no fallback).  
+- [~] T008 [P] CPU‑only Qwen‑Image‑VAE‑2.0 loader (no fallback).  
   *File*: `code/models/vae_wrapper.py` implements `load_vae_cpu()` that **attempts to load `Qwen/Qwen-Image-VAE-2.0` on CPU only**. If loading fails (e.g., requires GPU), the script raises a fatal error and aborts the pipeline, fulfilling FR‑002. No fallback to tiny‑vae is performed.*  
   *Verification*: Unit test `tests/unit/test_vae_loader.py` asserts that the loaded model’s device is `"cpu"` and that a loading failure triggers a `RuntimeError`.
 
