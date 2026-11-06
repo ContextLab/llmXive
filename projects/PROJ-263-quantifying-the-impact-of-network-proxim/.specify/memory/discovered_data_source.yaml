@@ -1,13 +1,12 @@
 status: none
-intent: download OpenFlights airport routes network latitude longitude python package
+intent: download OpenFlights airport routes network with coordinates python package
   dataset
 required_fields:
 - node_id
 - latitude
 - longitude
-- source
-- target
-- edge_weight
-cache_key: 96bdbc955aca2366cb2dd64bf6e19af53d214ada74cd58332e7d47144e6ecaad
-searched_at: '2026-11-06T04:08:59.864699+00:00'
+- edge_source
+- edge_target
+cache_key: ffd0cd5c7ba9102856367ebae34bfd11d13a7b710db1d754b64cc6795f4bd323
+searched_at: '2026-11-06T20:07:47.051444+00:00'
 retry_count: 1
