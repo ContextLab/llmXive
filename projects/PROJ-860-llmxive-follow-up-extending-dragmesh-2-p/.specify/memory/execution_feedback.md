@@ -17,24 +17,19 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/data_loader.py -> rc=1
-_head_call_error
-    raise ValueError("Force download failed due to the above error.") from head_call_error
-ValueError: Force download failed due to the above error.
-
-The above exception was the direct cause of the following exception:
-
+ble to locate manifest file 'dragmesh_manifest.jsonl' in any of the candidate repositories: ['dragmesh/dragmesh-2', 'dragmesh/dragmesh2']
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/data_loader.py", line 208, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/data_loader.py", line 223, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/data_loader.py", line 187, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/data_loader.py", line 202, in main
     manifest_path = load_dragmesh_manifest()
                     ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/data_loader.py", line 151, in load_dragmesh_manifest
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/data_loader.py", line 166, in load_dragmesh_manifest
     return fetch_dragmesh_manifest(output_dir=output_path.parent)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/data_loader.py", line 110, in fetch_dragmesh_manifest
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/data_loader.py", line 132, in fetch_dragmesh_manifest
     raise FileNotFoundError(
-FileNotFoundError: Repository not found: dragmesh/dragmesh-2
+FileNotFoundError: Unable to locate manifest file 'dragmesh_manifest.jsonl' in any of the candidate repositories: ['dragmesh/dragmesh-2', 'dragmesh/dragmesh2']
 
 - python code/main.py --mode full  --num_objects 10  --seed 42 -> rc=2
 

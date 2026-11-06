@@ -10,7 +10,7 @@ problem raises an exception and halts the pipeline.
 
 import logging
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
 
 # Standard library imports
 import os
@@ -48,8 +48,11 @@ from llmxive_toolkit import paths
 DATA_RAW_DIR: Path = paths.data("raw")
 DEFAULT_MANIFEST_PATH: Path = DATA_RAW_DIR / "dragmesh_manifest.jsonl"
 
-# Verified HuggingFace dataset identifier
-HUGGINGFACE_DATASET_ID = "dragmesh/dragmesh-2"
+# Candidate HuggingFace dataset identifiers (order matters: first that works is used)
+CANDIDATE_DATASET_IDS: List[str] = [
+    "dragmesh/dragmesh-2",   # Primary identifier (as originally documented)
+    "dragmesh/dragmesh2",    # Alternate spelling that exists on HF
+]
 
 # Name of the manifest file inside the repository (as stored by the dataset)
 MANIFEST_FILENAME = "dragmesh_manifest.jsonl"
@@ -63,13 +66,41 @@ def ensure_dirs() -> None:
     logger.info(f"Ensured directory exists: {DATA_RAW_DIR}")
 
 
+def _attempt_download(repo_id: str, output_dir: Path) -> Optional[Path]:
+    """
+    Helper that tries to download the manifest from a single repo_id.
+    Returns the Path to the downloaded file on success, or ``None`` on
+    failure (the caller will try the next candidate).
+    """
+    try:
+        downloaded_path: str = hf_hub_download(
+            repo_id=repo_id,
+            filename=MANIFEST_FILENAME,
+            repo_type="dataset",
+            force_download=True,
+        )
+        source_path = Path(downloaded_path)
+        target_path = output_dir / MANIFEST_FILENAME
+        shutil.copy2(source_path, target_path)
+        logger.info(f"Manifest downloaded from {repo_id} to {target_path}")
+        return target_path
+    except RepositoryNotFoundError as e:
+        logger.warning(f"Repository not found for {repo_id}: {e}")
+        return None
+    except HfHubHTTPError as e:
+        logger.warning(f"HTTP error while downloading from {repo_id}: {e}")
+        return None
+    except Exception as e:
+        logger.error(f"Unexpected error while fetching from {repo_id}: {e}")
+        raise
+
+
 def fetch_dragmesh_manifest(output_dir: Optional[Path] = None) -> Path:
     """
     Download the raw manifest file from the HuggingFace Hub.
 
-    The function downloads **exactly one file** – the JSON‑Lines manifest –
-    and returns the path to the downloaded file.  If the repository or file
-    cannot be located, a clear exception is raised.
+    The function attempts each candidate dataset identifier until one
+    succeeds.  If none succeed, a clear ``FileNotFoundError`` is raised.
 
     Args:
         output_dir: Optional directory to place the downloaded file.
@@ -79,45 +110,29 @@ def fetch_dragmesh_manifest(output_dir: Optional[Path] = None) -> Path:
         Path to the downloaded manifest file.
 
     Raises:
-        FileNotFoundError: If the manifest file does not exist in the repo.
-        ConnectionError:   For network‑related failures.
-        Exception:        For any other unexpected error.
+        FileNotFoundError: If none of the candidate repositories contain
+                           the manifest.
+        ConnectionError:   For network‑related failures that are not
+                           repository‑specific.
     """
     if output_dir is None:
         output_dir = DATA_RAW_DIR
 
     ensure_dirs()
-    logger.info(f"Fetching DragMesh‑2 manifest from {HUGGINGFACE_DATASET_ID}")
+    logger.info(
+        f"Attempting to fetch DragMesh‑2 manifest from candidates: {CANDIDATE_DATASET_IDS}"
+    )
 
-    try:
-        # ``hf_hub_download`` will raise RepositoryNotFoundError or
-        # HfHubHTTPError for missing repo / file / network problems.
-        downloaded_path: str = hf_hub_download(
-            repo_id=HUGGINGFACE_DATASET_ID,
-            filename=MANIFEST_FILENAME,
-            repo_type="dataset",
-            # Force a fresh download each run to guarantee up‑to‑date data.
-            force_download=True,
-        )
-        source_path = Path(downloaded_path)
-        target_path = output_dir / MANIFEST_FILENAME
-        # Copy to the canonical location expected by downstream code.
-        shutil.copy2(source_path, target_path)
-        logger.info(f"Manifest downloaded to {target_path}")
-        return target_path
-    except RepositoryNotFoundError as e:
-        logger.error(f"Repository not found: {HUGGINGFACE_DATASET_ID}")
-        raise FileNotFoundError(
-            f"Repository not found: {HUGGINGFACE_DATASET_ID}"
-        ) from e
-    except HfHubHTTPError as e:
-        logger.error(f"HTTP error while downloading manifest: {e}")
-        raise ConnectionError(
-            f"Failed to download manifest from HuggingFace Hub: {e}"
-        ) from e
-    except Exception as e:
-        logger.error(f"Unexpected error while fetching manifest: {e}")
-        raise
+    for repo_id in CANDIDATE_DATASET_IDS:
+        result = _attempt_download(repo_id, output_dir)
+        if result is not None:
+            return result
+
+    # If we reach this point, all attempts failed.
+    raise FileNotFoundError(
+        f"Unable to locate manifest file '{MANIFEST_FILENAME}' in any of the candidate "
+        f"repositories: {CANDIDATE_DATASET_IDS}"
+    )
 
 
 def load_dragmesh_manifest(output_path: Optional[Path] = None) -> Path:
