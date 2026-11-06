@@ -1,50 +1,18 @@
-status: verified
-kind: pypi_package
-ref: PyCBC
-access_python: "import numpy as np\nfrom pycbc.waveform import get_td_waveform\n#\
-  \ Parameters for a binary black\u2011hole merger (total mass \u226450\u202FM\u2299\
-  , distance 1000\u202FMpc)\nm1 = 30.0  # solar masses\nm2 = 20.0  # solar masses\n\
-  distance = 1000.0  # Mpc\nf_lower = 20.0  # Hz\n# Generate plus and cross polarizations\
-  \ (time\u2011domain)\nhp, hc = get_td_waveform(approximant=\"IMRPhenomD\",\n   \
-  \                      mass1=m1, mass2=m2,\n                         distance=distance,\n\
-  \                         f_lower=f_lower,\n                         inclination=0.0,\n\
-  \                         delta_t=1.0/4096,\n                         spin1x=0.0,\
-  \ spin1y=0.0, spin1z=0.0,\n                         spin2x=0.0, spin2y=0.0, spin2z=0.0)\n\
-  # Time array corresponding to the waveform samples\ntime = np.arange(len(hp)) *\
-  \ hp.delta_t\n# Number of records (samples)\nprint(f\"RECORDS={len(time)}\")\n#\
-  \ Fields available in the generated dataset (mapped to the requested names)\nfields\
-  \ = [\"time\",\"strain_h_plus\",\"strain_h_cross\",\n          \"m1_solar_masses\"\
-  ,\"m2_solar_masses\",\"total_mass_solar_masses\",\n          \"mass_ratio\",\"spin1_x\"\
-  ,\"spin1_y\",\"spin1_z\",\n          \"spin2_x\",\"spin2_y\"]\nprint(\"FIELDS=\"\
-  \ + \",\".join(fields))"
-record_count: 65536
-sample_fields:
-- time
-- strain_h_plus
-- strain_h_cross
-- m1_solar_masses
-- m2_solar_masses
-- total_mass_solar_masses
-- mass_ratio
-- spin1_x
-- spin1_y
-- spin1_z
-- spin2_x
-- spin2_y
-field_coverage: 1.0
-required_fields:
-- time
-- strain_h_plus
-- strain_h_cross
-- m1_solar_masses
-- m2_solar_masses
-- total_mass_solar_masses
-- mass_ratio
-- spin1_x
-- spin1_y
-- spin1_z
-- spin2_x
-- spin2_y
-intent: binary black hole merger waveforms up to 50 solar masses 1000 Mpc PyCBC python
+status: none
+intent: download LIGO-Virgo GW Open Science Center binary black hole waveform python
   package dataset
-cache_key: 8c922722b5de9f55cf787c9f16f1f963e77d4d1be2551f48dc148848f2dd51e1
+required_fields:
+- m1_solar_mass
+- m2_solar_mass
+- luminosity_distance_Mpc
+- time_series
+- sampling_rate_Hz
+- spin1
+- spin2
+- inclination_rad
+- polarization_angle_rad
+- approximant
+- metadata
+cache_key: aeec8016a178d991c1185f876fcfd6eb5447661e2e2aab2358f99c7fc9378295
+searched_at: '2026-11-06T21:06:46.277778+00:00'
+retry_count: 1
