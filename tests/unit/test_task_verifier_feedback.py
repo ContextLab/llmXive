@@ -25,7 +25,13 @@ def test_other_tasks_and_deferred_retry_do_not_erase_feedback(tmp_path, monkeypa
     monkeypatch.setattr(tv, "verify_task", lambda **_: tv.TaskVerdict(True, "interface checked"))
     assert run()["accepted"] == 1
     assert reason in notes.read_text()
-    assert yaml.safe_load(state.read_text())["T001"] == 1
+    if deterministic:
+        # A rejection decided from the filesystem is counted apart from the
+        # verifier's judgements (task_verifier.STALL_CAP); it is still kept.
+        assert not state.exists()
+        assert yaml.safe_load(state.with_suffix(".feedback.yaml").read_text())["T001"]["stalls"] == 1
+    else:
+        assert yaml.safe_load(state.read_text())["T001"] == 1
 
     # Retry is deferred while an artifact exists but cannot yet be judged.
     (tmp_path / "data").mkdir(exist_ok=True)
