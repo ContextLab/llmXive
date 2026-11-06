@@ -427,3 +427,22 @@ def test_collector_does_not_invent_repository_or_foreign_project_mapping(tmp_pat
     missing = tv.gather_evidence(namespaced, 'T001 Implement projects/PROJ-99/code/main.py')
     assert '`projects/PROJ-99/code/main.py`: MISSING' in missing
     assert 'repository-relative: `projects/PROJ-99/code/main.py`' not in missing
+
+
+def test_a_contract_named_by_its_bare_file_name_is_found_in_the_feature(tmp_path, monkeypatch):
+    """Batch 4, run 3, T007: `phi_discrepancy.schema.yaml` was reported MISSING four times."""
+    from llmxive.state import project as store
+
+    feature = tmp_path / "specs/001-study"
+    (feature / "contracts").mkdir(parents=True)
+    (feature / "contracts/summary.schema.yaml").write_text("type: object\n")
+    monkeypatch.setattr(store, "feature_dir_for", lambda *a, **kw: feature)
+    task = "Write `tests/contract/test_schema.py` validating `summary.json` against `summary.schema.yaml`"
+    evidence = tv.gather_evidence(tmp_path, task)
+    assert "type: object" in evidence
+    assert "`summary.schema.yaml`: MISSING" not in evidence
+    # A file the project really has under that bare name wins.
+    (tmp_path / "summary.schema.yaml").write_text("type: array\n")
+    assert "type: array" in tv.gather_evidence(tmp_path, task)
+    # A bare name with no such contract is still reported missing.
+    assert "`other.schema.yaml`: MISSING" in tv.gather_evidence(tmp_path, "Validate against `other.schema.yaml`")

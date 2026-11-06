@@ -703,6 +703,28 @@ def run_pytest_file(
     )
 
 
+def run_pytest_modules(
+    *, project_dir: Path, test_relpaths: list[str], timeout_s: int = 300,
+) -> ExecutionResult:
+    """Run several of the project's test modules in one pytest session.
+
+    Same invocation as :func:`run_pytest_file` (``-v``, project as rootdir, no
+    cache directory), for a harness that needs the outcome of every test at
+    one moment: before and after an implementer attempt.
+    """
+    root = project_dir.resolve()
+    tests = [(project_dir / rel).resolve() for rel in test_relpaths]
+    if not tests or any(not t.is_relative_to(root) or not t.is_file() for t in tests):
+        return ExecutionResult(ok=False, returncode=-1, stdout="",
+                               stderr="test modules must be existing files inside the project", duration_s=0.0)
+    return _pytest(
+        project_dir,
+        [*(str(t.relative_to(root)) for t in tests), "-v", "--tb=short", "-p", "no:cacheprovider",
+         f"--rootdir={root}"],
+        cwd=root, timeout_s=timeout_s,
+    )
+
+
 def cleanup_venv(project_dir: Path) -> None:
     """Remove the project's venv (used by tests)."""
     for venv in (venv_dir(project_dir), _legacy_venv(project_dir)):

@@ -276,3 +276,26 @@ def test_missing_optional_model_metadata_does_not_break_refusal_recording(tmp_pa
             SimpleNamespace(text='task_id: T002\nverdict: completed\nartifacts: []\n'))
     assert unverifiable.recorded_keys(ctx.project_id, repo_root=tmp_path) == {'T002'}
     assert '- [ ] T002' in tasks.read_text()
+
+
+def test_a_dotted_path_inside_the_project_is_written_where_it_points(tmp_path):
+    """`tests/../data/x.yaml` used to pass the escape check and then raise."""
+    ctx, feature, tasks = _context(tmp_path)
+    _write(ImplementerAgent(), ctx, feature, tasks, [
+        {'path':'code/census.py', 'contents':'VALUE = 42\n'},
+        {'path':'code/tests/test_census.py', 'contents':'def test_census():\n    assert True\n'},
+        {'path':'code/../data/table.yaml', 'contents':'rows: 3\n'},
+    ])
+    assert (ctx.project_dir/'data/table.yaml').read_text() == 'rows: 3\n'
+    assert not (ctx.project_dir/'code/.tasks/T002.artifact-write.log').exists()
+
+
+def test_a_dotted_path_leaving_the_project_is_refused_not_raised(tmp_path):
+    ctx, feature, tasks = _context(tmp_path)
+    _write(ImplementerAgent(), ctx, feature, tasks, [
+        {'path':'code/census.py', 'contents':'VALUE = 42\n'},
+        {'path':'code/../../escape.yaml', 'contents':'rows: 3\n'},
+    ])
+    assert not (ctx.project_dir.parent/'escape.yaml').exists()
+    diagnosis = (ctx.project_dir/'code/.tasks/T002.artifact-write.log').read_text()
+    assert 'out-of-project' in diagnosis

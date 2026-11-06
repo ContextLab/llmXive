@@ -143,11 +143,23 @@ def _strip_response_fence(text: str) -> str:
     balanced object so a model that forgot the fence still parses.
     """
     raw = text or ""
+    # The change-log precedes the artifacts, and an artifact is a Markdown
+    # document with fences of its own: look no further than the first marker.
+    # Canary batches 1-5 (2026-10-12): gpt-oss-120b left the json fence open in
+    # 102 of 157 plan-reviser replies, the search ran on to a fence inside
+    # plan.md, nothing parsed, and all 12 plan kickbacks were concerns the
+    # reviewers had passed but that carried no parsed response.
+    marker = raw.find("===BEGIN_ARTIFACT")
+    if marker != -1:
+        raw = raw[:marker]
     fence = re.search(
         r"```(?:json|yaml|yml)?\s*\n(.*?)\n```", raw, re.DOTALL | re.IGNORECASE
     )
     if fence:
         return fence.group(1)
+    unclosed = re.search(r"```(?:json|yaml|yml)?\s*\n(.*)", raw, re.DOTALL | re.IGNORECASE)
+    if unclosed:
+        return unclosed.group(1)
     # First balanced {...}: scan for the first '{' then match braces, ignoring
     # braces inside double-quoted strings.
     start = raw.find("{")

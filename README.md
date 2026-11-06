@@ -112,11 +112,13 @@ labeling invariant.
 
 ## Models and compute
 
-Dartmouth Chat is the production model service. The central default and all
-LLM-agent registry defaults use **GLM-5.3** (`zai-org.glm-5.3`). For transient
-failures, the router tries free same-backend peers in order:
-**GPT-OSS 120B** (`openai.gpt-oss-120b`), then **Gemma 4 31B**
-(`google.gemma-4-31B-it`). Catalog availability and returned-model identity are
+Dartmouth Chat is the production model service. The central default and the
+LLM-agent registry defaults use **GLM-5.3** (`zai-org.glm-5.3`), except the three
+implementer agents (`implementer`, `llmxive_implementer`, `paper_implementer`),
+which use **GPT-OSS 120B** (`openai.gpt-oss-120b`). For transient failures, the
+router tries the other free same-backend models in order: for GLM-5.3, GPT-OSS
+120B then **Gemma 4 31B** (`google.gemma-4-31B-it`); for GPT-OSS 120B, GLM-5.3
+then Gemma 4 31B. Catalog availability and returned-model identity are
 checked separately from configuration. A fallback response is recorded as that
 model; primary-model acceptance tests do not let a peer impersonate the primary.
 

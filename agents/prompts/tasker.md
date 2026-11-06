@@ -188,6 +188,14 @@ The platform already gives every project the common scientific packages and a
 `llmxive_toolkit` module (`paths` creates output folders on demand, `get_logger`
 configures logging), so directory creation, logging setup and installing numpy,
 pandas, scipy, matplotlib or pytest are never tasks.
+State how each task's completion is confirmed in terms a program can check: a
+named file with named columns, keys or a row count; a command that exits 0; a
+named test that passes. Never require anyone to look at an image ("visually
+verify the plot"). A figure task requires the script to save the figure with
+`llmxive_toolkit.save_figure`, which also writes `<name>.figure.json` (titles,
+axis labels and scales, legend entries, every plotted series); state what that
+record must contain, for example "the record lists two series labelled
+Unconditional TV and Conditional TV on a log x axis".
 On re-plan, preserve working artifacts and completed requirements. Repair the
 specific failing commands/contracts from feedback instead of regenerating a
 larger task list. If the question cannot be answered with available data and
