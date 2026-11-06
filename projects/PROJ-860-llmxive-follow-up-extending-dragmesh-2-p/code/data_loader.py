@@ -2,36 +2,23 @@
 Data loader module for the DragMesh‑2 dataset.
 
 This module fetches the DragMesh‑2 manifest from the HuggingFace Hub
-using the lightweight ``huggingface_hub`` library (avoiding the heavy
-``datasets`` dependency which requires ``pyarrow``).  The loader follows
-the *fail‑loud* principle: any network, authentication, or file‑not‑found
-problem raises an exception and halts the pipeline.
+using the `datasets` library (which handles repository layout
+automatically).  The loader follows the *fail‑loud* principle: any
+network, authentication, or file‑not‑found problem raises an exception
+and halts the pipeline.
 """
 
 import logging
 from pathlib import Path
-from typing import Optional, List
+from typing import Optional
 
-# Standard library imports
-import os
-import shutil
-
-# Third‑party import – must be present; otherwise we raise a clear error.
+# Third‑party imports – must be present; otherwise we raise a clear error.
 try:
-    # ``hf_hub_download`` is always available.
-    from huggingface_hub import hf_hub_download
-    # The specific exception classes may not be exported at the top level
-    # in all versions of ``huggingface_hub``.  We attempt to import them,
-    # falling back to generic ``Exception`` if unavailable.
-    try:
-        from huggingface_hub import RepositoryNotFoundError, HfHubHTTPError
-    except Exception:  # pragma: no cover
-        RepositoryNotFoundError = Exception  # type: ignore
-        HfHubHTTPError = Exception  # type: ignore
+    from datasets import load_dataset
 except ImportError as exc:
     raise ImportError(
-        "The 'huggingface_hub' library is required to fetch DragMesh‑2. "
-        "Install it via: pip install huggingface_hub"
+        "The 'datasets' library is required to fetch DragMesh‑2. "
+        "Install it via: pip install datasets"
     ) from exc
 
 # Configure module‑level logger
@@ -48,110 +35,87 @@ from llmxive_toolkit import paths
 DATA_RAW_DIR: Path = paths.data("raw")
 DEFAULT_MANIFEST_PATH: Path = DATA_RAW_DIR / "dragmesh_manifest.jsonl"
 
-# Candidate HuggingFace dataset identifiers (order matters: first that works is used)
-CANDIDATE_DATASET_IDS: List[str] = [
-    "dragmesh/dragmesh-2",   # Primary identifier (as originally documented)
-    "dragmesh/dragmesh2",    # Alternate spelling that exists on HF
-]
+# HuggingFace dataset identifier (official DragMesh‑2 repository)
+HF_DATASET_ID = "dragmesh/dragmesh-2"
 
-# Name of the manifest file inside the repository (as stored by the dataset)
-MANIFEST_FILENAME = "dragmesh_manifest.jsonl"
-
-
-def ensure_dirs() -> None:
-    """
-    Ensure that the ``data/raw`` directory exists.
-    """
+def _ensure_raw_dir() -> None:
+    """Ensure that the ``data/raw`` directory exists."""
     DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
     logger.info(f"Ensured directory exists: {DATA_RAW_DIR}")
 
-
-def _attempt_download(repo_id: str, output_dir: Path) -> Optional[Path]:
+def _download_and_write_manifest(
+    output_path: Path,
+) -> Path:
     """
-    Helper that tries to download the manifest from a single repo_id.
-    Returns the Path to the downloaded file on success, or ``None`` on
-    failure (the caller will try the next candidate).
-    """
-    try:
-        downloaded_path: str = hf_hub_download(
-            repo_id=repo_id,
-            filename=MANIFEST_FILENAME,
-            repo_type="dataset",
-            force_download=True,
-        )
-        source_path = Path(downloaded_path)
-        target_path = output_dir / MANIFEST_FILENAME
-        shutil.copy2(source_path, target_path)
-        logger.info(f"Manifest downloaded from {repo_id} to {target_path}")
-        return target_path
-    except RepositoryNotFoundError as e:
-        logger.warning(f"Repository not found for {repo_id}: {e}")
-        return None
-    except HfHubHTTPError as e:
-        logger.warning(f"HTTP error while downloading from {repo_id}: {e}")
-        return None
-    except Exception as e:
-        logger.error(f"Unexpected error while fetching from {repo_id}: {e}")
-        raise
+    Download the DragMesh‑2 dataset using ``datasets.load_dataset`` and
+    write a line‑delimited JSON manifest to ``output_path``.
 
-
-def fetch_dragmesh_manifest(output_dir: Optional[Path] = None) -> Path:
-    """
-    Download the raw manifest file from the HuggingFace Hub.
-
-    The function attempts each candidate dataset identifier until one
-    succeeds.  If none succeed, a clear ``FileNotFoundError`` is raised.
+    The function streams the dataset to avoid loading the entire
+    collection into memory (the dataset is modest in size, but streaming
+    is a safe default).
 
     Args:
-        output_dir: Optional directory to place the downloaded file.
-                    Defaults to ``data/raw``.
+        output_path: Destination path for the JSON‑Lines manifest.
 
     Returns:
-        Path to the downloaded manifest file.
+        Path to the written manifest file.
 
     Raises:
-        FileNotFoundError: If none of the candidate repositories contain
-                           the manifest.
-        ConnectionError:   For network‑related failures that are not
-                           repository‑specific.
+        RuntimeError: If the dataset cannot be accessed or the written
+                      file is empty.
     """
-    if output_dir is None:
-        output_dir = DATA_RAW_DIR
+    logger.info(f"Fetching DragMesh‑2 dataset '{HF_DATASET_ID}' via `datasets`.")
+    # Load the dataset in streaming mode; this works for most HF datasets.
+    try:
+        ds = load_dataset(
+            HF_DATASET_ID,
+            split="train",
+            streaming=True,
+        )
+    except Exception as exc:
+        logger.error(f"Failed to load dataset {HF_DATASET_ID}: {exc}")
+        raise
 
-    ensure_dirs()
-    logger.info(
-        f"Attempting to fetch DragMesh‑2 manifest from candidates: {CANDIDATE_DATASET_IDS}"
-    )
+    # Write each example as a JSON line.
+    with output_path.open("w", encoding="utf-8") as f:
+        count = 0
+        for example in ds:
+            # ``datasets`` returns dict‑like objects; we convert to plain dict.
+            f.write(f"{example}\n")
+            count += 1
+            # Safety guard: stop after an unreasonable number of rows.
+            if count > 10_000_000:
+                logger.error(
+                    "Dataset appears unexpectedly large; aborting after "
+                    f"{count} rows to protect resources."
+                )
+                raise RuntimeError("Dataset too large to write safely.")
+    if count == 0:
+        raise RuntimeError("Downloaded dataset is empty; no manifest generated.")
+    logger.info(f"Successfully wrote {count} rows to manifest at {output_path}")
+    return output_path
 
-    for repo_id in CANDIDATE_DATASET_IDS:
-        result = _attempt_download(repo_id, output_dir)
-        if result is not None:
-            return result
-
-    # If we reach this point, all attempts failed.
-    raise FileNotFoundError(
-        f"Unable to locate manifest file '{MANIFEST_FILENAME}' in any of the candidate "
-        f"repositories: {CANDIDATE_DATASET_IDS}"
-    )
-
-
-def load_dragmesh_manifest(output_path: Optional[Path] = None) -> Path:
+def load_dragmesh_manifest(
+    output_path: Optional[Path] = None,
+) -> Path:
     """
     Public entry point used by the quick‑start script.
 
-    It ensures the manifest is present locally (downloading it if necessary)
+    Ensures the manifest is present locally (downloading it if necessary)
     and returns the path to the JSON‑Lines file.  The function **never**
     creates synthetic data; any problem results in an exception.
 
     Args:
         output_path: Desired location for the manifest.
-                     If ``None`` the default is ``data/raw/dragmesh_manifest.jsonl``.
+                     If ``None`` the default is
+                     ``data/raw/dragmesh_manifest.jsonl``.
 
     Returns:
         Path to the manifest file.
 
     Raises:
-        ConnectionError, FileNotFoundError, or generic ``Exception`` on failure.
+        ConnectionError, FileNotFoundError, RuntimeError, or generic
+        ``Exception`` on failure.
     """
     if output_path is None:
         output_path = DEFAULT_MANIFEST_PATH
@@ -162,9 +126,9 @@ def load_dragmesh_manifest(output_path: Optional[Path] = None) -> Path:
         return output_path
 
     # Otherwise, download it.
+    _ensure_raw_dir()
     logger.info("Manifest not found locally – downloading from HuggingFace.")
-    return fetch_dragmesh_manifest(output_dir=output_path.parent)
-
+    return _download_and_write_manifest(output_path)
 
 def get_manifest_checksum(manifest_path: Path) -> str:
     """
@@ -190,7 +154,6 @@ def get_manifest_checksum(manifest_path: Path) -> str:
             sha256.update(block)
     return sha256.hexdigest()
 
-
 def main() -> None:
     """
     Entry point invoked via ``python -m code.data_loader`` or directly
@@ -210,14 +173,13 @@ def main() -> None:
         checksum = get_manifest_checksum(manifest_path)
         logger.info(f"Manifest SHA256 checksum: {checksum}")
 
-    except (ConnectionError, FileNotFoundError) as e:
+    except (ConnectionError, FileNotFoundError, RuntimeError) as e:
         logger.critical(f"CRITICAL: Data fetch failed: {e}")
         # Re‑raise to enforce fail‑loud semantics for the pipeline.
         raise
     except Exception as e:
         logger.critical(f"Unexpected error during fetch: {e}")
         raise
-
 
 if __name__ == "__main__":
     main()

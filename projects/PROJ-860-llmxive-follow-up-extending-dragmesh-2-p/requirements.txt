@@ -1,9 +1,19 @@
-# Project dependencies
+# Core dependencies (pre‑installed in the environment)
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
+statsmodels
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil
+
+# Additional dependencies required for this project
 pybullet==3.25.0
 torch==2.2.0+cpu
 huggingface_hub
-# The following packages are provided by the platform and do not need explicit pins:
-# numpy, pandas, scipy, statsmodels, matplotlib, seaborn, pytest, PyYAML, requests, jsonschema, psutil
-# Additional runtime utilities
-tqdm
-# End of requirements
+datasets

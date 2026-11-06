@@ -17,19 +17,22 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/data_loader.py -> rc=1
-ble to locate manifest file 'dragmesh_manifest.jsonl' in any of the candidate repositories: ['dragmesh/dragmesh-2', 'dragmesh/dragmesh2']
+taset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/lib/python3.11/site-packages/datasets/__init__.py", line 22, in <module>
+    from .arrow_dataset import Dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 60, in <module>
+    import pyarrow as pa
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+
+The above exception was the direct cause of the following exception:
+
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/data_loader.py", line 223, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/data_loader.py", line 202, in main
-    manifest_path = load_dragmesh_manifest()
-                    ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/data_loader.py", line 166, in load_dragmesh_manifest
-    return fetch_dragmesh_manifest(output_dir=output_path.parent)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/data_loader.py", line 132, in fetch_dragmesh_manifest
-    raise FileNotFoundError(
-FileNotFoundError: Unable to locate manifest file 'dragmesh_manifest.jsonl' in any of the candidate repositories: ['dragmesh/dragmesh-2', 'dragmesh/dragmesh2']
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/data_loader.py", line 19, in <module>
+    raise ImportError(
+ImportError: The 'datasets' library is required to fetch DragMesh‑2. Install it via: pip install datasets
 
 - python code/main.py --mode full  --num_objects 10  --seed 42 -> rc=2
 
