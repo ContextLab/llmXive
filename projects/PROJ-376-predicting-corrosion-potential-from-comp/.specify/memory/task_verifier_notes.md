@@ -8,3 +8,5 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T004b** — declared artifact(s) missing/empty/invalid: dataset.schema.yaml
 - **T005** — The `code/utils/validate_schemas.py` file exists and defines the required `validate` function, but the unit test `tests/unit/test_validate_schemas.py` fails (FileNotFoundError) because the referenced schema files (`ingest.schema.yaml` and `dataset.schema.yaml`) are missing, so the test does not successfully validate a compliant sample without raising. The missing schema artifacts must be added for the test to pass.
 - **T006** — Requested task execution failed; rerun successfully: code/cli/run_pipeline.py exit=1
+- **T027** — the task writes platform-owned path(s) inside the project: `state/projects/PROJ-376-predicting-corrosion-potential-from-comp.yaml` (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform owns state/ and derives artifact hashes at verification time. Re-scope the step to write only project-owned outputs.
+- **T007** — Requested task execution failed; rerun successfully: code/data/validate_raw.py exit=1

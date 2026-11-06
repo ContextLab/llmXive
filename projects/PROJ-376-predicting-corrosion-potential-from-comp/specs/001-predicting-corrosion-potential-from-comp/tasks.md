@@ -17,19 +17,19 @@ Unchecked boxes indicate work that still needs to be completed or corrected; che
   **File path**: `code/utils/verify_setup.py` → reads the manifest and asserts completeness.  
   **Verification**: Script exits with status 0 only when all directories are listed; otherwise it raises `RuntimeError`.
 
-- [X] **T002** Implement custom exception classes `DataInsufficientError` and `SchemaMismatchError`.  
+- [~] **T002** Implement custom exception classes `DataInsufficientError` and `SchemaMismatchError`.  
   **File path**: `code/utils/exceptions.py`.  
   **Verification**: Import succeeds (`from code.utils.exceptions import DataInsufficientError, SchemaMismatchError`) and unit tests in `tests/unit/test_exceptions.py` assert inheritance from `Exception`.  
 
-- [X] **T003** Set up reproducible logging infrastructure used throughout the pipeline (FR‑010).  
+- [~] **T003** Set up reproducible logging infrastructure used throughout the pipeline (FR‑010).  
   **File path**: `code/utils/logging.py` exposing `get_logger(name: str) -> logging.Logger`.  
   **Verification**: Logs written via `get_logger()` contain timestamp, level, and message, are saved to `data/logs/pipeline.log`, and a unit test (`tests/unit/test_logging.py`) checks file creation and JSON‑line format.  
 
-- [X] **T003a** Verify that `data/logs/pipeline.log` exists and contains at least one entry for each pipeline stage.
+- [~] **T003a** Verify that `data/logs/pipeline.log` exists and contains at least one entry for each pipeline stage.
   **File path**: `code/utils/verify_logging.py` → scans the log file and asserts non‑emptiness per stage.  
   **Verification**: Script exits with status 0 only when the log is populated; otherwise raises `RuntimeError`.
 
-- [X] **T028** Pin random seeds in a central configuration file and ensure all scripts load them.  
+- [~] **T028** Pin random seeds in a central configuration file and ensure all scripts load them.  
   **File path**: `code/utils/config_loader.py` reads `config/seeds.yaml` (contains `random_seed: 42`).  
   **Verification**: Unit test (`tests/unit/test_seeds.py`) checks that `np.random.seed`, `random.seed`, and `torch.manual_seed` (if torch is present) are set to the configured value.
 
@@ -37,7 +37,7 @@ Unchecked boxes indicate work that still needs to be completed or corrected; che
 
 ## Phase 2 – Schema contracts  
 
-- [X] **T004** Create the JSON‑Schema contract files required for ingestion and processed data (FR‑001 – FR‑004).  
+- [~] **T004** Create the JSON‑Schema contract files required for ingestion and processed data (FR‑001 – FR‑004).  
   **File paths**:  
   `specs/001-predict-corrosion-potential-from-comp/contracts/ingest.schema.yaml`  
   `specs/001-predict-corrosion-potential-from-comp/contracts/dataset.schema.yaml`  
@@ -49,7 +49,7 @@ Unchecked boxes indicate work that still needs to be completed or corrected; che
 - [ ] **T004b** Write the actual `dataset.schema.yaml` file content as defined in the spec.  
   **File path**: same as above – ensures the file is populated.
 
-- [ ] **T005** Generate a reusable schema‑validation utility script.  
+- [~] **T005** Generate a reusable schema‑validation utility script.  
   **File path**: `code/utils/validate_schemas.py` providing `validate(data: dict, schema_path: Path) -> None`.  
   **Verification**: Importable and callable; a unit test (`tests/unit/test_validate_schemas.py`) validates a compliant sample against each schema without raising.  
 
@@ -66,7 +66,7 @@ Unchecked boxes indicate work that still needs to be completed or corrected; che
   **File path**: `code/utils/checksums.py`.  
   **Verification**: After execution, the state YAML contains an `artifact_hashes` map with entries for each raw file; a unit test confirms the map is populated.
 
-- [ ] **T007** Add a schema‑validation step that checks the raw ingest against `ingest.schema.yaml`, enforces non‑null composition, pH, temperature, corrosion potential, and the minimum‑record constraints (FR‑011, FR‑014, FR‑017).  
+- [ ] **T007** Add a schema‑validation step that checks the raw ingest against `ingest.schema.yaml`, enforces non‑null composition, pH, temperature, corrosion potential, and the minimum‑record constraints (FR‑011, FR‑014, FR‑017).   <!-- FAILED-IN-EXECUTION: code/data/validate_raw.py exit=1 -->
   **File path**: `code/data/validate_raw.py`.  
   **Artifact**: `data/logs/schema_validation.json` summarising total records, unique alloys, and any violations.  
   **Verification**: Script exits with status 0 only when all criteria are satisfied; otherwise it raises `SchemaMismatchError` with a clear message.  

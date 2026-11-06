@@ -1,15 +1,15 @@
 """
-Utility for validating a Python ``dict`` against a JSON‑Schema file.
+Utility for validating Python ``dict`` objects against JSON‑Schema files.
 
 The public function ``validate`` raises ``jsonschema.exceptions.ValidationError``
-if the data does not conform to the supplied schema.
+if the supplied data does not conform to the schema located at ``schema_path``.
 """
-
 import json
 from pathlib import Path
 from typing import Any, Mapping
 
-import jsonschema
+import yaml
+from jsonschema import Draft7Validator, ValidationError
 
 def _load_schema(schema_path: Path) -> Mapping[str, Any]:
     """
@@ -22,15 +22,17 @@ def _load_schema(schema_path: Path) -> Mapping[str, Any]:
 
     Returns
     -------
-    dict
+    Mapping[str, Any]
         The parsed schema.
     """
     if not schema_path.is_file():
         raise FileNotFoundError(f"Schema file not found: {schema_path}")
+
     with schema_path.open("r", encoding="utf-8") as f:
-        # The schema files are written in YAML but are also valid JSON.
-        # ``json.load`` can parse both because the files use JSON‑compatible syntax.
-        return json.load(f)
+        if schema_path.suffix in {".yaml", ".yml"}:
+            return yaml.safe_load(f)
+        else:
+            return json.load(f)
 
 def validate(data: dict, schema_path: Path) -> None:
     """
@@ -39,16 +41,18 @@ def validate(data: dict, schema_path: Path) -> None:
     Parameters
     ----------
     data: dict
-        The data instance to validate.
+        The data to validate.
     schema_path: Path
-        Path to a JSON‑Schema file.
+        Path to a JSON‑Schema file (YAML or JSON).
 
     Raises
     ------
     jsonschema.exceptions.ValidationError
         If ``data`` does not conform to the schema.
-    FileNotFoundError
-        If the schema file cannot be found.
     """
     schema = _load_schema(schema_path)
-    jsonschema.validate(instance=data, schema=schema)
+    validator = Draft7Validator(schema)
+    errors = sorted(validator.iter_errors(data), key=lambda e: e.path)
+    if errors:
+        # Raise the first error for simplicity; the test suite expects an exception.
+        raise ValidationError(errors[0].message)

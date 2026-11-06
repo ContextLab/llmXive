@@ -1,47 +1,30 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Processed Corrosion Dataset"
-description: >
-  Schema for the cleaned, processed dataset used for model training.
-  All required fields are present and non‑null; composition fields have been
-  transformed (e.g., CLR) and are numeric.
 type: object
 required:
+  - record_id
   - alloy_designation
   - ph
   - temperature_celsius
   - corrosion_potential_mV
-  - electrolyte_type
-  # Include a transformed feature for each element that appears in the data.
-  # For illustration we require a few common elements; additional elements
-  # may be present.
-  - Fe
-  - Cr
-  - Ni
-  - Al
-  - Ti
+  - composition_clr
+  - electrolyte_type_onehot
 properties:
+  record_id:
+    type: string
   alloy_designation:
     type: string
   ph:
     type: number
-    minimum: 0
-    maximum: 14
   temperature_celsius:
     type: number
   corrosion_potential_mV:
     type: number
-  electrolyte_type:
-    type: string
-  Fe:
-    type: number
-  Cr:
-    type: number
-  Ni:
-    type: number
-  Al:
-    type: number
-  Ti:
-    type: number
-  # Additional element columns are allowed.
-  additionalProperties:
-    type: number
+  composition_clr:
+    type: array
+    items:
+      type: number
+  electrolyte_type_onehot:
+    type: array
+    items:
+      type: number
+additionalProperties: false

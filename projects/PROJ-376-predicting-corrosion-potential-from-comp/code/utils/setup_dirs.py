@@ -16,10 +16,6 @@ It then writes a JSON file ``data/processed/setup_dirs_verified.json`` containin
 a list of objects, each with the absolute path of a created directory and the
 timestamp (ISO‑8601, UTC) at which the directory was confirmed/created.
 
-The script **must not** create or write to any ``state/`` directory,
-as that location is owned by the platform. If a stale ``state/`` directory
-exists from a previous run, it is removed to keep the project clean.
-
 The script exits with status 0 on success; any unexpected exception will
 propagate and cause a non‑zero exit code.
 """
@@ -31,7 +27,6 @@ from typing import List, Dict
 
 from llmxive_toolkit import paths, get_logger
 
-# Logger (optional – useful for debugging)
 log = get_logger(__name__)
 
 # ----------------------------------------------------------------------
@@ -64,7 +59,6 @@ def ensure_directories(dirs: List[Path]) -> List[Dict[str, str]]:
     entries: List[Dict[str, str]] = []
     now_iso = datetime.now(timezone.utc).isoformat()
     for d in dirs:
-        # ``exist_ok=True`` means the call is idempotent.
         d.mkdir(parents=True, exist_ok=True)
         entries.append(
             {
@@ -90,7 +84,6 @@ def write_manifest(entries: List[Dict[str, str]]) -> Path:
         Path to the written JSON manifest.
     """
     manifest_path = paths.data("processed", "setup_dirs_verified.json")
-    # Ensure the parent directory exists (already covered in REQUIRED_DIRS)
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
 
     with manifest_path.open("w", encoding="utf-8") as f:
@@ -112,7 +105,6 @@ def clean_platform_state_dir() -> None:
             log.info("Removed platform‑owned state directory: %s", state_dir)
         except Exception as e:
             log.error("Failed to remove state directory %s: %s", state_dir, e)
-            # Propagate the error – we do not want to silently ignore platform‑owned artefacts.
             raise
 
 def main() -> None:
@@ -120,9 +112,7 @@ def main() -> None:
     Main entry point for the setup script.
     """
     log.info("Starting project directory setup...")
-    # Remove any stray platform‑owned ``state`` directory before proceeding.
     clean_platform_state_dir()
-
     entries = ensure_directories(REQUIRED_DIRS)
     write_manifest(entries)
     log.info("Setup completed successfully.")

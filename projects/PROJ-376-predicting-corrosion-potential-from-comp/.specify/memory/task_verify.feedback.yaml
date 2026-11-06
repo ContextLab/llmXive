@@ -35,6 +35,8 @@ T006:
     exit=1'
   task: f9070b19f357bda8eb65b4a9b95885709cfc82b07652f58202bbecec45309a7e
 T007:
+  reason: 'Requested task execution failed; rerun successfully: code/data/validate_raw.py
+    exit=1'
   task: 501681605950496fef1b223d610231f6a8a311d06dea1cfeb98c1192562e140e
 T008:
   task: 1580f67678d224b2d7e450cfd191926e68e21bb223285882ffe654209582090e
@@ -77,6 +79,10 @@ T025:
 T026:
   task: 4c0bcf8bfddeb5278eb9b04cf183495df5045f86ab133c13ff92858377734611
 T027:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/PROJ-376-predicting-corrosion-potential-from-comp.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
   task: 2cb0499446ae92156f5cb5819a5b7ea969e3e5083945154669acab79eac5b511
 T028:
   task: 3bea779712ff9e5095f67a46902ec693838c97dd099509d84c78b5a3a9f862ef
