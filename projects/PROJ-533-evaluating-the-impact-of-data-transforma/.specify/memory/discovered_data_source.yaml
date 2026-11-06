@@ -1,19 +1,19 @@
 status: none
-intent: UCI Machine Learning Repository OpenML HuggingFace datasets python package
-  dataset
+intent: download UCI Machine Learning Repository and OpenML classification datasets
+  python package dataset
 required_fields:
 - dataset_id
 - name
 - download_url
 - sha256_checksum
-- n_samples
+- n_instances
 - n_features
-- continuous_feature_names
-- categorical_target_name
-- target_type
-- shapiro_wilk_pvalues
-- missing_rate_per_feature
-- source_repository
-cache_key: c4d5bcb052b5fa91d08987e1f3610ad6c7b2b0dffdaa19a35bed7f613bbed6d1
-searched_at: '2026-11-05T03:08:48.182753+00:00'
+- n_numeric_features
+- n_categorical_features
+- target_column
+- feature_names
+- feature_types
+- missing_percentage_per_feature
+cache_key: 4a2db88df9b82762006f6f2f4b87eba43603ebd8ee4498bdde30647b50752be1
+searched_at: '2026-11-06T01:11:07.154065+00:00'
 retry_count: 1
