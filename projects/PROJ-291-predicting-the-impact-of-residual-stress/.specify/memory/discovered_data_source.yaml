@@ -6,9 +6,10 @@ required_fields:
 - yield_strength
 - hardness
 - process_parameters
-- residual_stress
-- residual_stress_source
+- residual_stress_measured
+- residual_stress_estimated
 - fatigue_life_cycles
-cache_key: 6604c04158235936b6f718b021ed7f13d2f722b3b734c19acb99f6c126c30209
-searched_at: '2026-11-05T05:08:23.965986+00:00'
+- units
+cache_key: 7045de00f054cfd1507a8d37622720c4c51f8f55bf5db0aaa9ea52a075caa743
+searched_at: '2026-11-06T03:10:31.256588+00:00'
 retry_count: 1
