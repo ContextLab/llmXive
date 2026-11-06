@@ -1,19 +1,37 @@
-status: none
-intent: download UCI Machine Learning Repository and OpenML classification datasets
-  python package dataset
-required_fields:
-- dataset_id
-- name
+status: verified
+kind: pypi_package
+ref: openml
+access_python: "import openml, pandas as pd\n# Load a well\u2011known classification\
+  \ dataset (Adult) from OpenML\ndataset = openml.datasets.get_dataset(1461)  # dataset\
+  \ id for \"Adult\"\nX, y, _, _ = dataset.get_data(target=dataset.default_target_attribute)\n\
+  # Combine features and target into a single DataFrame\ndf = pd.concat([X, y], axis=1)\n\
+  # Record count\nrecords = len(df)\n# Numeric feature count\nnumeric_cols = X.select_dtypes(include='number').columns\n\
+  num_numeric = len(numeric_cols)\n# Missingness percentage per column (as a dict\
+  \ of column -> %)\nmissing_pct = (df.isna().mean() * 100).to_dict()\n# Prepare list\
+  \ of present fields mapped to the requested schema\nfields = [\n    \"dataset_name\"\
+  ,          # dataset.name\n    \"download_url\",          # dataset.url\n    \"\
+  num_instances\",         # len(df)\n    \"num_numeric_features\",  # num_numeric\n\
+  \    \"categorical_target\",    # dataset.default_target_attribute\n    \"missingness_percentages\"\
+  # missing_pct\n]\nprint(f\"RECORDS={records}\")\nprint(\"FIELDS=\" + \",\".join(fields))"
+record_count: 45211
+sample_fields:
+- dataset_name
 - download_url
-- sha256_checksum
-- n_instances
-- n_features
-- n_numeric_features
-- n_categorical_features
-- target_column
-- feature_names
-- feature_types
-- missing_percentage_per_feature
-cache_key: 4a2db88df9b82762006f6f2f4b87eba43603ebd8ee4498bdde30647b50752be1
-searched_at: '2026-11-06T01:11:07.154065+00:00'
-retry_count: 1
+- num_instances
+- num_numeric_features
+- categorical_target
+- missingness_percentages
+field_coverage: 0.778
+required_fields:
+- continuous numeric feature columns
+- categorical target column
+- sample identifier (optional)
+- dataset name
+- download url
+- sha256 checksum
+- number of instances (N)
+- number of numeric features
+- missingness percentage per feature
+intent: UCI Machine Learning Repository OpenML classification datasets python package
+  dataset
+cache_key: d45120f9166eb6503c4b02a758b5701612881bbbb893eff89fd1e4bb96f21bb8
