@@ -1,12 +1,11 @@
 status: none
-intent: Omni-Doc-1 TokenBench dataset download site HuggingFace Datasets python package
-  dataset
+intent: Omni-Doc-1 TokenBench dataset download python package dataset
 required_fields:
 - image_id
-- image_path
+- image_path_or_bytes
 - text_bounding_boxes
 - visual_bounding_boxes
-- split
-cache_key: eca9b1746303bd864c296f02570aa204153ff5fbbea45ccef704df54292adfbb
-searched_at: '2026-10-11T18:11:01.405619+00:00'
+- metadata
+cache_key: 37b001480bd10d921876c31552bd1a06ccf5bae983beac960f4fdfc95b3f67fd
+searched_at: '2026-11-07T00:17:50.608189+00:00'
 retry_count: 1
