@@ -11,12 +11,12 @@
         "page": 35
       }
     ],
-    "audited_at": "2026-11-07T22:48:26.668732+00:00"
+    "audited_at": "2026-11-07T23:17:46.107566+00:00"
   },
   "repair_rounds": 3,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-706-memory-is-reconstructed-not-retrieved-gr",
-  "updated_at": "2026-11-07T22:48:26.668749+00:00"
+  "updated_at": "2026-11-07T23:17:46.107580+00:00"
 }
