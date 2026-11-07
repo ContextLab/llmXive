@@ -1,52 +1,25 @@
 # Execution failures — fix these before the analysis can run
 
-## ⚠ DATA-UNAVAILABLE failure — switch to a REAL, REACHABLE data source
+## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
 
-These commands failed because the external dataset is NOT reachable AS WRITTEN on the free CI runner: a Hugging Face dataset that was renamed (canonical names like `openai_humaneval` now require a `namespace/name`), had its loading script removed (`datasets` >= 3 dropped `trust_remote_code` script datasets), is gated, or needs network the runner lacks. RE-TRYING THE DOWNLOAD AS-IS WILL NEVER SUCCEED. Fix it with REAL data, in this order:
+Every command exited 0 and the files were written — but the numbers in them are missing. A result that is `null`, `NaN`, an empty `[]`, a header-only CSV, or a column left blank in every row is NOT a measurement. Writing an empty result file is not 'done' — it is the same failure as fabrication, just quieter. You MUST:
 
-1. CORRECT the source: use the dataset's current canonical id (`namespace/name`), a public mirror, or a direct file URL, and stream / download only a SMALL REAL SAMPLE (the first N rows, one split, a few files). A verified real source may be injected below — use it.
-2. If that exact dataset is truly unreachable, switch to a DIFFERENT but genuinely-public dataset that supports the SAME analysis/metric, and say so honestly in the README.
-3. Do NOT substitute synthetic / fake / hand-built data for the real dataset. A result computed on invented data is NOT a real finding and is REJECTED by the deterministic fabrication gate — swapping in synthetic data is the single most common reason this loop never converges. The ONLY exception is a project whose OWN research question is about synthetic / simulated data (its idea says so).
-4. If, after the above, NO real data can be obtained on the CI runner, do NOT fabricate a result: leave the run to FAIL so it escalates honestly (model-tier escalation / re-plan), rather than producing a fake finding.
+1. Find WHY the value is missing. A `null`/`NaN` correlation almost always means the inputs were empty, misaligned, or the wrong column was read — fix the computation, do NOT paper over it with a default.
+2. Verify you loaded the REAL dataset the spec names. If the study is about behavioural confidence ratings, a stand-in dataset (a bundled sklearn toy set, a random frame) is NOT the data — it will produce exactly these null/NaN results.
+3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
+4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
 
-- `python code/00_check_dataset.py   # prints missing fields, exits if title missing`
+- every produced artifact is gitignored (data/processed/anonymized.csv, data/processed/raw_counts.json, data/processed/scored.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 run-book script(s) missing (plan/impl path mismatch): python code/03_validate.py; python code/04_analyze.py; 5 command(s) failed: python -m pipeline.run (rc=1); python code/00_check_dataset.py   # prints missing fields, exits if title missing (rc=1); python code/01_ingest.py (rc=1); 1 declared deliverable(s) absent: data/processed/anonymized.csv
+**Summary**: every produced artifact is gitignored (data/processed/anonymized.csv, data/processed/raw_counts.json, data/processed/scored.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 2 run-book script(s) missing (plan/impl path mismatch): python code/03_validate.py; python code/04_analyze.py; 2 command(s) failed: python -m pipeline.run (rc=1); python -m pytest tests/unit/ (rc=2)
 
 ## Failing / missing run-book commands
 
 - python -m pipeline.run -> rc=1
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-050-the-effect-of-priming-on-prosocial-behav/bin/python: Error while finding module specification for 'pipeline.run' (ModuleNotFoundError: No module named 'pipeline')
-
-- python code/00_check_dataset.py   # prints missing fields, exits if title missing -> rc=1
-av/lib/python3.11/site-packages/datasets/load.py", line 2587, in load_dataset
-    builder_instance = load_dataset_builder(
-                       ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-050-the-effect-of-priming-on-prosocial-behav/lib/python3.11/site-packages/datasets/load.py", line 2259, in load_dataset_builder
-    dataset_module = dataset_module_factory(
-                     ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-050-the-effect-of-priming-on-prosocial-behav/lib/python3.11/site-packages/datasets/load.py", line 1904, in dataset_module_factory
-    raise e1 from None
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-050-the-effect-of-priming-on-prosocial-behav/lib/python3.11/site-packages/datasets/load.py", line 1850, in dataset_module_factory
-    raise DatasetNotFoundError(
-datasets.exceptions.DatasetNotFoundError: Dataset 'joshuaeisenstein/reddit' doesn't exist on the Hub or cannot be accessed. If the dataset is private or gated, make sure to log in with `huggingface-cli login` or visit the dataset page at https://huggingface.co/datasets/joshuaeisenstein/reddit to ask for access.
-
-- python code/01_ingest.py -> rc=1
-2026-11-06 17:06:51 - ingest_feasibility - INFO - === Starting T015b: Feasibility Check for FR-002c ===
-2026-11-06 17:06:51 - ingest_feasibility - ERROR - Feasibility check failed: get_logger() missing 1 required positional argument: 'name'
-
-
-- python code/02_score.py -> rc=1
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/code/02_score.py", line 261, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/code/02_score.py", line 235, in main
-    log_abort_condition(f"Input file not found: {input_path}")
-TypeError: log_abort_condition() missing 2 required positional arguments: 'reason' and 'condition_name'
 
 - python code/03_validate.py -> rc=2
 
@@ -72,46 +45,6 @@ E   ModuleNotFoundError: No module named 'code._00_power_analysis'
 ERROR tests/unit/test_create_data_folders.py
 ERROR tests/unit/test_power_analysis.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 0.78s ===============================
+============================== 2 errors in 1.18s ===============================
 
 
-
-## Declared deliverables still missing
-
-- data/processed/anonymized.csv
-
-## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
-
-Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
-
-- **Install**: add `datasets` to the project's `requirements.txt` and `pip install datasets`.
-- **Verified**: this loads **15034827** real records with fields: author, body, controversiality, created_utc, link_id, score, subreddit, subreddit_id, id.
-- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
-
-```python
-import itertools
-from datasets import load_dataset
-
-# Load dataset in streaming mode to avoid downloading the entire collection
-ds = load_dataset("fddemarco/pushshift-reddit-comments", split="train", streaming=True)
-
-# Get total number of records from dataset metadata
-records = ds.info.splits["train"].num_examples
-print(f"RECORDS={records}")
-
-# Retrieve a single example to list its fields
-sample = next(iter(ds))
-fields = list(sample.keys())
-print("FIELDS=" + ",".join(fields))
-```
-
-Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
-
-## Declared deliverables NOT produced — make the run-book produce them
-
-Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
-
-- `data/processed/anonymized.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/01_ingest.py` — IS a run-book command
-    - `code/02_score.py` — IS a run-book command
-  Make ONE of these WRITE `data/processed/anonymized.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

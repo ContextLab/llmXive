@@ -1094,3 +1094,108 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-11-06T17:06:50Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/docs/dataset_acquisition.md
+  attempts: 1
+  canonical: dataset identifier is fddemarco/pushshift-reddit-comments
+  claim_id: c_796b295d
+  context: 'Chosen Dataset - Name / Identifier: fddemarco/pushshift-reddit-comments'
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: 'Name / Identifier: fddemarco/pushshift-reddit-comments'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-11-07T05:09:27Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/docs/dataset_acquisition.md
+  attempts: 1
+  canonical: dataset source URL is https://huggingface.co/datasets/fddemarco/pushshift-reddit-comments
+  claim_id: c_00c459d4
+  context: 'Chosen Dataset - Source URL: https://huggingface.co/datasets/fddemarco/pushshift-reddit-comments'
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: 'Source URL: https://huggingface.co/datasets/fddemarco/pushshift-reddit-comments'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-11-07T05:10:14Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/docs/dataset_acquisition.md
+  attempts: 1
+  canonical: fddemarco/pushshift-reddit-comments is reachable on the project execution
+    environment
+  claim_id: c_f490a94d
+  context: Rationale - The dataset is verified reachable on the project's execution
+    environment.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The dataset is verified reachable on the project's execution environment.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-11-07T05:10:14Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/docs/dataset_acquisition.md
+  attempts: 1
+  canonical: fddemarco/pushshift-reddit-comments contains 15M+ records
+  claim_id: c_af48b03f
+  context: Rationale - It provides a massive collection of real Reddit comments (15M+
+    records) including author, body, created_utc, and subreddit.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P3553: 19562139'
+      source_id: Q1136
+      url: https://www.wikidata.org/wiki/Q1136
+      value: '19562139'
+    filled: true
+  kind: entity_fact
+  raw_text: It provides a massive collection of real Reddit comments (15M+ records)
+    including author, body, created_utc, and subreddit.
+  resolved_value: '19562139'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-11-07T05:11:11Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/docs/dataset_acquisition.md
+  attempts: 1
+  canonical: fddemarco/pushshift-reddit-comments does not contain the title field
+  claim_id: c_ec2c5434
+  context: 'Critical Data-Fit Issue (FR-001) Warning: Upon acquisition and verification,
+    it has been confirmed that the fddemarco/pushshift-reddit-comments dataset does
+    not contain the title field of the parent thread.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: it has been confirmed that the fddemarco/pushshift-reddit-comments dataset
+    does not contain the title field of the parent thread.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-11-07T05:11:12Z'
+- artifact_path: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/docs/dataset_acquisition.md
+  attempts: 1
+  canonical: dataset can be streamed as confirmed by code/00_check_dataset.py
+  claim_id: c_d538beab
+  context: "Verification Steps 1. Check availability \u2013 running code/00_check_dataset.py\
+    \ confirms the dataset can be streamed."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: running code/00_check_dataset.py confirms the dataset can be streamed.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-11-07T05:11:12Z'

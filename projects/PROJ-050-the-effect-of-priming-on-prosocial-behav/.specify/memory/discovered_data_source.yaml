@@ -1,51 +1,13 @@
-status: verified
-kind: pypi_package
-ref: datasets
-access_python: 'import itertools
-
-  from datasets import load_dataset
-
-
-  # Load dataset in streaming mode to avoid downloading the entire collection
-
-  ds = load_dataset("fddemarco/pushshift-reddit-comments", split="train", streaming=True)
-
-
-  # Get total number of records from dataset metadata
-
-  records = ds.info.splits["train"].num_examples
-
-  print(f"RECORDS={records}")
-
-
-  # Retrieve a single example to list its fields
-
-  sample = next(iter(ds))
-
-  fields = list(sample.keys())
-
-  print("FIELDS=" + ",".join(fields))'
-record_count: 15034827
-sample_fields:
-- author
-- body
-- controversiality
-- created_utc
-- link_id
-- score
-- subreddit
-- subreddit_id
-- id
-field_coverage: 0.667
+status: none
+intent: Reddit comments Pushshift archive Hugging Face dataset python package dataset
 required_fields:
 - comment_id
-- author_id
 - subreddit
 - created_utc
 - body
+- author
 - parent_id
-- link_id
-- title
-- score
-intent: download pushshift reddit comments dataset with titles python package dataset
-cache_key: f52aaaef106d8ecf939643992f1cef3f32ee0564e360b240b59e842842396486
+- post_title
+cache_key: f603e47d4048cc14bf1c6884801e4c37b8bfe3a15c6982902709a54c38b5bcb7
+searched_at: '2026-11-07T05:18:31.190424+00:00'
+retry_count: 1
