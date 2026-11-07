@@ -11,13 +11,13 @@
   `code/src/`, `code/tests/`, `data/raw/`, `data/processed/`, `results/`, `requirements.txt`, `README.md`.  
   **Verification**: `tree` output contains all directories; `git status` shows them as untracked.
 
-- [ ] **T002** [US0] Populate `requirements.txt` with exact, pinned versions of all scientific dependencies (`datasets`, `transformers`, `torch`, `scikit-learn`, `pandas`, `pytest`, `pyyaml`).   <!-- FAILED-IN-EXECUTION: code/src/verify_requirements.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/verify_requirements.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/verify_requirements.py exit=1 -->
+- [~] **T002** [US0] Populate `requirements.txt` with exact, pinned versions of all scientific dependencies (`datasets`, `transformers`, `torch`, `scikit-learn`, `pandas`, `pytest`, `pyyaml`).
   **Verification**: `pip install -r requirements.txt` succeeds in a fresh venv; `pip freeze` matches the pinned list.
 
 - [X] **T003** [US0] Add linting/formatting configuration files `.ruff.toml` and `pyproject.toml` (Black settings).  
   **Verification**: `ruff .` returns no errors; `black --check .` returns “All done!”.
 
-- [ ] **T004** [US0] Implement `code/src/feasibility_gate.py`   <!-- FAILED-IN-EXECUTION: code/src/feasibility_gate.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/feasibility_gate.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/feasibility_gate.py exit=1 -->
+- [ ] **T004** [US0] Implement `code/src/feasibility_gate.py`   <!-- FAILED-IN-EXECUTION: code/src/feasibility_gate.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/feasibility_gate.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/feasibility_gate.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/feasibility_gate.py exit=1 -->
   * Loads a small GGUF model with `llama_cpp` (CPU‑only).  
   * Runs a 10‑token sample prompt 5 times, measures average tokens‑per‑second.  
   * Writes `data/feasibility_log.json` containing `{ "throughput_tps": <float>, "decision": "proceed" | "gpu_offload", "adjusted_N": <int|null> }`.  

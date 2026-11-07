@@ -22,23 +22,17 @@ logger = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# Name of a small GGUF model on the Hugging Face Hub.  The chosen model
-# (Qwen2‑0.5B‑Instruct) is ~500 MiB and fits comfortably within the
-# 7 GiB RAM limit of the free‑tier CI runner.
+# Name of a small GGUF model on the Hugging Face Hub. The chosen model
+# (Qwen2-0.5B-Instruct) is ~500 MiB and fits comfortably within the
+# 7 GiB RAM limit of the free-tier CI runner.
 _HF_REPO_ID = "Qwen/Qwen2-0.5B-Instruct-GGUF"
 _HF_FILENAME = "qwen2-0.5b-instruct-q5_k.gguf"
 
 def _ensure_model_path() -> Path:
     """
     Ensure that a GGUF model file is present locally.
-
-    The function first checks the ``MODEL_PATH`` attribute of the
-    project configuration.  If that attribute is missing or the file does
-    not exist, it falls back to downloading a known small model from
-    Hugging Face Hub into the project's ``data`` directory and returns
-    that path.
     """
-    # Try to read a custom path from config, if it exists.
+    # Try to read a custom path from config if available, otherwise fallback
     try:
         from code.config import config
         model_path = Path(getattr(config, "MODEL_PATH", ""))
@@ -64,54 +58,27 @@ def _ensure_model_path() -> Path:
     logger.info(f"Model downloaded to {local_file}")
     return Path(local_file)
 
-# ----------------------------------------------------------------------
-# Helper functions
-# ----------------------------------------------------------------------
 def _load_model(model_path: Path) -> Llama:
     """
-    Load a GGUF model with ``llama_cpp`` in CPU‑only mode.
-
-    Parameters
-    ----------
-    model_path: Path
-        Path to the GGUF model file.
-
-    Returns
-    -------
-    Llama
-        An instance of the loaded model.
+    Load a GGUF model with ``llama_cpp`` in CPU-only mode.
     """
     logger.info(f"Loading GGUF model from {model_path}")
-    # ``n_ctx`` is modest because we only need a few tokens.
+    # n_ctx is modest because we only need a few tokens for throughput check.
     return Llama(
         model_path=str(model_path),
         n_ctx=512,
-        n_threads=0,          # 0 → auto‑detect logical CPUs
-        n_gpu_layers=0,       # CPU‑only
+        n_threads=0,          # 0 -> auto-detect logical CPUs
+        n_gpu_layers=0,       # Force CPU-only
     )
 
 def _run_sample(model: Llama, prompt: str, num_tokens: int = 10) -> float:
     """
     Generate ``num_tokens`` tokens from ``prompt`` and return the TPS.
-
-    Parameters
-    ----------
-    model: Llama
-        Loaded model instance.
-    prompt: str
-        Prompt string (should be short; we only care about timing).
-    num_tokens: int, default 10
-        Number of tokens to generate.
-
-    Returns
-    -------
-    float
-        Tokens‑per‑second for this single run.
     """
     logger.debug(f"Running sample generation ({num_tokens} tokens).")
     start = time.time()
-    # ``max_tokens`` limits the generation length.
-    # ``temperature=0.0`` makes the output deterministic.
+    # max_tokens limits the generation length.
+    # temperature=0.0 makes the output deterministic.
     _ = model(
         prompt,
         max_tokens=num_tokens,
@@ -120,26 +87,12 @@ def _run_sample(model: Llama, prompt: str, num_tokens: int = 10) -> float:
     )
     elapsed = time.time() - start
     tps = num_tokens / elapsed if elapsed > 0 else float("inf")
-    logger.debug(f"Sample completed in {elapsed:.4f}s → {tps:.2f} TPS")
+    logger.debug(f"Sample completed in {elapsed:.4f}s -> {tps:.2f} TPS")
     return tps
 
 def measure_throughput(model_path: Path, num_tokens: int = 10, runs: int = 5) -> float:
     """
-    Load the model and compute the average tokens‑per‑second over ``runs``.
-
-    Parameters
-    ----------
-    model_path: Path
-        Path to the GGUF model.
-    num_tokens: int, default 10
-        Number of tokens to request per generation.
-    runs: int, default 5
-        How many times to repeat the measurement.
-
-    Returns
-    -------
-    float
-        Average tokens‑per‑second across all runs.
+    Load the model and compute the average tokens-per-second over ``runs``.
     """
     model = _load_model(model_path)
 
@@ -157,11 +110,6 @@ def measure_throughput(model_path: Path, num_tokens: int = 10, runs: int = 5) ->
 def run_feasibility_gate() -> dict:
     """
     Execute the feasibility gate and write the JSON log.
-
-    Returns
-    -------
-    dict
-        The JSON payload that was written to disk.
     """
     model_path = _ensure_model_path()
     if not model_path.is_file():
@@ -170,11 +118,12 @@ def run_feasibility_gate() -> dict:
     try:
         avg_tps = measure_throughput(model_path)
     except Exception as exc:
-        # Any exception (including OOM) forces the GPU‑offload decision.
+        # Any exception (including OOM) forces the GPU-offload decision.
         logger.warning(f"Feasibility measurement failed: {exc}")
         decision = "gpu_offload"
         avg_tps = None
     else:
+        # Decision: proceed if TPS >= 2.0, otherwise offload to GPU.
         decision = "proceed" if avg_tps >= 2.0 else "gpu_offload"
 
     result = {
@@ -183,7 +132,7 @@ def run_feasibility_gate() -> dict:
         "adjusted_N": None,   # Reserved for future use.
     }
 
-    # Write the JSON file to ``data/feasibility_log.json``.
+    # Write the JSON file to data/feasibility_log.json.
     output_path = paths.data("feasibility_log.json")
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with output_path.open("w", encoding="utf-8") as fp:

@@ -1,12 +1,9 @@
-# Core scientific dependencies (pinned)
-datasets==2.18.0
-transformers==4.41.2
-torch==2.2.2
-scikit-learn==1.5.0
-pandas==2.2.2
-pytest==8.2.2
+datasets==2.19.0
+transformers==4.40.0
+torch==2.3.0
+scikit-learn==1.4.0
+pandas==2.2.0
+pytest==8.0.0
 pyyaml==6.0.1
-
-# Additional runtime dependency for feasibility gate
-llama-cpp-python==0.2.78
+llama-cpp-python==0.2.66
 huggingface-hub==0.23.0

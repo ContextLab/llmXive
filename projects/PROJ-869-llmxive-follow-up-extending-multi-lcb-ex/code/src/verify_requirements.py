@@ -20,9 +20,11 @@ def _load_requirements_file() -> Path:
     """
     Return the absolute path to the project's top‑level ``requirements.txt``.
     """
-    # ``verify_requirements.py`` lives in ``code/src``; the project root is
-    # three levels up (src → code → project root).
-    return Path(__file__).resolve().parents[3] / "requirements.txt"
+    # ``verify_requirements.py`` lives in ``code/src``.
+    # .parents[0] is code/src
+    # .parents[1] is code
+    # .parents[2] is project root
+    return Path(__file__).resolve().parents[2] / "requirements.txt"
 
 def _capture_freeze() -> str:
     """
@@ -57,6 +59,8 @@ def _parse_requirements(req_path: Path) -> dict:
     ignoring comments and empty lines.
     """
     reqs = {}
+    if not req_path.exists():
+        raise FileNotFoundError(f"requirements.txt not found at {req_path}")
     for line in req_path.read_text().splitlines():
         line = line.strip()
         if not line or line.startswith("#"):
@@ -101,14 +105,14 @@ def _verify_match(pinned: dict, installed: dict) -> None:
             mismatches.append(f"{pkg}: pinned {ver}, installed {installed_ver}")
 
     if mismatches:
-        msg = "Requirement verification mismatches:\\n" + "\\n".join(mismatches)
+        msg = "Requirement verification mismatches:\n" + "\n".join(mismatches)
         logger.warning(msg)
     else:
         logger.info("All pinned requirements match the installed versions.")
 
 def main() -> None:
     """
-    Entry point for ``python -m src.verify_requirements``.
+    Entry point for ``python code/src/verify_requirements.py``.
     """
     req_path = _load_requirements_file()
     freeze_output = _capture_freeze()
