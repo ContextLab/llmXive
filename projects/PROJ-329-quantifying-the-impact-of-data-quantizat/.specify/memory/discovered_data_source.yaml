@@ -1,18 +1,19 @@
 status: none
-intent: download LIGO-Virgo GW Open Science Center binary black hole waveform python
-  package dataset
+intent: LIGO Open Science Center simulated binary black hole waveforms SXS catalog
+  NRSur surrogate python package dataset
 required_fields:
 - m1_solar_mass
 - m2_solar_mass
-- luminosity_distance_Mpc
-- time_series
-- sampling_rate_Hz
+- mass_ratio
+- total_mass_solar
 - spin1
 - spin2
+- distance_Mpc
 - inclination_rad
 - polarization_angle_rad
-- approximant
-- metadata
-cache_key: aeec8016a178d991c1185f876fcfd6eb5447661e2e2aab2358f99c7fc9378295
-searched_at: '2026-11-06T21:06:46.277778+00:00'
+- h_plus_time_series
+- h_cross_time_series
+- sampling_rate_Hz
+cache_key: 19dfed35a282bb14bb3b6fc5dea2bdd43429cfe986827f43ae57f7f8928bd515
+searched_at: '2026-11-07T00:12:18.465099+00:00'
 retry_count: 1
