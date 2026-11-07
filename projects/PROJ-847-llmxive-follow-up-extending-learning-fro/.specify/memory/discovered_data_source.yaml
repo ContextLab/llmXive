@@ -1,11 +1,12 @@
 status: none
-intent: download GSM8K train test splits and BIG-Bench logical subset python package
-  dataset
+intent: download GSM8K parquet train test and BigBench logical deduction subset python
+  package dataset
 required_fields:
 - question
 - answer
-- split
+- solution
 - id
-cache_key: 83c99b43d22751a52f798f84d60baa49403c5b06ab79cbc1a0ef8bef4fe0dfd6
-searched_at: '2026-11-06T08:09:00.143079+00:00'
+- split
+cache_key: 181d927e3f399e1143ab96b2f62e38c525e02d3f60405959f1b92c0d8a4d711f
+searched_at: '2026-11-07T06:07:44.068808+00:00'
 retry_count: 1
