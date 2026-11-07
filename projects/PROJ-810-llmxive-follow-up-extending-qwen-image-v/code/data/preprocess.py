@@ -11,7 +11,7 @@ from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
 
-# Constants for heuristic thresholds (kept for API compatibility with T008b)
+# Constants for heuristic thresholds (kept for API compatibility)
 OCR_DENSITY_THRESHOLD = 0.005
 ASPECT_RATIO_THRESHOLD = 2.0
 
@@ -105,6 +105,10 @@ def extract_ground_truth_labels(df: pd.DataFrame) -> pd.DataFrame:
     Returns only rows where ``modality`` is either ``text`` or ``image`` and
     ``overlap_ratio`` does not exceed 0.1.
     """
+    if 'modality' not in df.columns:
+        log.error("Dataset missing 'modality' column.")
+        return pd.DataFrame(columns=df.columns)
+
     # 1. Keep only rows with the required modalities.
     df_filtered = df[df['modality'].isin(['text', 'image'])].copy()
 
@@ -118,7 +122,7 @@ def extract_ground_truth_labels(df: pd.DataFrame) -> pd.DataFrame:
 
 def derive_heuristic_labels(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Kept for API compatibility with existing surface.
+    Kept for API compatibility.
     """
     if df.empty:
         return pd.DataFrame(columns=['region_id', 'heuristic_label', 'bbox', 'density', 'aspect_ratio'])
@@ -129,7 +133,7 @@ def derive_heuristic_labels(df: pd.DataFrame) -> pd.DataFrame:
     df_expanded['bbox_h'] = bboxes.apply(lambda b: b[3] - b[1])
     df_expanded['area'] = df_expanded['bbox_w'] * df_expanded['bbox_h']
     df_expanded['aspect_ratio'] = np.where(df_expanded['bbox_h'] > 0,
-                                           df_expanded['bbox_w'] / df_expanded['bbox_h'], 0)
+                                         df_expanded['bbox_w'] / df_expanded['bbox_h'], 0)
 
     text_col = 'text' if 'text' in df.columns else ('content' if 'content' in df.columns else None)
     if text_col:
@@ -138,7 +142,7 @@ def derive_heuristic_labels(df: pd.DataFrame) -> pd.DataFrame:
         df_expanded['char_count'] = 0
 
     df_expanded['density'] = np.where(df_expanded['area'] > 0,
-                                      df_expanded['char_count'] / df_expanded['area'], 0)
+                                    df_expanded['char_count'] / df_expanded['area'], 0)
     is_text = (df_expanded['density'] > OCR_DENSITY_THRESHOLD) | \
               (df_expanded['aspect_ratio'] > ASPECT_RATIO_THRESHOLD)
     df_expanded['heuristic_label'] = np.where(is_text, 'text', 'image')
@@ -211,14 +215,18 @@ def main():
                 sys.exit(1)
 
         # Load, filter, and persist the ground‑truth annotations.
-        df = pd.read_parquet(input_path)
-        result_df = extract_ground_truth_labels(df)
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        result_df.to_parquet(output_path, index=False)
-        log.info(f"Saved ground truth to {output_path}. Rows: {len(result_df)}")
+        try:
+            df = pd.read_parquet(input_path)
+            result_df = extract_ground_truth_labels(df)
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            result_df.to_parquet(output_path, index=False)
+            log.info(f"Saved ground truth to {output_path}. Rows: {len(result_df)}")
 
-        # Write checksum for verification.
-        _write_checksum(output_path, checksum_path)
+            # Write checksum for verification.
+            _write_checksum(output_path, checksum_path)
+        except Exception as e:
+            log.error(f"Failed to process ground truth: {e}")
+            sys.exit(1)
     else:
         # Default behavior for other modes (maintains backward compatibility).
         input_path = Path(args.input)
