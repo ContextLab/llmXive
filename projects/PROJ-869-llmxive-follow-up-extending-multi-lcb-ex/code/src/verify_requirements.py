@@ -9,6 +9,7 @@ output for some wheels.
 """
 
 import sys
+import subprocess
 from pathlib import Path
 
 from llmxive_toolkit import paths, get_logger
@@ -21,7 +22,7 @@ def _load_requirements_file() -> Path:
     """
     # ``verify_requirements.py`` lives in ``code/src``; the project root is
     # three levels up (src → code → project root).
-    return Path(__file__).resolve().parents[2] / "requirements.txt"
+    return Path(__file__).resolve().parents[3] / "requirements.txt"
 
 def _capture_freeze() -> str:
     """
