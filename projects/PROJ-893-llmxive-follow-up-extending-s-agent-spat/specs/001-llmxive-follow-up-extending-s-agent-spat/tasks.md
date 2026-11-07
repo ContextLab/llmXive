@@ -28,8 +28,8 @@
 
 **Purpose**: Project initialization, configuration, and dependency management.
 
-- [X] T001a [P] Create `code/` directory
-- [ ] T001b [P] Create `data/raw/` directory
+- [~] T001a [P] Create `code/` directory
+- [~] T001b [P] Create `data/raw/` directory
 - [X] T001c [P] Create `data/derived/` directory
 - [X] T001d [P] Create `data/results/` directory
 - [X] T001e [P] Create `specs/001-symbolic-spatial-reasoning/contracts/` directory
@@ -43,7 +43,7 @@
 
 **Purpose**: Core infrastructure, data hygiene, and validation gates. **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T004 [P] Implement `code/hygiene.py` to compute SHA-256 hashes for `data/raw/*` and `data/derived/*` (excluding results until Phase 6) and update `state/projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat.yaml`
+- [ ] T004 [P] Implement `code/hygiene.py` to compute SHA-256 hashes for `data/raw/*` and `data/derived/*` (excluding results until Phase 6) and update `state/projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat.yaml` <!-- FAILED-IN-EXECUTION: code/hygiene.py exit=1 -->
 - [ ] T005a [P] Create `dataset.schema.yaml` (JSON Schema Draft 7) defining fields: `id`, `geometry`, `label`. **Sample**: `{"id": "scene_001", "geometry": {"objects": [{"x": 1.0, "y": 2.0}]}, "label": 5}`.
 - [~] T005b [P] Create `constraints.schema.yaml` (JSON Schema Draft 7) defining fields: `scene_id`, `constraints`, `status`. **Sample**: `{"scene_id": "scene_001", "constraints": [{"type": "left_of", "a": "obj1", "b": "obj2"}], "status": "valid"}`.
 - [ ] T005c [P] Create `solver_output.schema.yaml` (JSON Schema Draft 7) defining fields: `scene_id`, `prediction`, `latency_ms`, `status`. **Sample**: `{"scene_id": "scene_001", "prediction": 5, "latency_ms": 120.5, "status": "success"}`.

@@ -18,10 +18,7 @@ T002:
 T003:
   task: fc73717401ac9f8f91dff6d9cd9d3850ba0e593b5bc69db8d09d0ff587dbb221
 T004:
-  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat.yaml`
-    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
-    owns state/ and derives artifact hashes at verification time. Re-scope the step
-    to write only project-owned outputs.'
+  reason: 'Requested task execution failed; rerun successfully: code/hygiene.py exit=1'
   task: 0afffeab6853412e48d09806775a6e9879b87b87f1e7593c47fca05f82285b47
 T005a:
   reason: 'declared artifact(s) missing/empty/invalid: dataset.schema.yaml'

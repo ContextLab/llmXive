@@ -78,16 +78,16 @@ INTERNALERROR>   File "/home/runner/work/llmXive/llmXive/projects/PROJ-893-llmxi
 INTERNALERROR>     sys.exit(1)
 INTERNALERROR> SystemExit: 1
 
-============================== 1 skipped in 0.65s ==============================
+========================= 1 skipped, 1 error in 0.52s ==========================
 
 mainloop: caught unexpected SystemExit!
 
 - python -m pytest tests/integration/test_pipeline.py -> rc=4
 ============================= test session starts ==============================
-platform linux -- Python 3.11.17, pytest-8.2.2, pluggy-1.6.0
+platform linux -- Python 3.11.18, pytest-8.2.2, pluggy-1.7.0
 rootdir: /home/runner/work/llmXive/llmXive
 configfile: pyproject.toml
-plugins: anyio-4.15.1
+plugins: anyio-4.16.0
 collected 0 items
 
 ============================ no tests ran in 0.00s =============================
