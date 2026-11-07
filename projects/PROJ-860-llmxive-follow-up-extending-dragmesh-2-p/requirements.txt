@@ -1,8 +1,4 @@
-huggingface_hub==0.23.0
-pybullet==3.25.0
-torch==2.2.0+cpu
-numpy
-pandas
-scipy
-statsmodels
-psutil
+huggingface_hub
+datasets
+pybullet
+torch

@@ -6,6 +6,7 @@ The loader follows the fail-loud principle: any network, authentication,
 or file-not-found problem raises an exception and halts the pipeline.
 """
 
+import os
 import logging
 from pathlib import Path
 from typing import Optional
@@ -34,12 +35,17 @@ def _ensure_raw_dir() -> None:
     DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
 
 def _download_and_write_manifest(output_path: Path) -> Path:
+    # To avoid "Invalid username or password" errors on public repos in environments
+    # with stale/invalid HF tokens, we explicitly unset the token.
+    os.environ.pop("HF_TOKEN", None)
+    
     logger.info(f"Fetching manifest '{HF_MANIFEST_FILENAME}' from repo '{HF_REPO_ID}'.")
     try:
         downloaded_path = hf_hub_download(
             repo_id=HF_REPO_ID,
             filename=HF_MANIFEST_FILENAME,
             repo_type="dataset",
+            token=False # Force public access
         )
     except Exception as exc:
         logger.error(f"Failed to download manifest: {exc}")
