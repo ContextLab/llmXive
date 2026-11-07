@@ -1,12 +1,12 @@
 status: none
-intent: download LDBC SNB query workload dataset with plan depth and latency fields
-  python package dataset
+intent: synthetic query workload with plan depth latency LDBC SNB TPC-H python package
+  dataset
 required_fields:
 - query_id
 - query_text
 - plan_depth
-- source_type
 - latency_ms
-cache_key: 0195e165c1707edce9828c0758979d8470691262208e6b82a2a27807d950fd0f
-searched_at: '2026-11-06T12:07:28.842697+00:00'
+- source_type
+cache_key: f293dd3d52825a02a403426c98f6a8ac7c305376a616cdd8b6f060c180ff86e0
+searched_at: '2026-11-07T12:07:41.768964+00:00'
 retry_count: 1
