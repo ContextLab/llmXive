@@ -14,13 +14,6 @@ T003:
     \ `ruff .` reports no errors and `black --check .` reports \u201CAll done!\u201D\
     ."
   sig: e9215ffb8edc059b60dadbaaa4f098d8a43bb9cbe683131d0b83faab6b23ae14
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
-    `black` settings) or any other artifact demonstrating that ruff and black have
-    been set up is present. Without such files or documentation, the claim that linting
-    and formatting tools are configured cannot be verified.
 T006:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
