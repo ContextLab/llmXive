@@ -1,15 +1,17 @@
 status: none
-intent: download bulk alloy compositions spacegroup dataset from Materials Project
-  and OQMD python package dataset
+intent: Bulk alloy configuration dataset Materials Project OQMD spacegroup segregation
+  energy python package
 required_fields:
-- material_id
-- composition
+- alloy_composition
 - spacegroup
-- formation_energy_per_atom
-- energy_above_hull
-- band_gap
-- structure
+- formation_energy
 - segregation_energy
-cache_key: eeeb54e7e1a02fc9713f903a507c1e35fd407da3db5449352a5b11c46786fd56
-searched_at: '2026-10-25T11:56:00.780089+00:00'
+- misorientation_angle
+- boundary_plane
+- strain
+- atomic_radius
+- electronegativity
+- structure_file
+cache_key: e68645014c3e0513a49d06cc5a481f594987c06c4f754786bb00abe8d3301578
+searched_at: '2026-11-07T02:08:45.324360+00:00'
 retry_count: 1
