@@ -1,14 +1,7 @@
 last_used: eric-kandel
-last_used_at: '2026-11-07T00:08:25.852645+00:00'
+last_used_at: '2026-11-07T02:04:51.476944+00:00'
 last_outcome: model_error
 history:
-- slug: geoffrey-west
-  started_at: '2026-10-13T14:10:05.168384+00:00'
-  ended_at: '2026-10-13T16:08:29.055921+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-119-statistical-modeling-of-temporal-depende/reviews/research/geoffrey-west-simulated__2026-10-13__research.md
 - slug: john-von-neumann
   started_at: '2026-10-13T16:08:29.055921+00:00'
   ended_at: '2026-10-13T18:11:20.487128+00:00'
@@ -1072,4 +1065,8 @@ history:
 - slug: freeman-dyson
   started_at: '2026-11-06T22:04:21.227464+00:00'
   ended_at: '2026-11-07T00:08:25.852645+00:00'
+  outcome: model_error
+- slug: freeman-dyson
+  started_at: '2026-11-07T00:08:25.852645+00:00'
+  ended_at: '2026-11-07T02:04:51.476944+00:00'
   outcome: model_error
