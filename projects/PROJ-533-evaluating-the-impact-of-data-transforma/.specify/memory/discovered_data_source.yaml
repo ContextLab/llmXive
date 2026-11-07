@@ -1,37 +1,41 @@
 status: verified
 kind: pypi_package
 ref: openml
-access_python: "import openml, pandas as pd\n# Load a well\u2011known classification\
-  \ dataset (Adult) from OpenML\ndataset = openml.datasets.get_dataset(1461)  # dataset\
-  \ id for \"Adult\"\nX, y, _, _ = dataset.get_data(target=dataset.default_target_attribute)\n\
-  # Combine features and target into a single DataFrame\ndf = pd.concat([X, y], axis=1)\n\
-  # Record count\nrecords = len(df)\n# Numeric feature count\nnumeric_cols = X.select_dtypes(include='number').columns\n\
-  num_numeric = len(numeric_cols)\n# Missingness percentage per column (as a dict\
-  \ of column -> %)\nmissing_pct = (df.isna().mean() * 100).to_dict()\n# Prepare list\
-  \ of present fields mapped to the requested schema\nfields = [\n    \"dataset_name\"\
-  ,          # dataset.name\n    \"download_url\",          # dataset.url\n    \"\
-  num_instances\",         # len(df)\n    \"num_numeric_features\",  # num_numeric\n\
-  \    \"categorical_target\",    # dataset.default_target_attribute\n    \"missingness_percentages\"\
-  # missing_pct\n]\nprint(f\"RECORDS={records}\")\nprint(\"FIELDS=\" + \",\".join(fields))"
-record_count: 45211
+access_python: "import pandas as pd, openml\ndf = openml.datasets.list_datasets(output_format='dataframe')\n\
+  # Keep only classification datasets (NumberOfClasses > 1)\ndf = df[df['NumberOfClasses'].notna()\
+  \ & (df['NumberOfClasses'] > 1)]\n# Rename columns to match required field names\
+  \ where possible\ndf = df.rename(columns={\n    'did': 'dataset_id',\n    'name':\
+  \ 'name',\n    'url': 'url',\n    'NumberOfInstances': 'n_instances',\n    'NumberOfFeatures':\
+  \ 'n_features',\n    'NumberOfNumericFeatures': 'n_continuous_features',\n    'NumberOfSymbolicFeatures':\
+  \ 'n_categorical_features',\n    'default_target_attribute': 'target_column'\n})\n\
+  # Compute missing percentage\ndf['missing_percentage'] = (df['NumberOfMissingValues']\
+  \ / (df['n_instances'] * df['n_features'])).fillna(0) * 100\nfields = ['dataset_id','name','url','n_instances','n_features','n_continuous_features','n_categorical_features','target_column','missing_percentage']\n\
+  print(f\"RECORDS={len(df)}\")\nprint(\"FIELDS=\" + \",\".join(fields))"
+record_count: 2751
 sample_fields:
-- dataset_name
-- download_url
-- num_instances
-- num_numeric_features
-- categorical_target
-- missingness_percentages
-field_coverage: 0.778
+- dataset_id
+- name
+- url
+- n_instances
+- n_features
+- n_continuous_features
+- n_categorical_features
+- target_column
+- missing_percentage
+field_coverage: 0.833
 required_fields:
-- continuous numeric feature columns
-- categorical target column
-- sample identifier (optional)
-- dataset name
-- download url
-- sha256 checksum
-- number of instances (N)
-- number of numeric features
-- missingness percentage per feature
-intent: UCI Machine Learning Repository OpenML classification datasets python package
-  dataset
-cache_key: d45120f9166eb6503c4b02a758b5701612881bbbb893eff89fd1e4bb96f21bb8
+- dataset_id
+- name
+- url
+- n_instances
+- n_features
+- n_continuous_features
+- n_categorical_features
+- target_column
+- target_type
+- missing_percentage
+- sha256_checksum
+- metadata_json
+intent: download OpenML UCI Machine Learning Repository classification datasets python
+  package dataset
+cache_key: 5b3df5df98865a7aec3ebc4a49fd48d058796d25f78efbc396c6bfb487e8d2ff
