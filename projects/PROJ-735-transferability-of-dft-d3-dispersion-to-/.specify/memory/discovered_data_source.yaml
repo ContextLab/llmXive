@@ -1,14 +1,14 @@
 status: none
-intent: "download IL\u2011Benchmark ionic liquid interaction energies CCSD(T)/CBS\
-  \ Zenodo NIST IL Thermophysical Database python package dataset"
+intent: download ionic liquid benchmark interaction energies dataset Zenodo CCSD(T)
+  reference python package dataset
 required_fields:
 - ion_pair_id
-- reference_energy
+- reference_interaction_energy
 - dft_d3_total_energy
 - d3_dispersion_energy
 - signed_error
-- d3_vs_reference_dispersion_diff
-- geometry_coordinates
-cache_key: dacb99cdc372ef1038a837b76744f2a71b22603307b1157aadb9b75cf9471732
-searched_at: '2026-11-06T17:10:37.656825+00:00'
+- d3_vs_reference_dispersion_difference
+- molecular_coordinates
+cache_key: e991747ca44c5b6ac066ddbce822edec1b35d83ca205c13301691eccc5169861
+searched_at: '2026-11-07T15:08:20.481674+00:00'
 retry_count: 1
