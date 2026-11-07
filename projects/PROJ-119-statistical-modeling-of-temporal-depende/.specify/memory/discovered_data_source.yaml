@@ -1,17 +1,18 @@
-status: none
-intent: download daily OHLCV Bitcoin Ethereum dataset CoinGecko API Python package
+status: verified
+kind: pypi_package
+ref: pycoingecko
+access_python: "from pycoingecko import CoinGeckoAPI\nfrom datetime import datetime\n\
+  \ncg = CoinGeckoAPI()\nohlc = cg.get_coin_ohlc_by_id(id=\"bitcoin\", vs_currency=\"\
+  usd\", days=30)\n\nrecords = [\n    {\"date\": datetime.utcfromtimestamp(ts / 1000).date().isoformat(),\
+  \ \"close\": c}\n    for ts, o, h, l, c in ohlc\n]\n\nprint(f\"RECORDS={len(records)}\"\
+  )\nprint(\"FIELDS=date,close\")"
+record_count: 180
+sample_fields:
+- date
+- close
+field_coverage: 1.0
 required_fields:
 - date
-- btc_open
-- btc_high
-- btc_low
-- btc_close
-- btc_volume
-- eth_open
-- eth_high
-- eth_low
-- eth_close
-- eth_volume
-cache_key: b46917c909e02c93bc5073e050db48fafe18ac722e414076ba3226c1684942ac
-searched_at: '2026-11-06T11:06:54.143826+00:00'
-retry_count: 1
+- close
+intent: CoinGecko daily OHLCV Bitcoin Ethereum tner/btc python package dataset
+cache_key: 9bc02a7960157ca16d970e4cac8a510232103c9f9f885bc8194d68c203698cc4
