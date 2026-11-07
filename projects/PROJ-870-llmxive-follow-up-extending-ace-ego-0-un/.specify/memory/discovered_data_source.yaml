@@ -1,18 +1,13 @@
 status: none
-intent: download VLA egocentric video dataset and ACE-Ego-0 reference metadata python
-  package dataset
+intent: download VLA egocentric video dataset ACE-Ego-0 reference python package dataset
 required_fields:
-- frame_id
 - video_id
-- segment_id
-- image_path
-- entropy
-- hand_detection_confidence
-- lighting_metric
-- timestamp
-- exposure
-- focal_length
-- dynamic_reliability_score
-cache_key: 1f007758df7448d344609ccdd165ae583077ff4762a854242afd7ff081c9a1a0
-searched_at: '2026-11-06T19:09:37.259258+00:00'
+- segment_start_time
+- segment_end_time
+- video_path_or_frame_sequence
+- camera_timestamp
+- camera_exposure
+- camera_focal_length
+cache_key: 7a9ca67e955593f32075f1b67b719a14cabbd4f928b8071a62d72d64093ae1e7
+searched_at: '2026-11-07T18:07:53.914102+00:00'
 retry_count: 1
