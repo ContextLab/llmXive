@@ -1,14 +1,15 @@
 status: none
-intent: Download DragMesh-2 base geometry dataset for articulated object simulation
-  python package dataset
+intent: DragMesh-2 base geometry dataset python package download for tactile friction
+  simulation
 required_fields:
 - mesh_id
 - mesh_file_path
 - vertices
 - faces
-- material_properties
-- default_friction_range
 - articulation_joint_definitions
-cache_key: 591efae3c99fa1b8793da35509e0c3178a5c50a3901b25f15d49bf66093f90e9
-searched_at: '2026-11-07T23:08:50.715973+00:00'
+- default_friction_range
+- object_category
+- scale
+cache_key: 686bd87ee79f1923927d29afd43247d121ac49e71e9a537ad5f73c2ef4fb2f1f
+searched_at: '2026-11-07T23:09:37.764238+00:00'
 retry_count: 1
