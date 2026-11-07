@@ -28690,7 +28690,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-07T12:07:08.335784+00:00",
+  "generated_at": "2026-11-07T12:19:46.739166+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -82042,6 +82042,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 3.410674,
+          "ended_at": "2026-11-07T12:08:15.283310Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-07T12:08:11.872636Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 8.465032,
           "ended_at": "2026-11-06T14:05:35.771669Z",
           "model": "zai-org.glm-5.3",
@@ -82111,14 +82119,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-10-30T06:19:35.959803Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 6.175615,
-          "ended_at": "2026-10-29T08:08:42.139168Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-10-29T08:08:35.963553Z"
         }
       ],
       "paper_status": null,
@@ -120939,6 +120939,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 4.336236,
+          "ended_at": "2026-11-07T12:15:25.019078Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-07T12:15:20.682842Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 446.535722,
           "ended_at": "2026-10-09T12:19:07.392267Z",
           "model": "openai.gpt-oss-120b",
@@ -121008,14 +121016,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-09-26T15:17:33.943241Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 425.367277,
-          "ended_at": "2026-09-21T10:06:16.097058Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-21T09:59:10.729781Z"
         }
       ],
       "paper_status": null,
@@ -158601,6 +158601,14 @@
       "last_run_log": [
         {
           "agent": "planner",
+          "duration_s": 87.25828,
+          "ended_at": "2026-11-07T12:07:42.289213Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-07T12:06:15.030933Z"
+        },
+        {
+          "agent": "planner",
           "duration_s": 91.458113,
           "ended_at": "2026-11-06T12:07:29.385848Z",
           "model": "zai-org.glm-5.3",
@@ -158670,14 +158678,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-10-31T17:06:07.868381Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 102.605337,
-          "ended_at": "2026-10-31T10:06:28.645615Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-10-31T10:04:46.040278Z"
         }
       ],
       "paper_status": null,
@@ -175571,6 +175571,42 @@
   "recent_activity": [
     {
       "agent": "implementer",
+      "duration_s": 4.336236,
+      "ended_at": "2026-11-07T12:15:25.019078Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-496-the-influence-of-simulated-social-valida",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-11-07T12:15:20.682842Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 3.410674,
+      "ended_at": "2026-11-07T12:08:15.283310Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-267-predicting-plant-stress-response-from-pu",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-11-07T12:08:11.872636Z"
+    },
+    {
+      "agent": "planner",
+      "duration_s": 87.25828,
+      "ended_at": "2026-11-07T12:07:42.289213Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-883-llmxive-follow-up-extending-omniretrieva",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-11-07T12:06:15.030933Z"
+    },
+    {
+      "agent": "implementer",
       "duration_s": 3.625464,
       "ended_at": "2026-11-07T12:06:42.609751Z",
       "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
@@ -181619,42 +181655,6 @@
       "project_stage": "in_progress",
       "severity": "hard",
       "started_at": "2026-11-04T13:06:40.037101Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 25.968007,
-      "ended_at": "2026-11-04T12:24:08.426129Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-256-quantifying-the-impact-of-data-cleaning-",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-11-04T12:23:42.458122Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 97.829858,
-      "ended_at": "2026-11-04T12:23:42.454125Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-256-quantifying-the-impact-of-data-cleaning-",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-11-04T12:22:04.624267Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 246.59014,
-      "ended_at": "2026-11-04T12:22:04.620114Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-256-quantifying-the-impact-of-data-cleaning-",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-11-04T12:17:58.029974Z"
     }
   ],
   "reviewed_preprints": [
