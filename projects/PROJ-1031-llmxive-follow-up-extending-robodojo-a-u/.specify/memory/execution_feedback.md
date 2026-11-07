@@ -12,90 +12,164 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/src/executor.py: self-declared fabricated metric — “…ction time                  # Mock result for demonstration if no real…”; 8 command(s) failed: python code/src/main.py --stage download (rc=1); python code/src/main.py --stage embed --tasks 18 (rc=1); python code/src/main.py --stage plan --tasks 18 (rc=1); 3 declared deliverable(s) absent: data/interim/baseline_results.parquet; data/interim/execution_logs.parquet; data/interim/mapping_metrics.parquet
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/src/executor.py: self-declared fabricated metric — “…ction time                  # Mock result for demonstration if no real…”; 9 command(s) failed: python code/src/main.py --stage download (rc=1); python code/src/main.py --stage embed --tasks 18 (rc=1); python code/src/main.py --stage plan --tasks 18 (rc=1); 3 declared deliverable(s) absent: data/interim/baseline_results.parquet; data/interim/execution_logs.parquet; data/interim/mapping_metrics.parquet
 
 ## Failing / missing run-book commands
 
 - python code/src/main.py --stage download -> rc=1
+ from .arrow_dataset import Dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 60, in <module>
+    import pyarrow as pa
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+
+During handling of the above exception, another exception occurred:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 25, in <module>
-    from src.planner import AStarPlanner, create_planner, run_planning_pipeline
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/planner.py", line 19, in <module>
-    from src.config import PLANNING_TIMEOUT_S, RAM_LIMIT_GB
-ImportError: cannot import name 'RAM_LIMIT_GB' from 'src.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/config.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 22, in <module>
+    from src.data_loader import stream_robodojo_tasks
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/data_loader.py", line 15, in <module>
+    raise ImportError(
+ImportError: The 'datasets' package is required. Please install it via: pip install datasets
 
 - python code/src/main.py --stage embed --tasks 18 -> rc=1
+ from .arrow_dataset import Dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 60, in <module>
+    import pyarrow as pa
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+
+During handling of the above exception, another exception occurred:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 25, in <module>
-    from src.planner import AStarPlanner, create_planner, run_planning_pipeline
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/planner.py", line 19, in <module>
-    from src.config import PLANNING_TIMEOUT_S, RAM_LIMIT_GB
-ImportError: cannot import name 'RAM_LIMIT_GB' from 'src.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/config.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 22, in <module>
+    from src.data_loader import stream_robodojo_tasks
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/data_loader.py", line 15, in <module>
+    raise ImportError(
+ImportError: The 'datasets' package is required. Please install it via: pip install datasets
 
 - python code/src/main.py --stage plan --tasks 18 -> rc=1
+ from .arrow_dataset import Dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 60, in <module>
+    import pyarrow as pa
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+
+During handling of the above exception, another exception occurred:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 25, in <module>
-    from src.planner import AStarPlanner, create_planner, run_planning_pipeline
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/planner.py", line 19, in <module>
-    from src.config import PLANNING_TIMEOUT_S, RAM_LIMIT_GB
-ImportError: cannot import name 'RAM_LIMIT_GB' from 'src.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/config.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 22, in <module>
+    from src.data_loader import stream_robodojo_tasks
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/data_loader.py", line 15, in <module>
+    raise ImportError(
+ImportError: The 'datasets' package is required. Please install it via: pip install datasets
 
 - python code/src/main.py --stage execute --mode oracle -> rc=1
+ from .arrow_dataset import Dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 60, in <module>
+    import pyarrow as pa
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+
+During handling of the above exception, another exception occurred:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 25, in <module>
-    from src.planner import AStarPlanner, create_planner, run_planning_pipeline
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/planner.py", line 19, in <module>
-    from src.config import PLANNING_TIMEOUT_S, RAM_LIMIT_GB
-ImportError: cannot import name 'RAM_LIMIT_GB' from 'src.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/config.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 22, in <module>
+    from src.data_loader import stream_robodojo_tasks
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/data_loader.py", line 15, in <module>
+    raise ImportError(
+ImportError: The 'datasets' package is required. Please install it via: pip install datasets
 
 - python code/src/main.py --stage execute --mode real -> rc=1
+ from .arrow_dataset import Dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 60, in <module>
+    import pyarrow as pa
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+
+During handling of the above exception, another exception occurred:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 25, in <module>
-    from src.planner import AStarPlanner, create_planner, run_planning_pipeline
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/planner.py", line 19, in <module>
-    from src.config import PLANNING_TIMEOUT_S, RAM_LIMIT_GB
-ImportError: cannot import name 'RAM_LIMIT_GB' from 'src.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/config.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 22, in <module>
+    from src.data_loader import stream_robodojo_tasks
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/data_loader.py", line 15, in <module>
+    raise ImportError(
+ImportError: The 'datasets' package is required. Please install it via: pip install datasets
 
 - python code/src/main.py --stage baseline_gpu --subset 5 -> rc=1
+ from .arrow_dataset import Dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 60, in <module>
+    import pyarrow as pa
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+
+During handling of the above exception, another exception occurred:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 25, in <module>
-    from src.planner import AStarPlanner, create_planner, run_planning_pipeline
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/planner.py", line 19, in <module>
-    from src.config import PLANNING_TIMEOUT_S, RAM_LIMIT_GB
-ImportError: cannot import name 'RAM_LIMIT_GB' from 'src.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/config.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 22, in <module>
+    from src.data_loader import stream_robodojo_tasks
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/data_loader.py", line 15, in <module>
+    raise ImportError(
+ImportError: The 'datasets' package is required. Please install it via: pip install datasets
 
 - python code/src/main.py --stage analyze -> rc=1
+ from .arrow_dataset import Dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 60, in <module>
+    import pyarrow as pa
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+
+During handling of the above exception, another exception occurred:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 25, in <module>
-    from src.planner import AStarPlanner, create_planner, run_planning_pipeline
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/planner.py", line 19, in <module>
-    from src.config import PLANNING_TIMEOUT_S, RAM_LIMIT_GB
-ImportError: cannot import name 'RAM_LIMIT_GB' from 'src.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/config.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 22, in <module>
+    from src.data_loader import stream_robodojo_tasks
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/data_loader.py", line 15, in <module>
+    raise ImportError(
+ImportError: The 'datasets' package is required. Please install it via: pip install datasets
+
+- python code/utils/io.py --verify-checksums -> rc=1
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/utils/io.py", line 23, in <module>
+    from datasets import load_dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/lib/python3.11/site-packages/datasets/__init__.py", line 17, in <module>
+    from .arrow_dataset import Dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 60, in <module>
+    import pyarrow as pa
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
 - python -c "import pandas as pd; print(pd.read_parquet('data/interim/execution_logs.parquet').head())" -> rc=1
 
 Traceback (most recent call last):
   File "<string>", line 1, in <module>
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 667, in read_parquet
-    return impl.read(
-           ^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 267, in read
-    path_or_handle, handles, filesystem = _get_path_or_handle(
-                                          ^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 140, in _get_path_or_handle
-    handles = get_handle(
-              ^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/common.py", line 882, in get_handle
-    handle = open(handle, ioargs.mode)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^
-FileNotFoundError: [Errno 2] No such file or directory: 'data/interim/execution_logs.parquet'
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 651, in read_parquet
+    impl = get_engine(engine)
+           ^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 67, in get_engine
+    raise ImportError(
+ImportError: Unable to find a usable engine; tried using: 'pyarrow', 'fastparquet'.
+A suitable version of pyarrow or fastparquet is required for parquet support.
+Trying to import the above resulted in these errors:
+ - Missing optional dependency 'pyarrow'. pyarrow is required for parquet support. Use pip or conda to install pyarrow.
+ - Missing optional dependency 'fastparquet'. fastparquet is required for parquet support. Use pip or conda to install fastparquet.
 
 - python -m pytest code/tests/ -v -> rc=2
 sis import perform_wilcoxon_test, calculate_rank_biserial_correlation
@@ -118,7 +192,7 @@ ERROR code/tests/unit/test_planner.py
 ERROR code/tests/unit/test_stats.py
 ERROR code/tests/unit/test_stats_analysis.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 14 errors during collection !!!!!!!!!!!!!!!!!!!
-============================== 14 errors in 2.94s ==============================
+============================== 14 errors in 5.29s ==============================
 
 
 

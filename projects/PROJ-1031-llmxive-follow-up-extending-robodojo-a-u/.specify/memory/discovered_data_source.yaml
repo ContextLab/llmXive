@@ -1,14 +1,17 @@
 status: none
-intent: RoboDojo task metadata parquet download python package dataset
+intent: download RoboDojo parquet task metadata dataset from HuggingFace python package
+  dataset
 required_fields:
 - task_id
+- task_name
 - scene_name
 - object_poses
-- goal_state
-- success_pose_threshold
-- success_orientation_threshold
-- affordance_graph
+- target_pose
+- success_criteria_pose_threshold
+- success_criteria_orientation_threshold
 - semantic_embedding_vector
-cache_key: 2d3c36e5d4df601b3dfa50bd4835d680eaebdced27a4988ce48734bc19990f98
-searched_at: '2026-11-04T01:15:25.337581+00:00'
+- object_affordances
+- symbolic_state_predicates
+cache_key: 564fdbd4795101539d277f3905cad8f9e853b9552a26c663928e52d2413a221c
+searched_at: '2026-11-07T08:11:12.020426+00:00'
 retry_count: 1
