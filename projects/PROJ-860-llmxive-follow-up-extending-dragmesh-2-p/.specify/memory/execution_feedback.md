@@ -7,23 +7,22 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/data_loader.py -> rc=1
-_hub/authentication
-Invalid username or password.
+ized for url: https://huggingface.co/datasets/TianshanZhang/DragMesh-2/resolve/main/dragmesh_manifest.jsonl
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/data_loader.py", line 104, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/data_loader.py", line 121, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/data_loader.py", line 95, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/data_loader.py", line 112, in main
     manifest_path = load_dragmesh_manifest()
                     ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/data_loader.py", line 80, in load_dragmesh_manifest
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/data_loader.py", line 97, in load_dragmesh_manifest
     return _download_and_write_manifest(output_path)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/data_loader.py", line 52, in _download_and_write_manifest
-    raise RuntimeError(f"Unable to retrieve DragMesh-2 manifest from {HF_REPO_ID}. Please check repo access.") from exc
-RuntimeError: Unable to retrieve DragMesh-2 manifest from TianshanZhang/DragMesh-2. Please check repo access.
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/data_loader.py", line 77, in _download_and_write_manifest
+    raise RuntimeError(
+RuntimeError: Unable to retrieve DragMesh-2 manifest from TianshanZhang/DragMesh-2 via HF Hub or HTTP. The repository may be gated or unreachable.
 
 - python code/main.py --mode full --num_objects 10 --seed 42 -> rc=2
 

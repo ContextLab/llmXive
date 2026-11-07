@@ -1,6 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-11-06T19:08:18Z",
-  "project_id": "PROJ-860-llmxive-follow-up-extending-dragmesh-2-p"
+  "updated_at": "2026-11-07T23:08:50Z",
+  "project_id": "PROJ-860-llmxive-follow-up-extending-dragmesh-2-p",
+  "replan_rounds": 1
 }

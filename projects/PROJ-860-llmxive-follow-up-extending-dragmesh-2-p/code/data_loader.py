@@ -8,6 +8,7 @@ or file-not-found problem raises an exception and halts the pipeline.
 
 import os
 import logging
+import requests
 from pathlib import Path
 from typing import Optional
 
@@ -35,37 +36,53 @@ def _ensure_raw_dir() -> None:
     DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
 
 def _download_and_write_manifest(output_path: Path) -> Path:
-    # To avoid "Invalid username or password" errors on public repos in environments
-    # with stale/invalid HF tokens, we explicitly unset the token.
+    """
+    Fetch the manifest from HuggingFace. 
+    Attempts hf_hub_download first, falling back to a direct HTTP request 
+    to bypass potential local authentication/token conflicts for public repos.
+    """
+    # Explicitly unset tokens to avoid "Invalid username or password" errors 
+    # caused by stale credentials in the environment or HF config.
     os.environ.pop("HF_TOKEN", None)
+    os.environ.pop("HUGGING_FACE_HUB_TOKEN", None)
     
-    logger.info(f"Fetching manifest '{HF_MANIFEST_FILENAME}' from repo '{HF_REPO_ID}'.")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Attempt 1: hf_hub_download (as requested in spec)
     try:
+        logger.info(f"Attempting hf_hub_download from repo '{HF_REPO_ID}'...")
         downloaded_path = hf_hub_download(
             repo_id=HF_REPO_ID,
             filename=HF_MANIFEST_FILENAME,
             repo_type="dataset",
             token=False # Force public access
         )
+        with Path(downloaded_path).open("rb") as src, output_path.open("wb") as dst:
+            dst.write(src.read())
+        logger.info("Successfully downloaded manifest via hf_hub_download.")
     except Exception as exc:
-        logger.error(f"Failed to download manifest: {exc}")
-        raise RuntimeError(f"Unable to retrieve DragMesh-2 manifest from {HF_REPO_ID}. Please check repo access.") from exc
+        logger.warning(f"hf_hub_download failed: {exc}. Attempting direct HTTP fallback for public access...")
+        
+        # Attempt 2: Direct HTTP request to the resolve URL
+        # This bypasses the hf_hub authentication logic entirely.
+        url = f"https://huggingface.co/datasets/{HF_REPO_ID}/resolve/main/{HF_MANIFEST_FILENAME}"
+        try:
+            response = requests.get(url, allow_redirects=True, timeout=60)
+            response.raise_for_status()
+            with output_path.open("wb") as dst:
+                dst.write(response.content)
+            logger.info("Successfully downloaded manifest via direct HTTP request.")
+        except Exception as exc2:
+            logger.error(f"Direct HTTP request also failed: {exc2}")
+            raise RuntimeError(
+                f"Unable to retrieve DragMesh-2 manifest from {HF_REPO_ID} via HF Hub or HTTP. "
+                "The repository may be gated or unreachable."
+            ) from exc2
 
-    if not Path(downloaded_path).exists() or Path(downloaded_path).stat().st_size == 0:
-        raise RuntimeError("Downloaded manifest is empty or missing.")
+    if not output_path.exists() or output_path.stat().st_size == 0:
+        raise RuntimeError("Written manifest is empty or missing.")
 
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with Path(downloaded_path).open("rb") as src, output_path.open("wb") as dst:
-        while True:
-            chunk = src.read(8192)
-            if not chunk:
-                break
-            dst.write(chunk)
-
-    if output_path.stat().st_size == 0:
-        raise RuntimeError("Written manifest is empty after copy.")
-
-    logger.info(f"Successfully wrote manifest to {output_path}")
+    logger.info(f"Manifest successfully written to {output_path}")
     return output_path
 
 def load_dragmesh_manifest(output_path: Optional[Path] = None) -> Path:
