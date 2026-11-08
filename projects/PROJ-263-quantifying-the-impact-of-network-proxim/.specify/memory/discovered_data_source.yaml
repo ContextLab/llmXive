@@ -1,11 +1,12 @@
 status: none
-intent: KONECT Gowalla social network geographic coordinates python package dataset
+intent: OpenFlights airport routes network dataset python package dataset
 required_fields:
 - node_id
 - latitude
 - longitude
-- edge_source
-- edge_target
-cache_key: e15aea6ca63265d4d0a28d6f8ae1a1149b2f8fcb9f786b27a5cdbf5b7550e219
-searched_at: '2026-11-07T19:08:24.821742+00:00'
+- source_node_id
+- target_node_id
+- edge_weight (optional)
+cache_key: 0ddaf606e1e38f5fa385f9265804b93391cbb8fdf2784220a3fb0043baa15e00
+searched_at: '2026-11-08T23:07:09.073123+00:00'
 retry_count: 1
