@@ -1,15 +1,19 @@
 status: none
-intent: download safety category log dataset with HF curated logs and GitHub issue
-  logs python package dataset
+intent: download safety category log dataset centroids HuggingFace redteam-logs GitHub
+  issues human annotations python package dataset
 required_fields:
 - log_id
 - log_text
-- category
+- safety_category
+- component
+- strategy
 - source
-- annotator1_label
-- annotator2_label
-- annotator3_label
-- gold_label
-cache_key: 15bcd74e352424a9a32690f6447c7163ab838f8fa4c59f4d6ae287a65c4403f7
-searched_at: '2026-10-25T06:31:10.249802+00:00'
+- embedding_vector
+- centroid_label
+- human_annotation
+- annotator_id
+- gold_standard_label
+- novel_attack_flag
+cache_key: 59adf540e092bcd8ca575d3aefa273a6fa83ae7e2a38f9125e23b66139040ed4
+searched_at: '2026-11-08T09:07:24.589220+00:00'
 retry_count: 1

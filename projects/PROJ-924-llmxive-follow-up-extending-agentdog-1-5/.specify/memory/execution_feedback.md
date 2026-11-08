@@ -22,11 +22,11 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python -m pytest tests/unit/ -v | tee data/processed/test_results.log -> rc=4
 ============================= test session starts ==============================
-platform linux -- Python 3.11.17, pytest-8.2.0, pluggy-1.7.0 -- /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/bin/python
+platform linux -- Python 3.11.18, pytest-8.2.0, pluggy-1.7.0 -- /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/bin/python
 cachedir: .pytest_cache
 rootdir: /home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5
 configfile: pyproject.toml
-plugins: anyio-4.15.1
+plugins: anyio-4.16.0
 collecting ... collected 0 items
 
 ============================ no tests ran in 0.00s =============================
