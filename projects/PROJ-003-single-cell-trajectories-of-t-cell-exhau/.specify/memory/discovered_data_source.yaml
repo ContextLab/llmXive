@@ -1,16 +1,15 @@
 status: none
-intent: download GEO scRNAseq GSE136103 GSE127465 GSE111075 GSE138852 python package
-  dataset
+intent: download NCBI GEO raw count matrices GSE136103 GSE127465 GSE111075 GSE138852
+  using GEOparse python package dataset
 required_fields:
+- gene_id
 - cell_barcode
-- gene_symbol
 - raw_counts
-- mitochondrial_percent
-- CD3_expression
+- mt_gene_expression
+- CD3_gene_expression
 - PDCD1_expression
 - LAG3_expression
 - TOX_expression
-- sample_id
-cache_key: 5067a4f70ee3c6f84bfd496529a147f9fde2aee0a9eb9cb8ef414eb1aee705f3
-searched_at: '2026-10-25T12:12:17.674729+00:00'
+cache_key: 43071048e8c48b7c3e53d08f18a311d3d1c047a32dc0b1591ed39a16bd4bcbc8
+searched_at: '2026-11-08T01:09:25.858500+00:00'
 retry_count: 1
