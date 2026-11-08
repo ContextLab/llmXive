@@ -1,13 +1,15 @@
 status: none
-intent: Hardware validated quantization gap dataset GSM8K Llama-2-3B gradient norms
-  curvature KL divergence python package
+intent: GSM8K Llama-3-8B Llama-2-3B-4bit-GGUF onnxruntime quantization divergence
+  dataset python package dataset
 required_fields:
-- prompt
-- model_name
-- quantization_level
-- kl_divergence
+- prompt_text
 - gradient_norm
 - local_curvature
-cache_key: 7307676fd070e3a2eb49e970b2660969638b826b67a909b9922d9440def7b117
-searched_at: '2026-11-07T09:08:02.329917+00:00'
+- kl_divergence_int8
+- kl_divergence_int4
+- kl_divergence_fp8
+- model_name
+- quantization_bitwidth
+cache_key: 463bbe59302e604128f0c5d45d80a88e6ac727f32cfd95cbcd1783f665422e56
+searched_at: '2026-11-08T09:08:20.734729+00:00'
 retry_count: 1
