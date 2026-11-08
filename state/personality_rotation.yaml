@@ -1,14 +1,7 @@
-last_used: richard-feynman
-last_used_at: '2026-11-08T10:04:50.308733+00:00'
-last_outcome: model_error
+last_used: rosalind-franklin
+last_used_at: '2026-11-08T12:04:36.248669+00:00'
+last_outcome: abstained
 history:
-- slug: freeman-dyson
-  started_at: '2026-10-14T18:07:10.647288+00:00'
-  ended_at: '2026-10-14T20:08:58.713176+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-759-energy-profiling-of-quantized-llm-infere/reviews/research/freeman-dyson-simulated__2026-10-14__research.md
 - slug: geoffrey-west
   started_at: '2026-10-14T20:08:58.713176+00:00'
   ended_at: '2026-10-15T00:06:12.707434+00:00'
@@ -1036,3 +1029,7 @@ history:
   started_at: '2026-11-08T08:04:57.466501+00:00'
   ended_at: '2026-11-08T10:04:50.308733+00:00'
   outcome: model_error
+- slug: rosalind-franklin
+  started_at: '2026-11-08T10:04:50.308733+00:00'
+  ended_at: '2026-11-08T12:04:36.248669+00:00'
+  outcome: abstained
