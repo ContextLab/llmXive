@@ -1,8 +1,8 @@
 datasets==2.18.0
-pyarrow==14.0.1
-transformers==4.37.2
+transformers==4.37.0
 torch==2.2.0
 scikit-learn==1.4.0
-pandas==2.1.4
+pandas==2.2.0
+pyarrow==14.0.1
 pytest==7.4.3
-pyyaml==6.0.1
+PyYAML==6.0.1

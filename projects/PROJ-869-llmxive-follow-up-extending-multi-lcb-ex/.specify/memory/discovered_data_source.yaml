@@ -1,15 +1,13 @@
 status: none
-intent: Multi-LCB code benchmark download python solutions and test suites python
-  package dataset
+intent: download Multi-Language Code Benchmark MultiLCB dataset python package dataset
 required_fields:
-- task_id
 - problem_statement
-- ground_truth_python_solution
-- algorithmic_steps
 - target_language
-- failed_model_output
-- test_suite
-- metadata_language
-cache_key: e1f32b395b8529dd75d8b9cf0edc5bc8dc24447ecd19d19b677fa4f3cc982f00
-searched_at: '2026-11-08T05:10:28.521703+00:00'
+- ground_truth_python_solution
+- model_failed_output
+- test_suite_inputs
+- test_suite_outputs
+- algorithmic_step_annotations
+cache_key: fe51f009e2f294947391c3879d4e4794afc82b1b24cbdd3d56287df344820e4c
+searched_at: '2026-11-08T21:08:52.499880+00:00'
 retry_count: 1

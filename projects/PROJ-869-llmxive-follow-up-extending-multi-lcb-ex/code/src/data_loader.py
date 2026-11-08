@@ -29,9 +29,10 @@ def compute_sha256(file_path: Path) -> str:
 def stream_and_shard(cache_dir: Path):
     """
     Streams the Multi-LCB dataset and writes it to parquet shards.
-    Returns a list of (filename, checksum) tuples.
+    Returns a dictionary mapping filename to checksum.
     """
     log.info("Streaming Multi-LCB dataset from HuggingFace...")
+    # As per spec: load_dataset("multilcb", split="train", streaming=True)
     dataset = load_dataset("multilcb", split="train", streaming=True)
     
     cache_dir.mkdir(parents=True, exist_ok=True)
