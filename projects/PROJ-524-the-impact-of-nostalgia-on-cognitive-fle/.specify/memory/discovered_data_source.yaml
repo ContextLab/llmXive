@@ -1,17 +1,18 @@
 status: none
-intent: Wisconsin Card Sorting Test dataset OpenNeuro download python package dataset
+intent: Wisconsin Card Sorting Test dataset and MMSE scores reference database python
+  package dataset
 required_fields:
 - participant_id
 - condition
+- stimulus_file
+- stimulus_sha256
 - wcst_perseverative_errors
 - wcst_categories_completed
-- wcst_total_errors
 - mmse_score
 - age
 - education_years
 - gender
-- random_assignment_seed
 - exclusion_flag
-cache_key: 413fb7f4ba0a6713e4d734005076a7b22ef64bd25cb59a8131738b0c653d66e9
-searched_at: '2026-11-07T17:05:47.088648+00:00'
+cache_key: 12424b8ec71ea2422c0ca69f33e05a867f74f7e1ad76998250e3363b54bb73a2
+searched_at: '2026-11-08T16:06:49.049647+00:00'
 retry_count: 1
