@@ -1,17 +1,17 @@
 status: none
-intent: Materials Project OQMD bulk alloy compositions spacegroup dataset python package
-  dataset
+intent: Materials Project bulk structures OQMD dataset python package dataset
 required_fields:
+- material_id
 - composition
 - spacegroup
-- lattice_parameters
-- atomic_positions
+- structure_file
+- formation_energy
 - segregation_energy
 - misorientation_angle
 - boundary_plane
-- strain
+- strain_tensor
 - atomic_radius
 - electronegativity
-cache_key: 9c2ab11d28fefe520c4c41f9f00b73d978bcadc2b687fd6b1253da5bf3b364e0
-searched_at: '2026-11-07T03:06:30.358504+00:00'
+cache_key: e221bde6fc69049791b56140442c6cdf7743b412d190e99391929ddcdb125d8c
+searched_at: '2026-11-08T00:11:02.442258+00:00'
 retry_count: 1
