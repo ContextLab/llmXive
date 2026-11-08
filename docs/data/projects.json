@@ -28690,7 +28690,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-08T15:13:50.869866+00:00",
+  "generated_at": "2026-11-08T16:04:15.491557+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -51797,6 +51797,14 @@
       "last_run_log": [
         {
           "agent": "personality",
+          "duration_s": 0.863263,
+          "ended_at": "2026-11-08T16:04:03.052036+00:00",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "abstained",
+          "started_at": "2026-11-08T16:04:02.188773+00:00"
+        },
+        {
+          "agent": "personality",
           "duration_s": 9.547557,
           "ended_at": "2026-11-08T14:04:37.129659+00:00",
           "model": "openai.gpt-oss-120b",
@@ -51866,14 +51874,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-10-03T04:14:21.668114Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 52.565474,
-          "ended_at": "2026-10-03T04:14:21.665606Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-03T04:13:29.100132Z"
         }
       ],
       "paper_status": null,
@@ -118307,6 +118307,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 3.293093,
+          "ended_at": "2026-11-08T15:10:20.508277Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-08T15:10:17.215184Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 4.448476,
           "ended_at": "2026-11-07T06:17:11.247424Z",
           "model": "zai-org.glm-5.3",
@@ -118376,14 +118384,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-08-29T15:45:30.884326Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 46.918777,
-          "ended_at": "2026-08-29T15:45:30.881605Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-08-29T15:44:43.962828Z"
         }
       ],
       "paper_status": null,
@@ -175586,6 +175586,33 @@
   ],
   "recent_activity": [
     {
+      "agent": "personality",
+      "display_name": "Stephen Wolfram (simulated)",
+      "duration_s": 0.863263,
+      "ended_at": "2026-11-08T16:04:03.052036+00:00",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "model_kind": "personality_simulator",
+      "outcome": "abstained",
+      "personality_slug": "stephen-wolfram",
+      "project_id": "PROJ-106-the-influence-of-narrative-framing-on-at",
+      "project_stage": "planned",
+      "severity": "soft",
+      "started_at": "2026-11-08T16:04:02.188773+00:00"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 3.293093,
+      "ended_at": "2026-11-08T15:10:20.508277Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-480-predicting-glass-formation-tendency-with",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-11-08T15:10:17.215184Z"
+    },
+    {
       "agent": "planner",
       "duration_s": 103.012459,
       "ended_at": "2026-11-08T15:05:53.960293Z",
@@ -181653,30 +181680,6 @@
       "project_stage": "clarified",
       "severity": "hard",
       "started_at": "2026-11-05T16:05:36.822287Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 3.724409,
-      "ended_at": "2026-11-05T16:06:53.191944Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-097-predicting-corrosion-rates-of-common-met",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-11-05T16:06:49.467535Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 3.393578,
-      "ended_at": "2026-11-05T16:06:05.953883Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-121-investigating-the-relationship-between-c",
-      "project_stage": "planned",
-      "severity": "hard",
-      "started_at": "2026-11-05T16:06:02.560305Z"
     }
   ],
   "reviewed_preprints": [
