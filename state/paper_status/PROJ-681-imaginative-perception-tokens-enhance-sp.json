@@ -3,12 +3,12 @@
   "audit": {
     "passed": true,
     "defects": [],
-    "audited_at": "2026-11-08T05:12:47.428812+00:00"
+    "audited_at": "2026-11-08T05:45:26.226803+00:00"
   },
   "repair_rounds": 0,
   "llmxive_compile_attempts": 0,
   "status": "audited",
   "failure": null,
   "paper_id": "PROJ-681-imaginative-perception-tokens-enhance-sp",
-  "updated_at": "2026-11-08T05:12:47.428826+00:00"
+  "updated_at": "2026-11-08T05:45:26.226816+00:00"
 }
