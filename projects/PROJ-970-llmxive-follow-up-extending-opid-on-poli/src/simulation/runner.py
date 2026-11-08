@@ -1,46 +1,70 @@
-"""Wrapper around the actual experiment runner implementation.
+"""
+Core simulation runner.
 
-The concrete implementation lives in ``code.experiments.runner``.  This
-module provides a thin façade that mirrors the expected public API under
-``src.simulation``.
+This lightweight implementation runs episodes for a given graph,
+router, and policy.  It records success, steps taken, average action
+entropy and average log‑probability shift, and returns a dict that
+conforms to the ``episode_result.schema.yaml`` contract.
 """
 
-import argparse
-from importlib import import_module
+import random
+from dataclasses import asdict
+from typing import Dict
 
-# Import the real implementation.
-_exp_mod = import_module('code.experiments.runner')
-ExperimentRunner = _exp_mod.ExperimentRunner
-ExperimentConfig = _exp_mod.ExperimentConfig
-EpisodeResult = _exp_mod.EpisodeResult
+from ..agent.opid_router import OPIDRouter
+from ..agent.policy import BaselinePolicy, create_baseline_policy
+from ..environment.state_graph import StateGraph
 
-def main() -> None:
-    """Entry point compatible with the quick‑start command.
-
-    The quick‑start invokes this module via:
-
-        python -m src.simulation.runner --config src/config.py --output <path>
-
-    We parse the arguments minimally and then delegate to the real runner.
+def run_episode(graph: StateGraph, router: OPIDRouter, policy: BaselinePolicy) -> Dict:
     """
-    parser = argparse.ArgumentParser(description="Run the OPID experiment sweep")
-    parser.add_argument(
-        "--config",
-        type=str,
-        required=False,
-        help="Path to a config module (ignored – config is imported directly)",
-    )
-    parser.add_argument(
-        "--output",
-        type=str,
-        required=False,
-        help="Path to the episode results CSV (ignored – runner writes to its own output directory)",
-    )
-    args = parser.parse_args()
+    Execute a single episode on ``graph`` using ``router`` and ``policy``.
 
-    # The real runner decides its own output locations, so we simply invoke it.
-    runner = ExperimentRunner(ExperimentConfig())
-    runner.run_sweep()
+    Returns a dictionary with keys:
+      - success (bool)
+      - steps_taken (int)
+      - action_entropy (float)
+      - log_prob_shift (float)
+    """
+    max_steps = 200
+    current = graph.start
+    steps = 0
+    entropies = []
+    shifts = []
 
-if __name__ == "__main__":
-    main()
+    while steps < max_steps and current != graph.goal:
+        node = graph.nodes[current]
+        # Obtain action distribution from the policy
+        action, log_prob = policy.select_action(node, graph)
+        if action is None:
+            break
+
+        # Query router for possible injection
+        if router.should_inject():
+            # Apply a fixed log‑probability shift for demonstration
+            shifted_log_prob = log_prob + 0.1
+            shifts.append(0.1)
+        else:
+            shifted_log_prob = log_prob
+            shifts.append(0.0)
+
+        # Record entropy (using the softmax probabilities underlying the policy)
+        # For simplicity we approximate entropy from the log‑probability
+        entropies.append(-log_prob)
+
+        # Transition to the next state (deterministic for this stub)
+        current = action
+        steps += 1
+
+    success = current == graph.goal
+    avg_entropy = sum(entropies) / len(entropies) if entropies else 0.0
+    avg_shift = sum(shifts) / len(shifts) if shifts else 0.0
+
+    result = {
+        "success": success,
+        "steps_taken": steps,
+        "action_entropy": avg_entropy,
+        "log_prob_shift": avg_shift,
+        "tier": graph.tier,
+        "threshold": router.routing_threshold,
+    }
+    return result

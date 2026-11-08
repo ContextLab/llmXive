@@ -1,5 +1,5 @@
 """
-Configuration module for the OPID Critical-First Routing Complexity Analysis project.
+Configuration module for the OPID Critical‑First Routing Complexity Analysis project.
 
 This module provides:
   - Global constants (seed, tier node ranges, threshold steps, etc.)
@@ -225,7 +225,7 @@ def get_config_summary() -> Dict[str, str]:
     """
     Return a small dictionary of commonly‑used configuration values.
 
-    Analysis modules (e.g. ``analysis.stats``) use this to discover default
+    Analysis modules (e.g., ``analysis.stats``) use this to discover default
     file locations without hard‑coding paths.
     """
     return {

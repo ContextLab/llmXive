@@ -17,7 +17,7 @@ import pytest
 from profiling import profile_sweep
 
 
-@mock.patch("config.verify_feasibility")
+@mock.patch("src.config.verify_feasibility")
 @mock.patch("experiments.runner.ExperimentRunner")
 @mock.patch("llmxive_toolkit.get_logger")
 def test_main_runs_fast(mock_logger, mock_runner_cls, mock_feasibility):

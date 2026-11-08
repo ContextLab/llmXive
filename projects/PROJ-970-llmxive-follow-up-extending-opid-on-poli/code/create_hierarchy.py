@@ -1,34 +1,49 @@
-#!/usr/bin/env python3
 """
-T001 – Create project folder hierarchy
+Create the required project directory hierarchy and placeholder README files.
 
-This script creates the required directory structure for the OPID
-critical‑first routing complexity analysis project, places a placeholder
-README.md in each folder, runs ``tree -L 2`` on the repository root,
-and writes the resulting directory listing to
-``data/processed/dir_structure.txt``.
+This script is idempotent – it will not overwrite an existing README.
+After execution, the following directories (and any intermediate parents)
+will exist:
+
+- src
+- src/environment
+- src/agent
+- src/simulation
+- src/analysis
+- src/utils
+- tests
+- data/raw/synthetic_graphs
+- data/processed
+
+A minimal ``README.md`` placeholder is written into each new directory.
+The script then runs ``tree -L 2`` and captures its output to
+``data/processed/dir_structure.txt`` for verification (Task T001a).
 """
 
+import os
 import subprocess
-import sys
 from pathlib import Path
 
-def _repo_root() -> Path:
-    """
-    Return the repository root directory assuming this script lives in
-    ``code/`` (one level below the root).
-    """
-    # The script is at <repo_root>/code/create_hierarchy.py
-    # Its parent is the ``code`` directory; the repo root is its parent.
-    return Path(__file__).resolve().parent.parent
+from llmxive_toolkit import paths, get_logger
 
-def _create_dirs(base: Path) -> None:
-    """
-    Create all required directories under the repository root and a placeholder
-    README.md in each.
-    """
-    # Directories required by the specification, relative to the repository root.
-    dirs = [
+logger = get_logger(__name__)
+
+# ----------------------------------------------------------------------
+# Helper: ensure a directory exists and contains a placeholder README
+# ----------------------------------------------------------------------
+def _ensure_dir(path: Path) -> None:
+    path.mkdir(parents=True, exist_ok=True)
+    readme = path / "README.md"
+    if not readme.exists():
+        readme.write_text(f"# {path.name}\n\nPlaceholder README for the {path} directory.\n")
+    logger.debug("Ensured %s exists with README", path)
+
+# ----------------------------------------------------------------------
+# Main entry point
+# ----------------------------------------------------------------------
+def main() -> None:
+    # List of required top‑level directories
+    required_dirs = [
         Path("src"),
         Path("src/environment"),
         Path("src/agent"),
@@ -40,62 +55,34 @@ def _create_dirs(base: Path) -> None:
         Path("data/processed"),
     ]
 
-    for rel_path in dirs:
-        dir_path = base / rel_path
-        dir_path.mkdir(parents=True, exist_ok=True)
+    logger.info("Creating required project hierarchy...")
+    for d in required_dirs:
+        _ensure_dir(d)
 
-        readme_path = dir_path / "README.md"
-        if not readme_path.is_file():
-            readme_path.write_text(
-                f"# {rel_path}\n\n"
-                "Placeholder README for the directory. This file exists only to\n"
-                "ensure the directory is tracked by version control.\n"
-            )
-
-def _run_tree(root: Path) -> str:
-    """
-    Execute ``tree -L 2`` on the repository root and return its stdout.
-    Raises a clear error if the ``tree`` command is unavailable.
-    """
+    # Capture directory tree output
     try:
-        completed = subprocess.run(
-            ["tree", "-L", "2", str(root)],
-            capture_output=True,
-            text=True,
+        result = subprocess.run(
+            ["tree", "-L", "2"],
+            cwd=Path.cwd(),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
             check=True,
+            text=True,
         )
-        return completed.stdout
+        tree_output = result.stdout
     except FileNotFoundError:
-        sys.exit(
-            "The ``tree`` command was not found. Install it (e.g., ``apt-get install tree``) "
-            "or ensure it is on the PATH before running this script."
+        raise RuntimeError(
+            "`tree` command not found. Install it (e.g., `sudo apt-get install tree`) "
+            "or run the script on a system where it is available."
         )
-    except subprocess.CalledProcessError as exc:
-        sys.exit(f"tree command failed with exit code {exc.returncode}: {exc.stderr}")
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError(f"`tree` command failed: {e.stderr}") from e
 
-def _write_output(root: Path, content: str) -> None:
-    """
-    Write the tree output to ``data/processed/dir_structure.txt``.
-    """
-    out_path = root / "data" / "processed" / "dir_structure.txt"
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(content)
-
-def main() -> None:
-    repo_root = _repo_root()
-
-    # Create the required hierarchy at the repository root.
-    _create_dirs(repo_root)
-
-    # Capture the directory tree of the repository root.
-    tree_output = _run_tree(repo_root)
-
-    # Write the captured tree to the expected location.
-    _write_output(repo_root, tree_output)
-
-    print(
-        f"Directory structure written to {repo_root / 'data' / 'processed' / 'dir_structure.txt'}"
-    )
+    # Write the captured output to the designated file
+    output_path = paths.data("processed", "dir_structure.txt")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(tree_output)
+    logger.info("Directory structure written to %s", output_path)
 
 if __name__ == "__main__":
     main()

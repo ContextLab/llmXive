@@ -7,7 +7,7 @@
 
 ## Phase 0 – Project scaffolding (parallel, no inter‑file dependencies)
 
-- [ ] T001 **Create project folder hierarchy**  
+- [~] T001 **Create project folder hierarchy**  
   `mkdir -p src/environment src/agent src/simulation src/analysis src/utils tests data/raw/synthetic_graphs data/processed`  
   *Verification*: Run `tree -L 2` and confirm all directories exist; commit the empty folders with a placeholder `README.md` in each.  
 - [~] T001a **Verify directory structure**  
@@ -16,7 +16,7 @@
 - [~] T002 **Add `__init__.py` to every package**  
   Files: `src/__init__.py`, `src/environment/__init__.py`, `src/agent/__init__.py`, `src/simulation/__init__.py`, `src/analysis/__init__.py`, `src/utils/__init__.py`, `tests/__init__.py`  
   *Verification*: Import each package in a Python REPL (`import src.environment`) without error.  
-- [X] T003 **Create `requirements.txt`** (pinned CPU‑only versions)  
+- [~] T003 **Create `requirements.txt`** (pinned CPU‑only versions)  
   Contents: `networkx==3.2.1`, `numpy==1.26.4`, `pandas==2.2.1`, `scipy==1.13.0`, `statsmodels==0.14.2`, `pytest==8.1.1`  
   *Verification*: `pip install -r requirements.txt` succeeds in a fresh venv.  
 - [X] T004 **Add `pyproject.toml` and `ruff.toml` for formatting/linting** (optional, parallel)  

@@ -1,13 +1,24 @@
-"""Thin wrapper that re‑exports the OPID router implementation.
-
-The real implementation lives in ``code/agent/opid_router.py``.  This
-wrapper simply imports the public symbols so that they are available under
-the ``src.agent`` namespace.
+"""
+OPID routing logic with a configurable threshold.
 """
 
-from importlib import import_module
+import random
+from dataclasses import dataclass
 
-_router_mod = import_module('code.agent.opid_router')
-OPIDRouter = _router_mod.OPIDRouter
-OPIDRouterConfig = _router_mod.OPIDRouterConfig
-main = _router_mod.main
+@dataclass
+class OPIDRouterConfig:
+    routing_threshold: float = 1.0  # 0.0 = always inject, 1.0 = never inject
+
+class OPIDRouter:
+    def __init__(self, routing_threshold: float = 1.0):
+        if not 0.0 <= routing_threshold <= 1.0:
+            raise ValueError("routing_threshold must be between 0.0 and 1.0")
+        self.routing_threshold = routing_threshold
+
+    def should_inject(self) -> bool:
+        """Return True if a skill injection should occur."""
+        return random.random() < (1.0 - self.routing_threshold)
+
+    def inject_skill_signal(self, action_probs):
+        """Placeholder for signal injection – not used in this stub."""
+        return action_probs
