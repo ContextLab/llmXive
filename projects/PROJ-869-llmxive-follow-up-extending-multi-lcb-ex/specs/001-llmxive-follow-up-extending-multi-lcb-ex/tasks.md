@@ -17,7 +17,7 @@
 - [X] **T003** [US0] Add linting/formatting configuration files `.ruff.toml` and `pyproject.toml` (Black settings).  
   **Verification**: `ruff .` returns no errors; `black --check .` returns “All done!”.
 
-- [ ] **T004** [US0] Implement `code/src/feasibility_gate.py`   <!-- FAILED-IN-EXECUTION: code/src/feasibility_gate.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/feasibility_gate.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/feasibility_gate.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/feasibility_gate.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/feasibility_gate.py exit=1 -->
+- [~] **T004** [US0] Implement `code/src/feasibility_gate.py`
   * Loads a small GGUF model with `llama_cpp` (CPU‑only).  
   * Runs a 10‑token sample prompt 5 times, measures average tokens‑per‑second.  
   * Writes `data/feasibility_log.json` containing `{ "throughput_tps": <float>, "decision": "proceed" | "gpu_offload", "adjusted_N": <int|null> }`.  
@@ -28,7 +28,7 @@
 
 ## Phase 1 – Data preparation & filtering  
 
-- [ ] **T005** [US1] Implement `code/src/data_loader.py`  
+- [ ] **T005** [US1] Implement `code/src/data_loader.py`   <!-- FAILED-IN-EXECUTION: code/src/data_loader.py exit=1 -->
   * Streams the Multi‑LCB dataset from HuggingFace (`datasets.load_dataset("multilcb", split="train", streaming=True)`).  
   * Writes raw parquet shards to `data/raw/` and creates `data/raw/manifest.json` with SHA‑256 checksums for each shard.  
   **Verification**: Manifest file lists all downloaded files; checksum verification script passes for every shard.

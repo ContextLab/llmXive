@@ -11,6 +11,8 @@ T004:
     exit=1'
   task: 41ca297ef6d9867b51201116678d14b827048915b1a20c7f9e4419a0048084a9
 T005:
+  reason: 'Requested task execution failed; rerun successfully: code/src/data_loader.py
+    exit=1'
   task: 40f005ef19a984dadba7eb043666027fdae55820b5f8c3d29220b0b06eeb4b79
 T006:
   task: 91e0dfc1870f3b0ea87a786cf997ac1296b40f20d5d10e53d7044f7fe181d416

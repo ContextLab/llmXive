@@ -4,3 +4,4 @@ A separate model checked the artifacts you produced for the tasks below and judg
 
 - **T002** — Requested task execution failed; rerun successfully: code/src/verify_requirements.py exit=1
 - **T004** — Requested task execution failed; rerun successfully: code/src/feasibility_gate.py exit=1
+- **T005** — Requested task execution failed; rerun successfully: code/src/data_loader.py exit=1

@@ -1,12 +1,15 @@
 status: none
-intent: Multi LCB dataset GitHub download python package dataset
+intent: Multi-LCB code benchmark download python solutions and test suites python
+  package dataset
 required_fields:
 - task_id
-- problem_description
-- ground_truth_python_code
+- problem_statement
+- ground_truth_python_solution
+- algorithmic_steps
 - target_language
 - failed_model_output
 - test_suite
-cache_key: 728afcfa74f27c46b555a3a7d6573c20be53899439776e49906ee3095c0be5d9
-searched_at: '2026-11-07T23:09:57.526119+00:00'
+- metadata_language
+cache_key: e1f32b395b8529dd75d8b9cf0edc5bc8dc24447ecd19d19b677fa4f3cc982f00
+searched_at: '2026-11-08T05:10:28.521703+00:00'
 retry_count: 1
