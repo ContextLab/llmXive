@@ -28690,7 +28690,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-08T10:32:01.327169+00:00",
+  "generated_at": "2026-11-08T11:04:37.788285+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -35915,6 +35915,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 3.523652,
+          "ended_at": "2026-11-08T11:04:14.723479Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-08T11:04:11.199827Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 3.661796,
           "ended_at": "2026-11-07T13:05:10.304282Z",
           "model": "zai-org.glm-5.3",
@@ -35984,14 +35992,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-10-31T05:04:58.596969Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 4.610914,
-          "ended_at": "2026-10-30T07:08:26.689757Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-10-30T07:08:22.078843Z"
         }
       ],
       "paper_status": null,
@@ -175586,6 +175586,18 @@
   ],
   "recent_activity": [
     {
+      "agent": "implementer",
+      "duration_s": 3.523652,
+      "ended_at": "2026-11-08T11:04:14.723479Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-033-predicting-material-properties-from-comp",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-11-08T11:04:11.199827Z"
+    },
+    {
       "agent": "planner",
       "duration_s": 173.152672,
       "ended_at": "2026-11-08T10:07:23.446732Z",
@@ -181665,18 +181677,6 @@
       "project_stage": "clarified",
       "severity": "hard",
       "started_at": "2026-11-05T11:04:23.794809Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 2.000851,
-      "ended_at": "2026-11-05T11:06:25.072184Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-034-quantifying-uncertainty-in-small-sample-",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-11-05T11:06:23.071333Z"
     }
   ],
   "reviewed_preprints": [
