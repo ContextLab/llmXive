@@ -3,12 +3,12 @@
   "audit": {
     "passed": true,
     "defects": [],
-    "audited_at": "2026-11-08T11:49:23.173727+00:00"
+    "audited_at": "2026-11-08T12:14:25.017899+00:00"
   },
   "repair_rounds": 0,
   "llmxive_compile_attempts": 0,
   "status": "audited",
   "failure": null,
   "paper_id": "PROJ-784-qwen-agentworld-language-world-models-fo",
-  "updated_at": "2026-11-08T11:49:23.173742+00:00"
+  "updated_at": "2026-11-08T12:14:25.017917+00:00"
 }
