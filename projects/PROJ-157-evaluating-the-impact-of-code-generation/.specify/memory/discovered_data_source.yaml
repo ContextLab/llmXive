@@ -1,17 +1,16 @@
 status: none
-intent: Codeforces C++ reference solutions paired with LLM generated variants dataset
-  HuggingFace
+intent: Codeforces C++ reference solutions dataset HuggingFace codeforces-problems
+  python package dataset
 required_fields:
 - problem_id
 - problem_title
-- problem_description
-- language
-- human_solution_code
-- llm_solution_model_name
-- llm_solution_code
-- test_cases
-- compilation_status
+- problem_statement
+- programming_language
+- source_code
+- solution_type
+- model_name
 - generation_timestamp
-cache_key: ef5fc0b0ba9ccd540e96ddd7c40eb67f4d9f391f4656cb3197bff1925cf12505
-searched_at: '2026-11-07T16:08:40.273226+00:00'
+- compilation_status
+cache_key: 44ba58d26f53e73bed57ae9f84e94fb2afe110322a5792977288a60bb4e44726
+searched_at: '2026-11-08T14:09:55.658181+00:00'
 retry_count: 1
