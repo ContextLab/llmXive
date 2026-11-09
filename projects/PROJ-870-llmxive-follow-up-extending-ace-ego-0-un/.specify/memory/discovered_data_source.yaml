@@ -1,15 +1,17 @@
 status: none
-intent: download open VLA egocentric video dataset python package dataset
+intent: download VLA egocentric video dataset with camera metadata and annotations
+  python package dataset
 required_fields:
-- frame_id
-- rgb_image
-- timestamp
-- exposure
-- focal_length
+- video_id
+- segment_id
+- frame_timestamp
+- frame_path
 - image_entropy
 - hand_detection_confidence
 - lighting_metric
+- exposure_time
+- focal_length
 - dynamic_reliability_score
-cache_key: 15c785acbc3aa01d9c50e70f6353beddab44cde700c8a230b6425059cc60d303
-searched_at: '2026-11-08T17:07:33.948462+00:00'
+cache_key: 6813ad7c401e6d22418da799b47eede66eed91fb8e0439455eb64ee7e9c5f348
+searched_at: '2026-11-09T22:07:44.354049+00:00'
 retry_count: 1
