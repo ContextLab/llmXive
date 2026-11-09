@@ -1,32 +1,43 @@
 """
-Script to create required data directories for the project.
+Script to create required data sub‑directories for the project.
 
-This fulfills task T001a: Create data directories `data/raw/`, `data/processed/`,
-and `data/interior/`. The script uses the project's path utilities to ensure
-the directories exist and logs the actions.
+Directories created:
+  - data/raw/
+  - data/processed/
+  - data/interior/
+
+The script uses the project's ``llmxive_toolkit.paths`` helper which
+automatically creates any missing parent directories and returns a
+``pathlib.Path`` object. Logging is performed via ``llmxive_toolkit.get_logger``.
+Running the script as a module (``python code/create_data_dirs.py``) will
+create the directories and exit with status 0.
 """
-import sys
+
 from llmxive_toolkit import paths, get_logger
 
-# Obtain a logger (writes to console and logs/pipeline.log via get_logger)
+# Obtain a logger that writes to the standard pipeline log file.
 log = get_logger(__name__)
 
 def create_directory(relative_path: str) -> None:
     """
-    Ensure the directory at the given relative path (relative to the project root)
-    exists. Uses the llmxive_toolkit `paths` helper which also creates any missing
-    parent directories.
+    Ensure a data sub‑directory exists.
+
+    Parameters
+    ----------
+    relative_path : str
+        Relative path under the project's ``data`` folder (e.g. ``"raw"``).
     """
+    # ``paths.data`` creates the folder hierarchy under ``data/``.
     dir_path = paths.data(relative_path)
     dir_path.mkdir(parents=True, exist_ok=True)
     log.info(f"Created data directory: {dir_path}")
 
 def main() -> None:
-    """Create the three required data sub‑directories."""
+    """
+    Create the three required data directories.
+    """
     for sub_dir in ("raw", "processed", "interior"):
         create_directory(sub_dir)
 
 if __name__ == "__main__":
-    # When the script is executed directly, run the creation logic.
     main()
-    sys.exit(0)

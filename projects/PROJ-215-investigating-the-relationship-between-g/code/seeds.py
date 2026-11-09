@@ -1,26 +1,25 @@
 """
 seeds.py
 ---------
-This script generates a deterministic random seed configuration file
-``state/seeds.yaml`` containing integer seed values for the Python
-``random`` module, NumPy, and optionally PyTorch (if the library is
-available in the runtime environment).
+Generates deterministic random seed configuration and writes it to a
+project‑owned location. The file is placed under ``data/state/seeds.yaml``
+(instead of the platform‑owned ``state/`` directory) to comply with
+repository constraints.
 
-The file is written using the project's ``paths`` helper from
-``llmxive_toolkit`` which ensures the ``state`` directory exists.
-The script can be executed directly::
+The script also sets the global random seeds for ``random``, ``numpy`` and,
+if available, ``torch``. It can be executed directly::
 
     python code/seeds.py
 
-and will create (or overwrite) ``state/seeds.yaml`` with the following
+which will (re)create ``data/state/seeds.yaml`` with the following
 structure:
 
     random_seed: 42
     numpy_seed: 42
     torch_seed: 42   # only if ``torch`` is importable
 
-The values are deliberately simple and reproducible, matching the
-project's requirement for a single source of truth for random seeds.
+The values are deterministic and match the project requirement for a
+single source of truth for random seeds.
 """
 
 import json
@@ -89,7 +88,7 @@ def _write_seeds_yaml(seed_dict: dict, output_path: Path) -> None:
 
 def generate_seeds_yaml() -> Path:
     """
-    Generate ``state/seeds.yaml`` with deterministic seeds.
+    Generate ``data/state/seeds.yaml`` with deterministic seeds.
 
     Returns
     -------
@@ -108,7 +107,7 @@ def generate_seeds_yaml() -> Path:
 
     # Resolve the project‑relative path using the ``paths`` helper.
     # ``paths.path`` creates any missing intermediate directories.
-    seeds_path = paths.path("state", "seeds.yaml")
+    seeds_path = paths.path("data", "state", "seeds.yaml")
 
     _write_seeds_yaml(seeds, seeds_path)
 

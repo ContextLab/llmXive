@@ -13,10 +13,10 @@
 
 ## Phase 0 – Data Feasibility Check (Blocking Gate)
 
-- [X] T000a [P] [US1] Implement `code/data_feasibility.py` to query verified public sources for a dataset that contains both 16S rRNA data **and** PHQ‑9/GAD‑7 scores, returning `results/feasibility_check.json`.  
+- [~] T000a [P] [US1] Implement `code/data_feasibility.py` to query verified public sources for a dataset that contains both 16S rRNA data **and** PHQ‑9/GAD‑7 scores, returning `results/feasibility_check.json`.  
   • Verify that the JSON file exists and contains a boolean `data_available` field.  
 
-- [X] T000b [P] [US1] If no linked dataset is found, generate a “Data Gap Report” at `results/data_gap_report.md` (JSON/Markdown) and halt the pipeline.  
+- [~] T000b [P] [US1] If no linked dataset is found, generate a “Data Gap Report” at `results/data_gap_report.md` (JSON/Markdown) and halt the pipeline.  
   • Verify that `results/data_gap_report.md` is created and contains the required “Data Gap” statement.  
 
 - [ ] T000c [P] [US1] Log a confirmation message and allow the pipeline to continue when a suitable dataset is discovered.   <!-- FAILED-IN-EXECUTION: code/data_ingestion.py exit=1 -->
@@ -26,19 +26,19 @@
 
 ## Phase 1 – Project Setup (Shared Infrastructure)
 
-- [ ] T001a [P] Create data directories: `mkdir -p data/raw/ data/processed/ data/interior/`.  
+- [~] T001a [P] Create data directories: `mkdir -p data/raw/ data/processed/ data/interior/`.  
   • Verify that each directory exists after execution.  
 
-- [X] T001b [P] Create code directories: `mkdir -p code/ code/models/ code/utils/`.  
+- [~] T001b [P] Create code directories: `mkdir -p code/ code/models/ code/utils/`.  
   • Verify that each directory exists after execution.  
 
-- [X] T001c [P] Create test directories: `mkdir -p tests/unit/ tests/integration/ tests/contract/`.  
+- [~] T001c [P] Create test directories: `mkdir -p tests/unit/ tests/integration/ tests/contract/`.  
   • Verify that each directory exists after execution.  
 
-- [ ] T002a [P] Add `requirements.txt` with pinned versions for core dependencies (pandas, scikit‑learn, scipy, numpy, biom-format, scikit‑bio, matplotlib, seaborn, requests, pytest, statsmodels).  
+- [~] T002a [P] Add `requirements.txt` with pinned versions for core dependencies (pandas, scikit‑learn, scipy, numpy, biom-format, scikit‑bio, matplotlib, seaborn, requests, pytest, statsmodels).  
   • Verify that `requirements.txt` contains at least the listed packages and that `pip install -r requirements.txt` succeeds without errors.  
 
-- [ ] T002b [P] Implement `code/scripts/generate_lock.py` to produce `requirements.lock` from `requirements.txt`.  
+- [~] T002b [P] Implement `code/scripts/generate_lock.py` to produce `requirements.lock` from `requirements.txt`.  
   • Verify that `requirements.lock` is generated and matches the installed package versions.  
 
 - [ ] T002c [P] Implement `code/seeds.py` that writes `state/seeds.yaml` containing `random_seed`, `numpy_seed`, and (if applicable) `torch_seed`.  
@@ -48,7 +48,7 @@
 
 ## Phase 2 – Foundational Infrastructure (Blocking Prerequisites)
 
-- [ ] T004 [P] Implement `code/config.py` with global paths, random seeds, and thresholds (0.1 % prevalence, 20 % rarefaction‑loss cutoff).  
+- [~] T004 [P] Implement `code/config.py` with global paths, random seeds, and thresholds (0.1 % prevalence, 20 % rarefaction‑loss cutoff).  
   • Verify that `code/config.py` can be imported and that all constants are defined.  
 
 - [~] T005 [P] Implement logging in `code/utils/logging.py` that writes to `logs/pipeline.log` with rotation.  
@@ -63,7 +63,7 @@
 - [~] T008 [P] Implement streaming merge in `code/data_ingestion.py`: `streaming_merge_otu_metadata` reads the OTU table and metadata via `datasets.load_dataset(..., streaming=True)`, yields merged chunks, and raises `MemoryError` if a full load is attempted.  
   • Verify that attempting to load the full dataset without streaming raises `MemoryError`.  
 
-- [ ] T009 [P] Extend `code/data_ingestion.py` so that any network‑related exception (e.g., 404, timeout) triggers the Data Gap Report generation (same logic as T000b) and **exits gracefully** without producing placeholder data.   <!-- FAILED-IN-EXECUTION: code/data_ingestion.py exit=1 -->
+- [ ] T009 [P] Extend `code/data_ingestion.py` so that any network‑related exception (e.g., 404, timeout) triggers the Data Gap Report generation (same logic as T000b) and **exits gracefully** without producing placeholder data.   <!-- FAILED-IN-EXECUTION: code/data_ingestion.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data_ingestion.py exit=1 -->
   • Verify that a simulated network failure results in `results/data_gap_report.md` being written and that the script exits with a non‑zero status.  
 
 - [ ] T010 [Write] Write unit tests in `tests/unit/test_preprocessing.py` for rarefaction‑fallback logic, median‑depth calculation, and missing‑value filtering.  

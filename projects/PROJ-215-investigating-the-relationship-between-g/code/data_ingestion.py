@@ -11,15 +11,6 @@ from typing import Dict, Any, List, Optional, Tuple
 from datetime import datetime
 from llmxive_toolkit import get_logger, paths
 
-# Import utilities from sibling modules as per API surface
-from config import get_output_path, ensure_directories
-
-# Constants for data ingestion
-AGP_STUDY_ID = "10317"
-AGP_DATA_URL = "https://api.qiita.org/studies/10317/files"
-METADATA_URL = "https://raw.githubusercontent.com/qiita/qiita/master/qiita/qiita_db/study_10317_metadata.tsv"
-OTU_TABLE_URL = "https://raw.githubusercontent.com/qiita/qiita/master/qiita/qiita_db/study_10317_otu_table.tsv"
-
 # ----------------------------------------------------------------------
 # Logging helper – configure both console and file logging.
 # The log file is ``logs/pipeline.log`` as required by the task.
@@ -37,6 +28,14 @@ try:
 except Exception as e:
     # If path helpers fail for any reason, fall back to a basic file in the cwd.
     logger.warning(f"Failed to set up file handler for pipeline log: {e}")
+
+# ----------------------------------------------------------------------
+# Constants for data ingestion (kept for backwards compatibility)
+# ----------------------------------------------------------------------
+AGP_STUDY_ID = "10317"
+AGP_DATA_URL = "https://api.qiita.org/studies/10317/files"
+METADATA_URL = "https://raw.githubusercontent.com/qiita/qiita/master/qiita/qiita_db/study_10317_metadata.tsv"
+OTU_TABLE_URL = "https://raw.githubusercontent.com/qiita/qiita/master/qiita/qiita_db/study_10317_otu_table.tsv"
 
 def exponential_backoff_retry(func, max_retries=5, base_delay=1):
     """Retry a function with exponential backoff."""
@@ -225,7 +224,16 @@ def check_feasibility() -> bool:
     feasible.
     """
     logger.info("Checking data feasibility...")
-    otu_table, metadata = load_agp_data_from_mirror()
+    try:
+        otu_table, metadata = load_agp_data_from_mirror()
+    except requests.exceptions.RequestException as e:
+        # Network‑related exception – treat as data gap
+        logger.error(f"Network exception during feasibility check: {e}")
+        return False
+    except Exception as e:
+        logger.error(f"Unexpected error during feasibility check: {e}")
+        return False
+
     if otu_table is None or metadata is None:
         logger.error("Could not load data from verified sources.")
         return False
@@ -273,14 +281,13 @@ def main():
     """Main function for data ingestion pipeline."""
     logger.info("Starting data ingestion pipeline...")
 
-    # Ensure required directories exist
-    ensure_directories()
-
+    # ------------------------------------------------------------------
     # Phase 0 – Data Feasibility Check (blocking gate)
+    # ------------------------------------------------------------------
     feasible = check_feasibility()
     if not feasible:
         # No suitable dataset – generate the Data Gap Report and abort with non‑zero status
-        gap_path = get_output_path("results/data_gap_report.md")
+        gap_path = paths.results("data_gap_report.md")
         generate_data_gap_report(
             "No verified dataset with required fields found.",
             gap_path,
@@ -297,11 +304,27 @@ def main():
     # ------------------------------------------------------------------
     # Downstream steps (download, merge, filter, checksum)
     # ------------------------------------------------------------------
-    otu_table, metadata = load_agp_data_from_mirror()
+    try:
+        otu_table, metadata = load_agp_data_from_mirror()
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Network error during data load: {e}")
+        generate_data_gap_report(
+            "Network error while loading AGP data.",
+            paths.results("data_gap_report.md"),
+        )
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"Unexpected error during data load: {e}")
+        generate_data_gap_report(
+            f"Unexpected error while loading AGP data: {e}",
+            paths.results("data_gap_report.md"),
+        )
+        sys.exit(1)
+
     if otu_table is None or metadata is None:
         generate_data_gap_report(
             "Failed to load data from verified sources.",
-            get_output_path("results/data_gap_report.md"),
+            paths.results("data_gap_report.md"),
         )
         sys.exit(1)
 
@@ -312,7 +335,7 @@ def main():
         logger.error(f"Failed to merge OTU table and metadata: {e}")
         generate_data_gap_report(
             "Failed to merge OTU table and metadata.",
-            get_output_path("results/data_gap_report.md"),
+            paths.results("data_gap_report.md"),
         )
         sys.exit(1)
 
@@ -322,12 +345,12 @@ def main():
         logger.error(f"Filtering failed due to missing columns: {e}")
         generate_data_gap_report(
             f"Missing required columns for filtering: {e}",
-            get_output_path("results/data_gap_report.md"),
+            paths.results("data_gap_report.md"),
         )
         sys.exit(1)
 
     # Save filtered dataset
-    output_path = get_output_path("data/processed/merged_clean.parquet")
+    output_path = paths.processed("merged_clean.parquet")
     try:
         filtered_df.to_parquet(output_path, index=False)
         logger.info(f"Filtered dataset saved to {output_path}")
@@ -337,8 +360,8 @@ def main():
         sys.exit(1)
 
     # Compute checksums (T012b)
-    checksum_path = get_output_path("data/raw/checksums.txt")
-    checksums = {output_path: compute_sha256(output_path)}
+    checksum_path = paths.raw("checksums.txt")
+    checksums = {str(output_path): compute_sha256(str(output_path))}
     save_checksums(checksums, checksum_path)
 
     logger.info("Data ingestion pipeline completed successfully.")

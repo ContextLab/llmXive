@@ -11,11 +11,11 @@ This module provides:
   • Simple helpers for calculating median sequencing depth and estimating
     rarefaction loss.
   • Loading of a minimal config (currently just the seeds file).
-  • Environment variable loading and validation using ``python-dotenv``.
+  • Environment variable loading (optional) using ``python-dotenv``.
 
-The implementation deliberately avoids any heavy imports at module import
-time – only standard‑library modules and the already‑available ``llmxive_toolkit``
-are used.
+The implementation avoids raising errors at import time if required
+environment variables are missing – they are exposed as ``None`` and can
+be validated lazily by callers that truly depend on them.
 """
 
 import os
@@ -27,7 +27,6 @@ from typing import Any, Dict, List, Optional, Union
 import numpy as np
 import yaml
 
-# Load environment variables from a .env file at the repository root.
 # ``python-dotenv`` is declared in ``requirements.txt``.
 try:
     from dotenv import load_dotenv
@@ -37,19 +36,33 @@ except ImportError as exc:
         "Please ensure it is installed (see requirements.txt)."
     ) from exc
 
-load_dotenv()  # This will read a .env file in the current working directory.
+# Load a ``.env`` file located at the repository root, if it exists.
+load_dotenv()
 
 # ----------------------------------------------------------------------
-# Validate required environment variables.
+# Environment variables (optional)
 # ----------------------------------------------------------------------
-_REQUIRED_ENV_VARS = ["AGP_STUDY_ID", "DATA_URL"]
+# The original implementation raised a ``RuntimeError`` when the required
+# variables were missing.  That prevented ``import config`` in a clean
+# test environment.  We now expose the variables – they may be ``None`` – 
+# and provide a helper for callers that need to enforce their presence.
+AGP_STUDY_ID: Optional[str] = os.getenv("AGP_STUDY_ID")
+DATA_URL: Optional[str] = os.getenv("DATA_URL")
 
-_missing_vars = [var for var in _REQUIRED_ENV_VARS if os.getenv(var) is None]
-if _missing_vars:
-    raise RuntimeError(
-        f"Missing required environment variable(s): {', '.join(_missing_vars)}. "
-        "Please define them in a .env file at the repository root."
-    )
+def verify_required_env_vars() -> None:
+    """
+    Raise a ``RuntimeError`` if any of the core environment variables
+    required for data ingestion are missing.  Scripts that need these
+    variables can call this helper explicitly; importing the module no
+    longer fails automatically.
+    """
+    missing = [var for var, val in (("AGP_STUDY_ID", AGP_STUDY_ID),
+                                   ("DATA_URL", DATA_URL)) if not val]
+    if missing:
+        raise RuntimeError(
+            f"Missing required environment variable(s): {', '.join(missing)}. "
+            "Please define them in a .env file at the repository root."
+        )
 
 # ----------------------------------------------------------------------
 # Logging
@@ -59,10 +72,8 @@ from llmxive_toolkit import paths, get_logger
 _log = get_logger(__name__)
 
 # ----------------------------------------------------------------------
-# Global path constants
+# Global path constants (used throughout the codebase)
 # ----------------------------------------------------------------------
-# These constants are used throughout the codebase (e.g. utils.logging)
-# to locate the top‑level logs directory.
 LOGS_DIR: str = str(paths.logs())
 DATA_DIR: str = str(paths.data())
 CODE_DIR: str = str(paths.code())
@@ -126,9 +137,9 @@ def get_output_path(
 
     The function is deliberately tolerant:
       • ``None``            → project root (``paths.root``)
-      • ``"data/foo.csv"`` → ``paths.data("foo.csv")``
-      • ``"data/processed"`` → the directory ``paths.data("processed")``
-      • ``["data", "processed", "file.csv"]`` → ``paths.data(... )``
+      • ``\"data/foo.csv\"`` → ``paths.data(\"foo.csv\")``
+      • ``\"data/processed\"`` → the directory ``paths.data(\"processed\")``
+      • ``[\"data\", \"processed\", \"file.csv\"]`` → ``paths.data(... )``
 
     It always returns a **string** because many callers concatenate it
     with other strings or pass it to ``os.path`` utilities.
@@ -270,8 +281,6 @@ __all__ = [
     # Environment variables (exposed for convenience)
     "AGP_STUDY_ID",
     "DATA_URL",
+    # Helper for callers that need strict validation
+    "verify_required_env_vars",
 ]
-
-# Expose required environment variables as module‑level constants for easy access.
-AGP_STUDY_ID: str = os.getenv("AGP_STUDY_ID")
-DATA_URL: str = os.getenv("DATA_URL")
