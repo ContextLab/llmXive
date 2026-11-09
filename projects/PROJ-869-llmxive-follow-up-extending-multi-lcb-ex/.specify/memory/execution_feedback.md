@@ -10,13 +10,11 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 - code/feasibility_gate.py: self-declared fabricated metric — “…"throughput": 5.0, # Mock value         "final_config": {},…”
 
-## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
+## ⚠ COMPUTE-ENVIRONMENT failure — RE-SCOPE the method, don't just edit the script
 
-These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
+These commands failed because the analysis needs hardware the FREE, CPU-only CI runner does NOT have (a GPU/CUDA, 8-bit quantization via bitsandbytes, or more RAM than is available). This is NOT a code bug you can patch by tweaking the failing line — the analysis MUST run on a CPU-only free runner (Constitution IV). RE-SCOPE the approach: drop `load_in_8bit` / `device_map='cuda'` and load in default precision on CPU; use a SMALLER model; REDUCE the dataset subset / sample / batch size; prefer a CPU-tractable method. Change the METHOD, not just the line that threw:
 
-- run-book command: `python code/src/data_loader.py --filter-stochasticity --output data/processed/filtered_tasks.json`
-  - script usage: `data_loader.py [-h] [--cache-dir CACHE_DIR] [--verify-checksum]`
-  - argparse error: `data_loader.py: error: unrecognized arguments: --filter-stochasticity --output data/processed/filtered_tasks.json`
+- `python -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}')"`
 
 ## ⚠ DATA-UNAVAILABLE failure — switch to a REAL, REACHABLE data source
 
@@ -28,30 +26,47 @@ These commands failed because the external dataset is NOT reachable AS WRITTEN o
 4. If, after the above, NO real data can be obtained on the CI runner, do NOT fabricate a result: leave the run to FAIL so it escalates honestly (model-tier escalation / re-plan), rather than producing a fake finding.
 
 - `python code/src/data_loader.py --cache-dir data/raw --verify-checksum`
+- `python code/src/data_loader.py --filter-stochasticity --output data/processed/filtered_tasks.json`
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/feasibility_gate.py: self-declared fabricated metric — “…"throughput": 5.0, # Mock value         "final_config": {},…”; 5 run-book script(s) missing (plan/impl path mismatch): python code/src/anchor_extractor.py --input data/processed/filtered_tasks.json --output data/processed/anchors.json; python code/src/inference_engine.py --condition blind --input data/processed/filtered_tasks.json --output results/blind_results.json; python code/src/inference_engine.py --condition guided --input data/processed/filtered_tasks.json --anchors data/processed/anchors.json --output results/guided_results.json; 2 command(s) failed: python code/src/data_loader.py --cache-dir data/raw --verify-checksum (rc=1); python code/src/data_loader.py --filter-stochasticity --output data/processed/filtered_tasks.json (rc=2); 1 declared deliverable(s) absent: data/feasibility_log.json
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/feasibility_gate.py: self-declared fabricated metric — “…"throughput": 5.0, # Mock value         "final_config": {},…”; 5 run-book script(s) missing (plan/impl path mismatch): python code/src/anchor_extractor.py --input data/processed/filtered_tasks.json --output data/processed/anchors.json; python code/src/inference_engine.py --condition blind --input data/processed/filtered_tasks.json --output results/blind_results.json; python code/src/inference_engine.py --condition guided --input data/processed/filtered_tasks.json --anchors data/processed/anchors.json --output results/guided_results.json; 2 command(s) failed: python code/src/data_loader.py --cache-dir data/raw --verify-checksum (rc=1); python code/src/data_loader.py --filter-stochasticity --output data/processed/filtered_tasks.json (rc=1); 1 declared deliverable(s) absent: data/feasibility_log.json
 
 ## Failing / missing run-book commands
 
+- python -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}')" -> rc=1
+
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+ModuleNotFoundError: No module named 'torch'
+
 - python code/src/data_loader.py --cache-dir data/raw --verify-checksum -> rc=1
-follow-up-extending-multi-lcb-ex/lib/python3.11/site-packages/datasets/load.py", line 2556, in load_dataset
-    builder_instance = load_dataset_builder(
-                       ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-869-llmxive-follow-up-extending-multi-lcb-ex/lib/python3.11/site-packages/datasets/load.py", line 2228, in load_dataset_builder
-    dataset_module = dataset_module_factory(
-                     ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-869-llmxive-follow-up-extending-multi-lcb-ex/lib/python3.11/site-packages/datasets/load.py", line 1873, in dataset_module_factory
-    raise e1 from None
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-869-llmxive-follow-up-extending-multi-lcb-ex/lib/python3.11/site-packages/datasets/load.py", line 1819, in dataset_module_factory
-    raise DatasetNotFoundError(
-datasets.exceptions.DatasetNotFoundError: Dataset 'multilcb' doesn't exist on the Hub or cannot be accessed. If the dataset is private or gated, make sure to log in with `huggingface-cli login` or visit the dataset page at https://huggingface.co/datasets/multilcb to ask for access.
 
-- python code/src/data_loader.py --filter-stochasticity --output data/processed/filtered_tasks.json -> rc=2
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-869-llmxive-follow-up-extending-multi-lcb-ex/code/src/data_loader.py", line 14, in <module>
+    from datasets import load_dataset, DatasetNotFoundError
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-869-llmxive-follow-up-extending-multi-lcb-ex/lib/python3.11/site-packages/datasets/__init__.py", line 17, in <module>
+    from .arrow_dataset import Column, Dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-869-llmxive-follow-up-extending-multi-lcb-ex/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 59, in <module>
+    import pyarrow as pa
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-869-llmxive-follow-up-extending-multi-lcb-ex/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
-usage: data_loader.py [-h] [--cache-dir CACHE_DIR] [--verify-checksum]
-data_loader.py: error: unrecognized arguments: --filter-stochasticity --output data/processed/filtered_tasks.json
+- python code/src/data_loader.py --filter-stochasticity --output data/processed/filtered_tasks.json -> rc=1
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-869-llmxive-follow-up-extending-multi-lcb-ex/code/src/data_loader.py", line 14, in <module>
+    from datasets import load_dataset, DatasetNotFoundError
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-869-llmxive-follow-up-extending-multi-lcb-ex/lib/python3.11/site-packages/datasets/__init__.py", line 17, in <module>
+    from .arrow_dataset import Column, Dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-869-llmxive-follow-up-extending-multi-lcb-ex/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 59, in <module>
+    import pyarrow as pa
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-869-llmxive-follow-up-extending-multi-lcb-ex/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
 - python code/src/anchor_extractor.py --input data/processed/filtered_tasks.json --output data/processed/anchors.json -> rc=2
 

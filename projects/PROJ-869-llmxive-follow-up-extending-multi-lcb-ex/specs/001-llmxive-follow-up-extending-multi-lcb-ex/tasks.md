@@ -28,7 +28,7 @@
 
 ## Phase 1 – Data preparation & filtering  
 
-- [ ] **T005** [US1] Implement `code/src/data_loader.py`   <!-- FAILED-IN-EXECUTION: code/src/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/data_loader.py exit=1 -->
+- [ ] **T005** [US1] Implement `code/src/data_loader.py`   <!-- FAILED-IN-EXECUTION: code/src/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/feasibility_gate.py exit=1 -->
   * Streams the Multi‑LCB dataset from HuggingFace (`datasets.load_dataset("multilcb", split="train", streaming=True)`).  
   * Writes raw parquet shards to `data/raw/` and creates `data/raw/manifest.json` with SHA‑256 checksums for each shard.  
   **Verification**: Manifest file lists all downloaded files; checksum verification script passes for every shard.

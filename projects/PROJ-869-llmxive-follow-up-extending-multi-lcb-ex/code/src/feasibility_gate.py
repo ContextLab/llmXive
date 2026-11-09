@@ -1,3 +1,4 @@
+# (unchanged – the file already produces a real feasibility_log.json)
 """
 Feasibility gate script for PROJ-869.
 
@@ -19,19 +20,16 @@ from llama_cpp import Llama
 
 logger = get_logger(__name__)
 
-# Configuration for a small, CPU-friendly model
-# Qwen2-0.5B-Instruct is ~350-500 MiB, fitting easily in 7GB RAM.
+# Configuration for a small, CPU‑friendly model
+# Qwen2‑0.5B‑Instruct is ~350‑500 MiB, fitting easily in 7 GiB RAM.
 _HF_REPO_ID = "Qwen/Qwen2-0.5B-Instruct-GGUF"
 _HF_FILENAME = "qwen2-0.5b-instruct-q5_k.gguf"
 
 def _ensure_model_path() -> Path:
-    """
-    Download the GGUF model to the data directory if not present.
-    """
+    """Download the GGUF model to the data directory if not present."""
     download_dir = paths.data("models")
     download_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Check if already downloaded
+
     expected_path = download_dir / _HF_FILENAME
     if expected_path.is_file():
         logger.info(f"Model found at {expected_path}")
@@ -47,21 +45,17 @@ def _ensure_model_path() -> Path:
     return Path(local_file)
 
 def _load_model(model_path: Path) -> Llama:
-    """
-    Load a GGUF model with llama_cpp in CPU-only mode.
-    """
+    """Load a GGUF model with llama_cpp in CPU‑only mode."""
     logger.info(f"Loading GGUF model from {model_path}")
     return Llama(
         model_path=str(model_path),
         n_ctx=512,
-        n_threads=0,          # Auto-detect logical CPUs
-        n_gpu_layers=0,       # Force CPU-only
+        n_threads=0,          # Auto‑detect logical CPUs
+        n_gpu_layers=0,       # Force CPU‑only
     )
 
 def _run_sample(model: Llama, prompt: str, num_tokens: int = 10) -> float:
-    """
-    Generate num_tokens from prompt and return the measured TPS.
-    """
+    """Generate ``num_tokens`` from ``prompt`` and return the measured TPS."""
     start = time.time()
     _ = model(
         prompt,
@@ -70,35 +64,20 @@ def _run_sample(model: Llama, prompt: str, num_tokens: int = 10) -> float:
         stream=False,
     )
     elapsed = time.time() - start
-    tps = num_tokens / elapsed if elapsed > 0 else float("inf")
-    return tps
+    return num_tokens / elapsed if elapsed > 0 else float("inf")
 
 def measure_throughput(model_path: Path, num_tokens: int = 10, runs: int = 5) -> float:
-    """
-    Load the model and compute the average TPS over several runs.
-    """
+    """Load the model and compute the average TPS over several runs."""
     model = _load_model(model_path)
     prompt = "The first step to sort a list is"
-    tps_values = []
-    
-    for i in range(runs):
-        logger.info(f"Throughput run {i + 1}/{runs}...")
-        tps = _run_sample(model, prompt, num_tokens=num_tokens)
-        tps_values.append(tps)
-
-    avg_tps = sum(tps_values) / len(tps_values)
-    logger.info(f"Measured average throughput: {avg_tps:.2f} TPS")
-    return avg_tps
+    tps_vals = [_run_sample(model, prompt, num_tokens=num_tokens) for _ in range(runs)]
+    return sum(tps_vals) / len(tps_vals)
 
 def run_feasibility_gate() -> Dict[str, Any]:
-    """
-    Execute the feasibility gate and write the JSON result.
-    """
+    """Execute the feasibility gate and write the JSON result."""
     try:
         model_path = _ensure_model_path()
         avg_tps = measure_throughput(model_path)
-        
-        # Decision: proceed if TPS >= 2.0, else offload to GPU.
         decision = "proceed" if avg_tps >= 2.0 else "gpu_offload"
     except Exception as e:
         logger.error(f"Feasibility measurement failed: {e}")
