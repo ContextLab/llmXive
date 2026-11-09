@@ -1,16 +1,18 @@
 status: none
-intent: Codeforces C++ reference solutions dataset HuggingFace codeforces-problems
-  python package dataset
+intent: Codeforces programming challenges human solutions paired with LLM generated
+  code CodeLlama StarCoder python package dataset
 required_fields:
 - problem_id
 - problem_title
 - problem_statement
-- programming_language
-- source_code
-- solution_type
-- model_name
+- human_solution_code
+- human_solution_language
+- llm_model_name
+- llm_generated_code
 - generation_timestamp
-- compilation_status
-cache_key: 44ba58d26f53e73bed57ae9f84e94fb2afe110322a5792977288a60bb4e44726
-searched_at: '2026-11-08T14:09:55.658181+00:00'
+- generation_status
+- compilation_status_human
+- compilation_status_llm
+cache_key: c1e5642d91c2af208ab187f1448687f421cddb4a44a06fd6a818c2582211e122
+searched_at: '2026-11-09T19:10:37.184774+00:00'
 retry_count: 1
