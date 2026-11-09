@@ -1,0 +1,112 @@
+T000a:
+  task: 42278954e6e00e372065265c371eb862e385e14ca9f42443ebf7062aad02f0a2
+T000b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/scripts/wait_for_ratification.sh'
+  task: 445cae7add09b8815aecee0dc7925869815435911064035e65cc29315384a3af
+T000c:
+  task: 9c06dbcfc12803db47d8a16e5a319e11b36cc04bc639a9b1acbc0cfbaf1f0b52
+T000d:
+  task: 7752ba89ca8a3ba3eb87c48b883c6e91270c5b24af3c904195b6e7e9e2ee6509
+T001c:
+  task: 21a6fd8e06120d1d26e17279196829f284143275095dfc620b2756ab2c90646c
+T001g:
+  task: fb5f7ca43feab1dc9bcbf614c555d07e5afad12358ad5641408a3521230f7899
+T002a:
+  task: bbd73e86b192bb35b2aa2f244dd667d602f2cf53cde32b958ca536a79ff912d2
+T002b:
+  task: 3777ffb9a11295d83c9397216c87870dfb5a52a9a372ee2c61acc948fe34e7fd
+T002c:
+  task: b5d0df6aca59a34fc07d3ce8903c91e75b799b64cb2d524b5820c685858fe2de
+T002f:
+  task: 543b419d760e1a2fcb9963a0c323faaca70b525c26d3f0f6ff7fb5b249fe511d
+T003:
+  task: 68f48b5b197cdf8d52c28dbd2edacb03177c37b02039865754445219cd482c36
+T0036:
+  task: 496f8a7f46cfadad93430d1eafe3d7c190597619daee352e97799853049802ea
+T004b:
+  task: 15e4091decd84778f849dab3dba8687c73efd72bafe86df10c5443b67cafad1b
+T005:
+  task: 749368b0d3bfa5c85390c17b8067c0f8a0888c206b7cf929cbc171fb28f7428e
+T007:
+  task: abc15e20cc8b015f4ba350819d3408ca6a7685b449c857b4691690f9cccf3f8b
+T008:
+  task: 26e79c155aa8886f76661b9f0ce35f42421a4b9d2b0d8cd3eed0fc11dde60e38
+T010a:
+  task: 895cfc112408e287caaf8bc66cc7869a68dab2d987e001de274739048bfba1e6
+T010b:
+  task: 91642d06590cd64215b3b7d2f0099c302d53c975e45dc45f3884b6347da5f969
+T011a:
+  task: c1ec501bac23fe248cc07c998a82dcc715b5e009167f39209ce991094142651a
+T012a:
+  task: d3b3f5bad3220ba0694c5bca04b7b12abecd10100cd0be1ca36a0f262e8db89b
+T013:
+  task: 696029c41232455ca9b77aa95e2ccfedaedb19f3363ee354ec6d866d010af2b8
+T013a:
+  reason: 'declared artifact(s) missing/empty/invalid: code/data/selected_projects.txt'
+  task: d63b34c0f0ea7e3c78de5fa947ec77abe1b02338511efec8c39a07376d0fec80
+T014b:
+  task: 48132735edc19b825652a01e5c6e5de105ba64d646d8181071f1e7ca8eb0ea77
+T014c:
+  task: 35d70b502f06b65f0a98ae7f6c04292b3df2b60765791b09621a7fca0e4449b7
+T015:
+  task: e701e78beeed5e1aaec1e6f8daccfe0a07e31d1f203ac0bbab1a8b0fc617859b
+T016:
+  task: 275212c26f9d24e70167d0b6c76c9e6f89d04ec71186c7474845cf2147d09d1a
+T017:
+  reason: 'declared artifact(s) missing/empty/invalid: code/data/processed/features_raw.csv'
+  task: e982a9f2042828832e0316e845a984ab8e761e063a5fff69e6b7927fb85b2d96
+T018:
+  task: 170fd7bf6f29e4c75680ac453f2a58345975ae8eb8e8821532608460664a5b40
+T019:
+  task: fe82e7db0c565a04d3c0d8c251b240c943ed2cdd8fdf726718d0ca70e07ecc30
+T021:
+  task: cc8c0b348eaec24ad6b28201b1aaf786f89777d7aafeb65976ac5b45ff3324c4
+T023:
+  task: 68d3fe880e1f406b527d685ac0eb251f1a5d12d82aeb2131187e572a358d7c01
+T024:
+  task: c579c1f806370b8549bb070e1d09a70da51d91c38aa0ded60c22d3778aea8c43
+T025:
+  task: 5e4fd88d7debeb12591942d350975c2574bcecb9f281b2906f0a164ca7f73e1f
+T027b:
+  task: f0be8e424655c555e5015cef150f0ec29edb0375240bc5d888f724d690fce647
+T028:
+  reason: 'declared artifact(s) missing/empty/invalid: code/tests/test_viz.py'
+  task: b7cc14ab436bd296f7b4784655d0834ff71496c39fbb173ff6a8ab562cfc695c
+T029:
+  task: fbef126e0b592cf2f8414e1ad87822ba31b5ed4160ae4614581af3383aaac1e6
+T029b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/data/results/validation_report.md,
+    code/data/results/single_best_metric.txt'
+  task: c86a0d06a3cf515feaae03cf87a231b03d24f1cd7e9414c4e7ffa4967ca6a30b
+T030:
+  task: b8ac6976d7e5ef41a637905f7724d492fd5fa527255fd1829a2d74aedb2e7857
+T031:
+  task: 78b637a43049d43358926715f52385293893bfc8129d5154c7155ef19c0ab47c
+T032:
+  reason: 'declared artifact(s) missing/empty/invalid: code/data/results/feature_importance_ranking.json'
+  task: 9eb747708d6dbce27971c00991257f01a4a59863a6da6956473653c2b49ad112
+T033a:
+  task: f38191b5f3f8914979f62686f8d8d5382e920653f555c16bdc0731bb34889f39
+T033c:
+  reason: 'declared artifact(s) missing/empty/invalid: code/results/final_report.md'
+  task: 0f6f6369d5ca683ff44a39175783dd3ac7fd71bae7d19eb8d2578b778acd2381
+T033d:
+  reason: 'declared artifact(s) missing/empty/invalid: code/results/final_report.md'
+  task: ec244a544ea45a90daddf214553aa25678830ae61c71f17370e78bb7696b0ddd
+T033e:
+  reason: 'declared artifact(s) missing/empty/invalid: code/results/final_report.md'
+  task: af7b3bf9236f41e3dcff25fb1137fd9091462deb9b2ff4c7d58739d0188732a4
+T033f:
+  reason: 'declared artifact(s) missing/empty/invalid: code/results/final_report.md'
+  task: 15aad642d6d68c74d5522e34e1e18b91c6220b8463d2991f9cf8b9574074e285
+T033g:
+  reason: 'declared artifact(s) missing/empty/invalid: code/results/final_report.md'
+  task: 25beea14cb7cf56d585486842fdc243a291aa29d8ed4118ef5bd7b26d4a83800
+T034:
+  reason: 'declared artifact(s) missing/empty/invalid: code/src/viz.py, code/results/roc_auc_comparison.png'
+  task: d4654f7f50388fa291ff6683d5a9b47be4fa7b93afc60ddceed696d7c05692fe
+T037:
+  task: da87a24aad2acec92042b9b6ec4ad58072112aad41475958ada136ab31ebd728
+T039:
+  reason: 'declared artifact(s) missing/empty/invalid: code/tests/unit/'
+  task: fe3dca47562ec9a6d73d81e91cd7f100b05042bed89529bacbcd272cb1d9e8a3
