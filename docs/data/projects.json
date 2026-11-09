@@ -28690,7 +28690,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-09T15:06:21.965880+00:00",
+  "generated_at": "2026-11-09T15:17:11.538502+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -112285,6 +112285,14 @@
       "keywords": [],
       "last_run_log": [
         {
+          "agent": "tasker",
+          "duration_s": 3.200436,
+          "ended_at": "2026-11-09T15:12:55.230793Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-09T15:12:52.030357Z"
+        },
+        {
           "agent": "personality",
           "duration_s": 7.547089,
           "ended_at": "2026-11-06T02:05:34.967954+00:00",
@@ -112355,14 +112363,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-09-19T00:44:58.339318Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 58.597974,
-          "ended_at": "2026-09-19T00:44:58.335621Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-19T00:43:59.737647Z"
         }
       ],
       "paper_status": null,
@@ -175594,6 +175594,18 @@
   ],
   "recent_activity": [
     {
+      "agent": "tasker",
+      "duration_s": 3.200436,
+      "ended_at": "2026-11-09T15:12:55.230793Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-445-predicting-the-impact-of-composition-on-",
+      "project_stage": "planned",
+      "severity": "hard",
+      "started_at": "2026-11-09T15:12:52.030357Z"
+    },
+    {
       "agent": "implementer",
       "duration_s": 7.384894,
       "ended_at": "2026-11-09T15:05:42.440389Z",
@@ -181676,18 +181688,6 @@
       "project_stage": "in_progress",
       "severity": "hard",
       "started_at": "2026-11-06T16:05:14.774259Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 4.811086,
-      "ended_at": "2026-11-06T16:04:59.503030Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-878-llmxive-follow-up-extending-multi-turn-r",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-11-06T16:04:54.691944Z"
     }
   ],
   "reviewed_preprints": [
