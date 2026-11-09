@@ -1,14 +1,7 @@
-last_used: david-krakauer
-last_used_at: '2026-11-09T20:04:55.420642+00:00'
-last_outcome: model_error
+last_used: eric-kandel
+last_used_at: '2026-11-09T22:05:14.233634+00:00'
+last_outcome: abstained
 history:
-- slug: john-von-neumann
-  started_at: '2026-10-16T16:06:19.065319+00:00'
-  ended_at: '2026-10-16T18:07:22.814459+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-294-evaluating-the-impact-of-code-generation/reviews/research/john-von-neumann-simulated__2026-10-16__research.md
 - slug: linus-pauling
   started_at: '2026-10-16T18:07:22.814459+00:00'
   ended_at: '2026-10-16T20:08:48.667605+00:00'
@@ -985,3 +978,7 @@ history:
   started_at: '2026-11-09T18:05:40.466608+00:00'
   ended_at: '2026-11-09T20:04:55.420642+00:00'
   outcome: model_error
+- slug: eric-kandel
+  started_at: '2026-11-09T20:04:55.420642+00:00'
+  ended_at: '2026-11-09T22:05:14.233634+00:00'
+  outcome: abstained
