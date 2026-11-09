@@ -172,12 +172,12 @@
         "page": 23
       }
     ],
-    "audited_at": "2026-11-09T01:01:33.066248+00:00"
+    "audited_at": "2026-11-09T01:45:08.241114+00:00"
   },
   "repair_rounds": 3,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-667-https-arxiv-org-abs-2606-05259",
-  "updated_at": "2026-11-09T01:01:33.066264+00:00"
+  "updated_at": "2026-11-09T01:45:08.241151+00:00"
 }
