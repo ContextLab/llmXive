@@ -28690,7 +28690,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-09T05:19:34.976662+00:00",
+  "generated_at": "2026-11-09T06:04:52.390515+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -40012,6 +40012,14 @@
       "last_run_log": [
         {
           "agent": "personality",
+          "duration_s": 1.068504,
+          "ended_at": "2026-11-09T06:04:36.718864+00:00",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "abstained",
+          "started_at": "2026-11-09T06:04:35.650360+00:00"
+        },
+        {
+          "agent": "personality",
           "duration_s": 4.395684,
           "ended_at": "2026-11-09T04:04:36.152758+00:00",
           "model": "openai.gpt-oss-120b",
@@ -40081,14 +40089,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-09-10T13:10:30.674668Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 17.261193,
-          "ended_at": "2026-09-10T13:10:30.670886Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-10T13:10:13.409693Z"
         }
       ],
       "paper_status": null,
@@ -175586,6 +175586,21 @@
   ],
   "recent_activity": [
     {
+      "agent": "personality",
+      "display_name": "Albert Einstein (simulated)",
+      "duration_s": 1.068504,
+      "ended_at": "2026-11-09T06:04:36.718864+00:00",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "model_kind": "personality_simulator",
+      "outcome": "abstained",
+      "personality_slug": "albert-einstein",
+      "project_id": "PROJ-057-investigating-the-impact-of-compiler-opt",
+      "project_stage": "planned",
+      "severity": "soft",
+      "started_at": "2026-11-09T06:04:35.650360+00:00"
+    },
+    {
       "agent": "implementer",
       "duration_s": 9.127915,
       "ended_at": "2026-11-09T05:05:56.387401Z",
@@ -181668,18 +181683,6 @@
       "project_stage": "in_progress",
       "severity": "hard",
       "started_at": "2026-11-06T07:05:17.864368Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 2.305644,
-      "ended_at": "2026-11-06T07:05:12.934644Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-039-investigating-the-relationship-between-g",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-11-06T07:05:10.629000Z"
     }
   ],
   "reviewed_preprints": [
