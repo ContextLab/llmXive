@@ -1,14 +1,7 @@
 last_used: david-krakauer
-last_used_at: '2026-11-09T18:05:40.466608+00:00'
-last_outcome: abstained
+last_used_at: '2026-11-09T20:04:55.420642+00:00'
+last_outcome: model_error
 history:
-- slug: geoffrey-west
-  started_at: '2026-10-16T14:07:39.701053+00:00'
-  ended_at: '2026-10-16T16:06:19.065319+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-595-neural-narrative-networks-brain-inspired/reviews/research/geoffrey-west-simulated__2026-10-16__research.md
 - slug: john-von-neumann
   started_at: '2026-10-16T16:06:19.065319+00:00'
   ended_at: '2026-10-16T18:07:22.814459+00:00'
@@ -988,3 +981,7 @@ history:
   started_at: '2026-11-09T16:05:02.555119+00:00'
   ended_at: '2026-11-09T18:05:40.466608+00:00'
   outcome: abstained
+- slug: eric-kandel
+  started_at: '2026-11-09T18:05:40.466608+00:00'
+  ended_at: '2026-11-09T20:04:55.420642+00:00'
+  outcome: model_error
