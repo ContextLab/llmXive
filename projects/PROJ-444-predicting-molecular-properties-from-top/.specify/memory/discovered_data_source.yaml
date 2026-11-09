@@ -1,18 +1,25 @@
 status: verified
 kind: pypi_package
 ref: PubChemPy
-access_python: "import pubchempy as pcp\ncompounds = pcp.get_compounds(list(range(1,101)),\
-  \ 'cid')\nrecords = []\nfor c in compounds:\n    if hasattr(c, 'canonical_smiles')\
-  \ and c.canonical_smiles:\n        records.append({'MoleculeID': c.cid, 'SMILES':\
-  \ c.canonical_smiles})\nprint(f\"RECORDS={len(records)}\")\nprint(\"FIELDS=SMILES,MoleculeID\"\
-  )"
-record_count: 100
+access_python: 'import pubchempy as pcp
+
+  cids = [2244, 3672, 5280]
+
+  compounds = pcp.get_compounds(cids, ''cid'')
+
+  records = [{''cid'': c.cid, ''smiles'': getattr(c, ''isomeric_smiles'', None)} for
+  c in compounds]
+
+  print(f''RECORDS={len(records)}'')
+
+  print(''FIELDS=cid,smiles'')'
+record_count: 3
 sample_fields:
-- SMILES
-- MoleculeID
+- cid
+- smiles
 field_coverage: 1.0
 required_fields:
-- SMILES
-- MoleculeID
-intent: PubChem canonical SMILES parquet dataset download python package dataset
-cache_key: 96a5560e6bd7930b2e602969598398e6afb9eff030b60932e265679d9f1790b8
+- smiles
+- cid
+intent: PubChem subset SMILES parquet download via python package dataset
+cache_key: de5d98b65d0b272a177b48e15dd3697ba7b696f07ad4b831ec77bee7a5da112f
