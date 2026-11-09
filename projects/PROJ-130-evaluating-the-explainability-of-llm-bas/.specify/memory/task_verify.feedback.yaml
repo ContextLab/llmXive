@@ -1,0 +1,137 @@
+T001:
+  task: 824a54b5885b112310c6a53a4301dd610b92ad20b09a8edea0a8c76e4d7bea14
+T002:
+  task: 6e05e6e7b94a2e1bfcb295994e2e2ea0a65aba1fc3a66339bf4c5db672f3ddd3
+T003:
+  task: 76785afbf3091008f1dd4b162f0f4ad32840975ad415e04ed7dbdae71d5b69c1
+T004:
+  task: ab2673fe512ac5de1f906e838cb1606219ab118c16fbeb693ca45e8d87ba8d42
+T005:
+  task: c0e3076ba430006d7c3ece8c942d3ef906e1ac1226f5893627e82fa406ac5b4f
+T006:
+  task: ad655df01bcf219b85489218e6d2641fbdb16015da9911b5f64f4c0724ef9091
+T006b-IMPL:
+  task: eb30d2c576323b1dc2ab2dc303c6a9fb275e7d232e63761f23622e8fbaec5a44
+T007:
+  task: d4a6bd6893752f8c72e8d763e05318d223f884a7a2128f3f4806529bcbe6b4a4
+T008:
+  task: b6cba200deae63689c5d563ac65cad48fb5ec14b5f1e94c7138afb8db9495de0
+T009:
+  task: 26422a47795557a5acca3e7b783d2b578bd247ecfd937c93f0876b86907309e0
+T011:
+  task: 2b8aa653f0c6355b0e3c695ab066079435422d126ab577d3bd3bdd3b8787350c
+T012:
+  task: 3eda07a41885f2dd87604062b05aa11405018ed235098dac50bb3e8e811b3bdb
+T013:
+  task: b3d34443bdf194c6d3ef48d6d80e4ea2f7100d349992934e9e8a2faf0dc45dc4
+T013b:
+  task: f3011d8d89ccf4a2487de3397adaace6418eb4185d3f7007b83231e930ad1e39
+T014-IMPL:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/error_log.json`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 6d53213ada625b0071e126e8435ea31daf5e8c16f5b6cbbdcb4a73111fcb9fba
+T014-VERIFY:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/error_log.json`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: f57f8eb39730c274ac9bbcafc429a45eebb6cc0c1bf11aea6120fe834a318255
+T015:
+  task: c6521cdef21d90bb41c8f554d481f576fc1a2c672022f4b1d4df6e747f9f08a5
+T016:
+  task: 734035884d7809499a6e588f4cf4bec6513abac33f119e64505794cfad21b06d
+T017:
+  task: 7646d5c028cf460218a890a9bddb387acdbb24dc8a69047b31910ea4bd2d8252
+T018:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/integration/test_us1_sample.py'
+  task: 0682a72bfd980083b99d2487fc0dc132331039cf33ce11acff2efe559c6691aa
+T019:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/metadata.json`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 3cec873a3e8158c1be2e6d1dd5f493cb648e76fb788a1b0fe8438958ffef2c4f
+T020:
+  reason: 'declared artifact(s) missing/empty/invalid: code/02_generate_patches.py,
+    code/prompts/patch_gen.txt'
+  task: d4c884f750d54b2e2aa12ab879e646cc55625d019d09ed2532229516d990773c
+T021:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/correctness.json`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 214bb563bbf739e1f9e283438db00f087154992c8a6da030fe3f82b435ba5286
+T022:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/error_log.json`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: d597c567c1bb734df0bb9abb30682a1ffb7a0b73b39dd5a4cc3d8e7add338f17
+T024:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/complexity_metrics.json`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 520a7fe63f595a708bb6a04bdc827aa7bbc377d9ae7f3ba00262715962e49eac
+T025:
+  task: 8329d692f2b1057f262366345c9a49ee386097cd5d7c46fa41aedaf0a6da28b7
+T026:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/integration/test_us2_sample.py'
+  task: 5bf54a5fa73212e6e76f2fc11243b6fc5c7f374201a3ad4681c5a8edbc086c49
+T027:
+  reason: 'declared artifact(s) missing/empty/invalid: code/05_extract_attention.py'
+  task: 4c382ee920ef7f495b80b0ba688b9677cdad7f94dbfb01a0af26e869bb73cfb3
+T028:
+  reason: 'declared artifact(s) missing/empty/invalid: code/06_compute_saliency.py'
+  task: f0059474705d5c96ef6ebfb3c9f22b2a3bdad1877c25fae99c9d7aa6279f8918
+T029:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/error_log.json`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 673c0eacc41acf84945468d0acaecdf0ddee4b72c4bd32b19097c9e05015fc24
+T030:
+  task: 9253b9dc61ef319afbc68e05fe03400db9cb06c55254802e98cef8bb7ea99d08
+T031:
+  task: dd505ec6201b94e8955931b68c92bcc2b8179896f8fa3618edd014dae74cc263
+T032:
+  task: 95e232bbc6ba91d796491b7103d48df2a82118b396bdd58e8b2d3a07dd41909c
+T033:
+  reason: 'declared artifact(s) missing/empty/invalid: code/08_statistical_analysis.py'
+  task: a24b652760fe7f3b66cd2b35633eb3e111e811292bb46ff4a6f35268075cea4e
+T034:
+  task: 394458c95d7bec40ef7ee763250707506994ec6e9b50e8be3028261ebf1d0b7a
+T035:
+  task: 2002cd11f63b9eb39dd7402314e79ae883040ddfba5f96af2dc04a96ef2bc762
+T036:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/complexity_metrics.json`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 4ffeb820fcb444c0ba1a3448ae19067aced1bcc9a778daa411b9a49768d6f836
+T037:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/statistical_results.json`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: e1e90d50d98fa769fafaa925e3b39919c78dae4d0cf7f1011bd250c4ad07c8a5
+T038:
+  task: 831b3241e6c0c4e3965bda3b2dfbec7185207a0b44b9fa9b6323b73188273480
+T039-IMPL:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
+    `state/`), `state/error_log.json` (shadows `state/`). A project owns data/, figures/,
+    code/ and paper/; the platform owns state/ and derives artifact hashes at verification
+    time. Re-scope the step to write only project-owned outputs.'
+  task: 0bd8fd1c99e22455249d5f2ec480992d33732863ef42bf340eb10e93548a4610
+T040:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/error_log.json`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 345448a975cf5bc8f2a5172832f74007c108bcff010c7495b9e64591ae794364
+T041:
+  task: 679e7c3579b537465b609c9be9be2279567f012a547ecbb8af2e1ca36a059ffc
+T042:
+  task: 40a30dbfa737170100530f08a17c1d8cb6a32807612b3dc07ffb309a4bc8ac67
