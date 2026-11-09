@@ -28690,7 +28690,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-09T10:06:08.917908+00:00",
+  "generated_at": "2026-11-09T10:17:08.321398+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -61615,6 +61615,14 @@
       "last_run_log": [
         {
           "agent": "planner",
+          "duration_s": 145.317136,
+          "ended_at": "2026-11-09T10:07:30.772561Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-09T10:05:05.455425Z"
+        },
+        {
+          "agent": "planner",
           "duration_s": 96.510745,
           "ended_at": "2026-11-08T12:07:49.829811Z",
           "model": "zai-org.glm-5.3",
@@ -61684,14 +61692,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-11-01T04:06:50.389769Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 94.777942,
-          "ended_at": "2026-10-31T06:09:05.577184Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-10-31T06:07:30.799242Z"
         }
       ],
       "paper_status": null,
@@ -175594,6 +175594,18 @@
   ],
   "recent_activity": [
     {
+      "agent": "planner",
+      "duration_s": 145.317136,
+      "ended_at": "2026-11-09T10:07:30.772561Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-156-statistical-analysis-of-publicly-availab",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-11-09T10:05:05.455425Z"
+    },
+    {
       "agent": "implementer",
       "duration_s": 7.586008,
       "ended_at": "2026-11-09T10:05:15.794204Z",
@@ -181676,18 +181688,6 @@
       "project_stage": "planned",
       "severity": "hard",
       "started_at": "2026-11-06T12:06:43.649451Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 5.808452,
-      "ended_at": "2026-11-06T12:06:30.193064Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-044-evaluating-the-effectiveness-of-differen",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-11-06T12:06:24.384612Z"
     }
   ],
   "reviewed_preprints": [
