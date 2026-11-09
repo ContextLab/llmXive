@@ -1,14 +1,14 @@
 {
   "project_id": "PROJ-466-evaluating-the-impact-of-code-style-on-l",
-  "stage": "clarified",
-  "class": "permanent",
-  "fingerprint": "unreachable_reference",
-  "consecutive_count": 0,
-  "first_seen": "2026-07-11T09:47:49.434449+00:00",
-  "last_seen": "2026-07-15T18:53:24.497714+00:00",
-  "retry_after": null,
-  "last_error": "research.md reference is unreachable: 'https://huggingface.co/datasets/openai/human-eval' (HTTP 401). FR-006 admits NO transient-retry leniency \u2014 re-run when the source recovers or fix the reference.",
-  "evidence": "research.md reference is unreachable: 'https://huggingface.co/datasets/openai/human-eval' (HTTP 401). FR-006 admits NO transient-retry leniency \u2014 re-run when the source recovers or fix the reference.",
-  "remediation": "The reference/source is unreachable, or the emitted artifact is an unfilled template with no valid content. Do NOT re-dispatch unchanged: route the evidence to a source-aware re-plan (inject a verified replacement source) or back to the emitter, or mark terminal if genuinely unrecoverable.",
-  "status": "cleared"
+  "stage": "in_progress",
+  "class": "transient",
+  "fingerprint": "backend_chain_failed",
+  "consecutive_count": 1,
+  "first_seen": "2026-11-09T07:05:55.452212+00:00",
+  "last_seen": "2026-11-09T07:05:55.452212+00:00",
+  "retry_after": "2026-11-09T07:15:55.452212+00:00",
+  "last_error": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+  "evidence": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+  "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
+  "status": "retry_scheduled"
 }
