@@ -1,12 +1,12 @@
 status: none
-intent: synthetic query workload dataset with plan depth graph relational text python
-  package dataset
+intent: LDBC SNB and GMark query workloads with plan depth download python package
+  dataset
 required_fields:
 - query_id
 - query_text
 - plan_depth
 - source_type
 - latency_ms
-cache_key: ba2d90d23071bac0aeae182dc0cd30a55bcc69b9751e7f2c31f75f5cb661f6bd
-searched_at: '2026-11-08T15:05:53.463467+00:00'
+cache_key: 2060e8d40663432bc8948af00d9fecabd5cbe7408cc590f7e4dda2e1d3eed500
+searched_at: '2026-11-09T20:06:22.436206+00:00'
 retry_count: 1
