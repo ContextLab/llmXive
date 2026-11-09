@@ -28690,7 +28690,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-09T20:33:29.876611+00:00",
+  "generated_at": "2026-11-09T21:05:54.285463+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -41862,6 +41862,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 5.119109,
+          "ended_at": "2026-11-09T21:05:17.416275Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-09T21:05:12.297166Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 5.380732,
           "ended_at": "2026-11-08T23:05:29.333884Z",
           "model": "zai-org.glm-5.3",
@@ -41931,14 +41939,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-11-01T15:09:40.471008Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 4.498701,
-          "ended_at": "2026-10-31T17:06:23.102610Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-10-31T17:06:18.603909Z"
         }
       ],
       "paper_status": null,
@@ -127153,6 +127153,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 3.386633,
+          "ended_at": "2026-11-09T21:05:03.306406Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-09T21:04:59.919773Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 3.305381,
           "ended_at": "2026-11-08T23:06:19.279994Z",
           "model": "zai-org.glm-5.3",
@@ -127222,14 +127230,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-11-02T02:07:41.748977Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 3.216736,
-          "ended_at": "2026-11-01T19:05:50.717238Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-11-01T19:05:47.500502Z"
         }
       ],
       "paper_status": null,
@@ -175594,6 +175594,30 @@
   ],
   "recent_activity": [
     {
+      "agent": "implementer",
+      "duration_s": 5.119109,
+      "ended_at": "2026-11-09T21:05:17.416275Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-069-statistical-analysis-of-sentiment-drift-",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-11-09T21:05:12.297166Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 3.386633,
+      "ended_at": "2026-11-09T21:05:03.306406Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-532-predicting-material-degradation-pathways",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-11-09T21:04:59.919773Z"
+    },
+    {
       "agent": "planner",
       "duration_s": 83.596787,
       "ended_at": "2026-11-09T20:06:22.906372Z",
@@ -181667,30 +181691,6 @@
       "project_stage": "clarified",
       "severity": "hard",
       "started_at": "2026-11-06T21:04:52.566822Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 2.794865,
-      "ended_at": "2026-11-06T21:05:39.805650Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-337-predicting-plant-biomass-from-publicly-a",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-11-06T21:05:37.010785Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 7.046748,
-      "ended_at": "2026-11-06T21:05:09.790478Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-342-predicting-the-influence-of-alloying-on-",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-11-06T21:05:02.743730Z"
     }
   ],
   "reviewed_preprints": [
