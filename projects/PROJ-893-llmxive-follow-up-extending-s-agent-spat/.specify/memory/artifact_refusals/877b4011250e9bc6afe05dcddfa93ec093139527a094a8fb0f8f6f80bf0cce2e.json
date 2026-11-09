@@ -1,0 +1,7 @@
+{
+  "task_id": "T004",
+  "fingerprint": "49407d6980acc0874b787f6bdcf8780161e985e66fb9774b20b12dcd92fa1439",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'code/hygiene.py': SyntaxError at line 86: f-string expression part cannot include a backslash. Likely truncation (output ran out of tokens) or unbalanced bracket. Total chars: 6953"
+}

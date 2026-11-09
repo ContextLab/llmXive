@@ -1,18 +1,14 @@
 status: none
-intent: download S-AgentK multi-view static scenes dataset python package dataset
+intent: S-AgentK 3D scene geometry download python package dataset
 required_fields:
 - scene_id
-- view_id
 - object_id
 - object_type
 - position_x
 - position_y
 - position_z
-- rotation_quaternion
-- object_relation_type
+- relation_type
 - related_object_id
-- camera_intrinsics
-- camera_extrinsics
-cache_key: 88b546bd8ac13622d4f29f6fd30d1301410436b5db34b8a2efd8acb09ef8785d
-searched_at: '2026-11-07T21:12:46.947705+00:00'
+cache_key: 3782a628f7b65315bc56136f198ce590488aaddd85823abcd7d38fbaef031f15
+searched_at: '2026-11-09T21:12:36.289728+00:00'
 retry_count: 1

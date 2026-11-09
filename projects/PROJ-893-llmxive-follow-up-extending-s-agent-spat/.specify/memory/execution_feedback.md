@@ -78,7 +78,7 @@ INTERNALERROR>   File "/home/runner/work/llmXive/llmXive/projects/PROJ-893-llmxi
 INTERNALERROR>     sys.exit(1)
 INTERNALERROR> SystemExit: 1
 
-========================= 1 skipped, 1 error in 0.52s ==========================
+========================= 1 skipped, 1 error in 0.48s ==========================
 
 mainloop: caught unexpected SystemExit!
 
