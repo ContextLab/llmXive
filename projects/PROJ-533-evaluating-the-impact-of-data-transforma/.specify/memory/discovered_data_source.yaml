@@ -1,41 +1,43 @@
 status: verified
 kind: pypi_package
 ref: openml
-access_python: "import openml, pandas as pd\n# Retrieve dataset metadata as a DataFrame\n\
-  df = openml.datasets.list_datasets(output_format='dataframe')\nRECORDS = len(df)\n\
-  # Map available columns to the required field names\nfields = []\nif 'did' in df.columns:\n\
-  \    fields.append('dataset_id')\nif 'name' in df.columns:\n    fields.append('dataset_name')\n\
-  if 'url' in df.columns:\n    fields.append('download_url')\nif 'NumberOfInstances'\
-  \ in df.columns:\n    fields.append('number_of_instances')\nif 'NumberOfNumericFeatures'\
-  \ in df.columns:\n    fields.append('number_of_numeric_features')\nif 'NumberOfCategoricalFeatures'\
-  \ in df.columns:\n    fields.append('number_of_categorical_features')\nif 'default_target_attribute'\
-  \ in df.columns:\n    fields.append('target_column_name')\nif 'NumberOfMissingValues'\
-  \ in df.columns:\n    fields.append('missing_percentage_per_feature')\nif 'md5_checksum'\
-  \ in df.columns:\n    fields.append('sha256_checksum')\n# OpenML provides the source\
-  \ repository implicitly; we add a placeholder name\nfields.append('source_repository')\n\
-  if 'tag' in df.columns:\n    fields.append('task_type')\nprint(f'RECORDS={RECORDS}')\n\
-  print('FIELDS=' + ','.join(fields))"
-record_count: 7119
+access_python: "import openml, pandas as pd\n\n# Retrieve the full list of OpenML\
+  \ datasets as a DataFrame\ndf = openml.datasets.list_datasets(output_format='dataframe')\n\
+  \n# Map OpenML column names to the required field names where they correspond\n\
+  mapping = {\n    'did': 'dataset_id',\n    'name': 'name',\n    'url': 'download_url',\n\
+  \    'md5_checksum': 'sha256_checksum',\n    'NumberOfInstances': 'n_instances',\n\
+  \    'NumberOfFeatures': 'n_features',\n    'NumberOfNumericFeatures': 'n_numeric_features',\n\
+  \    'NumberOfSymbolicFeatures': 'n_categorical_features',\n    'NumberOfMissingValues':\
+  \ 'missing_percentage',\n    'default_target_attribute': 'target_type',\n    'format':\
+  \ 'task_type'\n}\n# Keep only mappings for columns that actually exist in the DataFrame\n\
+  valid_mapping = {orig:new for orig, new in mapping.items() if orig in df.columns}\n\
+  # Rename the DataFrame columns according to the mapping\ndf_renamed = df.rename(columns=valid_mapping)\n\
+  # Convert to a list of records (dicts)\nrecords = df_renamed.to_dict(orient='records')\n\
+  print(f\"RECORDS={len(records)}\")\nprint(\"FIELDS=\" + \",\".join(valid_mapping.values()))"
+record_count: 7121
 sample_fields:
 - dataset_id
-- dataset_name
-- number_of_instances
-- number_of_numeric_features
-- missing_percentage_per_feature
-- source_repository
-field_coverage: 0.727
+- name
+- n_instances
+- n_features
+- n_numeric_features
+- n_categorical_features
+- missing_percentage
+- task_type
+field_coverage: 0.75
 required_fields:
 - dataset_id
-- dataset_name
+- name
 - download_url
-- number_of_instances
-- number_of_numeric_features
-- number_of_categorical_features
-- target_column_name
-- missing_percentage_per_feature
 - sha256_checksum
-- source_repository
+- n_instances
+- n_features
+- n_numeric_features
+- n_categorical_features
+- missing_percentage
 - task_type
-intent: download UCI Machine Learning Repository, OpenML, and HuggingFace classification
-  datasets python package dataset
-cache_key: 466edef0cf7b356d261b3518057bb913efd5c0e83fb51efe6395a73e1c927a6b
+- target_type
+- metadata_json
+intent: OpenML python package dataset for downloading UCI Machine Learning Repository
+  python package dataset
+cache_key: 5eaf42f0ec2911a6d1eb700ecedccf0e0f0a3dfc6236c6725d30566c79bc63ec
