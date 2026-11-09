@@ -1,14 +1,7 @@
-last_used: dan-rockmore
-last_used_at: '2026-11-09T12:04:53.529634+00:00'
-last_outcome: model_error
+last_used: daniel-kahneman
+last_used_at: '2026-11-09T14:05:02.333583+00:00'
+last_outcome: abstained
 history:
-- slug: david-krakauer
-  started_at: '2026-10-16T06:09:33.631844+00:00'
-  ended_at: '2026-10-16T08:11:57.489955+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-464-predicting-plant-drought-tolerance-from-/reviews/research/david-krakauer-simulated__2026-10-16__research.md
 - slug: eric-kandel
   started_at: '2026-10-16T08:11:57.489955+00:00'
   ended_at: '2026-10-16T12:11:41.391513+00:00'
@@ -997,3 +990,7 @@ history:
   started_at: '2026-11-09T10:04:41.393253+00:00'
   ended_at: '2026-11-09T12:04:53.529634+00:00'
   outcome: model_error
+- slug: daniel-kahneman
+  started_at: '2026-11-09T12:04:53.529634+00:00'
+  ended_at: '2026-11-09T14:05:02.333583+00:00'
+  outcome: abstained
