@@ -1,18 +1,18 @@
 status: none
-intent: Codeforces programming challenges human solutions paired with LLM generated
-  code CodeLlama StarCoder python package dataset
+intent: Codeforces C++ solutions dataset with paired CodeLlama StarCoder generated
+  code python package dataset
 required_fields:
 - problem_id
 - problem_title
 - problem_statement
-- human_solution_code
-- human_solution_language
+- difficulty_rating
+- tags
+- human_solution_cpp
+- human_solution_submission_id
+- human_solution_timestamp
 - llm_model_name
 - llm_generated_code
-- generation_timestamp
-- generation_status
-- compilation_status_human
-- compilation_status_llm
-cache_key: c1e5642d91c2af208ab187f1448687f421cddb4a44a06fd6a818c2582211e122
-searched_at: '2026-11-09T19:10:37.184774+00:00'
+- llm_generation_timestamp
+cache_key: 76d66defa02d58d52aba0d3f960fed9292387a8e36d8655ba5eb0db796788e74
+searched_at: '2026-11-10T17:09:58.373655+00:00'
 retry_count: 1
