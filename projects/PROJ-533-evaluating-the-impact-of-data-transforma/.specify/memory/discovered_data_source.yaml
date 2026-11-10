@@ -1,43 +1,19 @@
-status: verified
-kind: pypi_package
-ref: openml
-access_python: "import openml, pandas as pd\n\n# Retrieve the full list of OpenML\
-  \ datasets as a DataFrame\ndf = openml.datasets.list_datasets(output_format='dataframe')\n\
-  \n# Map OpenML column names to the required field names where they correspond\n\
-  mapping = {\n    'did': 'dataset_id',\n    'name': 'name',\n    'url': 'download_url',\n\
-  \    'md5_checksum': 'sha256_checksum',\n    'NumberOfInstances': 'n_instances',\n\
-  \    'NumberOfFeatures': 'n_features',\n    'NumberOfNumericFeatures': 'n_numeric_features',\n\
-  \    'NumberOfSymbolicFeatures': 'n_categorical_features',\n    'NumberOfMissingValues':\
-  \ 'missing_percentage',\n    'default_target_attribute': 'target_type',\n    'format':\
-  \ 'task_type'\n}\n# Keep only mappings for columns that actually exist in the DataFrame\n\
-  valid_mapping = {orig:new for orig, new in mapping.items() if orig in df.columns}\n\
-  # Rename the DataFrame columns according to the mapping\ndf_renamed = df.rename(columns=valid_mapping)\n\
-  # Convert to a list of records (dicts)\nrecords = df_renamed.to_dict(orient='records')\n\
-  print(f\"RECORDS={len(records)}\")\nprint(\"FIELDS=\" + \",\".join(valid_mapping.values()))"
-record_count: 7121
-sample_fields:
-- dataset_id
-- name
-- n_instances
-- n_features
-- n_numeric_features
-- n_categorical_features
-- missing_percentage
-- task_type
-field_coverage: 0.75
+status: none
+intent: download UCI and OpenML classification datasets with continuous features python
+  package dataset
 required_fields:
 - dataset_id
-- name
+- dataset_name
+- source_repository
 - download_url
+- num_instances
+- num_features
+- num_continuous_features
+- num_categorical_features
+- target_column_name
+- missing_percentage_per_feature
+- shapiro_wilk_p_value
 - sha256_checksum
-- n_instances
-- n_features
-- n_numeric_features
-- n_categorical_features
-- missing_percentage
-- task_type
-- target_type
-- metadata_json
-intent: OpenML python package dataset for downloading UCI Machine Learning Repository
-  python package dataset
-cache_key: 5eaf42f0ec2911a6d1eb700ecedccf0e0f0a3dfc6236c6725d30566c79bc63ec
+cache_key: 58b6b76f06951223a7e4d0f955a09833bfc52385d02137d990ff919213ab5037
+searched_at: '2026-11-10T15:07:27.186931+00:00'
+retry_count: 1
