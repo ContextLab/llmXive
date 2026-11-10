@@ -1,12 +1,11 @@
 status: none
-intent: LDBC SNB and GMark query workloads with plan depth download python package
-  dataset
+intent: download LDBC Social Network Benchmark and LDBC Driver as python package dataset
 required_fields:
 - query_id
 - query_text
 - plan_depth
 - source_type
 - latency_ms
-cache_key: 2060e8d40663432bc8948af00d9fecabd5cbe7408cc590f7e4dda2e1d3eed500
-searched_at: '2026-11-09T20:06:22.436206+00:00'
+cache_key: 40d6bb977cfe6d2cb45b46f33d66d45e41f135dc49a5c2845aa4f7109bae9072
+searched_at: '2026-11-10T19:07:16.542057+00:00'
 retry_count: 1
