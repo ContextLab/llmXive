@@ -8,11 +8,8 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python scripts/compute_reference_stats.py --input data/results/trial_logs.jsonl --output data/results/analysis_report.md -> rc=1
 
-2026-10-13 07:02:54,742 WARNING statistical_reference: Physics‑states source unavailable: Physics states file not found: data/results/trial_logs.jsonl
-2026-10-13 07:02:54,743 WARNING statistical_reference: GFM weights not found at data/raw/gfm_baseline.pt – attempting to download fallback.
-2026-10-13 07:02:54,743 INFO statistical_reference: Downloading fallback weights from https://download.pytorch.org/models/resnet18-f37072fd.pth
-2026-10-13 07:02:54,899 INFO statistical_reference: Saved fallback weights to data/raw/gfm_baseline.pt
-2026-10-13 07:02:54,899 ERROR statistical_reference: Failed to compute reference statistics: No module named 'torch'
+2026-11-10 15:23:26,344 WARNING statistical_reference: Physics‑states source unavailable: Physics states file not found: data/results/trial_logs.jsonl
+2026-11-10 15:23:26,344 ERROR statistical_reference: Failed to compute reference statistics: No module named 'torch'
 
 - python code/data/generator.py --num-trials 300 --output data/generated/test_set.json -> rc=2
 
@@ -24,8 +21,8 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python scripts/compute_reference_stats.py --input data/results/trial_logs.jsonl --output data/results/analysis_report.md -> rc=1
 
-2026-10-13 07:02:55,133 WARNING statistical_reference: Physics‑states source unavailable: Physics states file not found: data/results/trial_logs.jsonl
-2026-10-13 07:02:55,134 ERROR statistical_reference: Failed to compute reference statistics: No module named 'torch'
+2026-11-10 15:23:26,557 WARNING statistical_reference: Physics‑states source unavailable: Physics states file not found: data/results/trial_logs.jsonl
+2026-11-10 15:23:26,558 ERROR statistical_reference: Failed to compute reference statistics: No module named 'torch'
 
 - python -m pytest tests/ -v -> rc=2
 sts/test_data_generation_recording.py
@@ -54,7 +51,7 @@ ERROR tests/unit/test_solver_constraints.py
 ERROR tests/unit/test_symbolic_solver.py
 ERROR tests/unit/test_symbolic_solver_constraints.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 27 errors during collection !!!!!!!!!!!!!!!!!!!
-======================== 1 warning, 27 errors in 2.04s =========================
+======================== 1 warning, 27 errors in 1.96s =========================
 
 
 

@@ -1,50 +1,39 @@
-#!/usr/bin/env python
 """
-Script to create the required data sub‑directories and populate each with a ``.gitkeep`` file.
-
-The directories are:
-  - data/raw
-  - data/generated
-  - data/results
-
-Running this script is idempotent – existing directories and ``.gitkeep`` files are left untouched.
+Script to setup the data directory structure for the project.
+Implements Task T004: Create data/raw, data/generated, and data/results
+along with their corresponding .gitkeep files.
 """
 import sys
 from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
 
-
-def ensure_dir_and_gitkeep(dir_path):
+def ensure_dir_and_gitkeep(dir_name: str):
     """
-    Ensure a directory exists and contains an empty ``.gitkeep`` file.
-
-    Parameters
-    ----------
-    dir_path : pathlib.Path
-        Path to the directory to create.
+    Ensures a directory exists within the data/ folder and contains a .gitkeep file.
     """
-    # ``paths`` helpers automatically create parent directories when needed.
-    dir_path.mkdir(parents=True, exist_ok=True)
+    # paths.data(dir_name) creates the directory if it doesn't exist
+    dir_path = paths.data(dir_name)
     gitkeep_path = dir_path / ".gitkeep"
-    gitkeep_path.touch(exist_ok=True)
-    log.info(f"Created/ensured {gitkeep_path}")
+    
+    # Create an empty .gitkeep file
+    gitkeep_path.touch()
+    log.info(f"Ensured directory and .gitkeep: {gitkeep_path}")
 
-
-def main() -> int:
-    """Entry point for the script."""
-    # Define the three top‑level data sub‑folders.
-    subfolders = [
-        paths.data("raw"),
-        paths.data("generated"),
-        paths.data("results")
-    ]
-
-    for folder in subfolders:
-        ensure_dir_and_gitkeep(folder)
-
-    return 0
-
+def main():
+    """
+    Main entry point to initialize the required data directories.
+    """
+    try:
+        required_dirs = ["raw", "generated", "results"]
+        for d in required_dirs:
+            ensure_dir_and_gitkeep(d)
+        
+        log.info("Successfully initialized data directory structure.")
+        return 0
+    except Exception as e:
+        log.error(f"Failed to setup data directories: {e}")
+        return 1
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -20,7 +20,7 @@
 - [X] T001a-reqs [P] Create `requirements.txt` with pinned dependencies: `pybullet`, `torch==2.0.0+cpu --index-url https://download.pytorch.org/whl/cpu`, `cvxpy`, `diff-taichi`, `scipy`, `pandas`, `numpy`, `pytest`.  
   - **Verification**: Add a test `tests/integration/test_requirements_exist.py` that asserts the file exists and contains all listed packages.  
 
-- [X] T001a-gitignore [P] Create `.gitignore` file excluding `data/`, `__pycache__/`, `*.pyc`, and environment files.  
+- [~] T001a-gitignore [P] Create `.gitignore` file excluding `data/`, `__pycache__/`, `*.pyc`, and environment files.  
   - **Verification**: `tests/integration/test_gitignore_exists.py` checks file existence and required patterns.  
 
 - [X] T001a-init [P] Create `code/__init__.py` and `tests/__init__.py`.  
@@ -29,7 +29,7 @@
 - [X] T001b [P] Create the three top‑level directories `code/`, `data/`, and `tests/`.  
   - **Verification**: `tests/integration/test_directories_exist.py` asserts the directories exist.  
 
-- [X] T001c [P] Add a `.gitkeep` file to each of `data/raw/`, `data/generated/`, and `data/results/` so the directories exist in version control.  
+- [~] T001c [P] Add a `.gitkeep` file to each of `data/raw/`, `data/generated/`, and `data/results/` so the directories exist in version control.  
   - **Verification**: `tests/integration/test_gitkeep_files.py` checks the three `.gitkeep` files exist.  
 
 ### Phase 1 – Shared infrastructure (blocking prerequisites)
@@ -38,17 +38,17 @@
 - [~] T003 [P] Create `ruff.toml` and `.pre-commit-config.yaml` for linting and formatting.  
   - **Verification**: `tests/integration/test_lint_config.py` runs `ruff --quiet` and ensures a successful exit.  
 
-- [ ] T004 Setup data directory structure (`data/raw`, `data/generated`, `data/results`) and `.gitkeep` files.  
-- [ ] T005 [P] Implement `code/utils.py` with logging, deterministic seeding (numpy/torch), and SHA‑256 hashing utilities.  
+- [~] T004 Setup data directory structure (`data/raw`, `data/generated`, `data/results`) and `.gitkeep` files.  
+- [~] T005 [P] Implement `code/utils.py` with logging, deterministic seeding (numpy/torch), and SHA‑256 hashing utilities.  
   - **Verification**: `tests/unit/test_utils.py` imports the module and checks each utility function runs without error.  
 
-- [ ] T007a [P] Create `code/config.yaml` defining experiment parameters (e.g., `topology_counts`, `timeout_limits`, `seed`, `trial_count`, `sim_fps`, `max_attempts`, `stiffness_range`, `target_zone`, `baseline_model_url`, `MAX_TASKS`).  
+- [~] T007a [P] Create `code/config.yaml` defining experiment parameters (e.g., `topology_counts`, `timeout_limits`, `seed`, `trial_count`, `sim_fps`, `max_attempts`, `stiffness_range`, `target_zone`, `baseline_model_url`, `MAX_TASKS`).  
   - **Verification**: `tests/unit/test_config_schema.py` validates the YAML against a schema.  
 
 - [~] T007b [P] Implement `code/config.py` loader that parses `code/config.yaml` into a typed configuration object.  
   - **Verification**: `tests/unit/test_config_loader.py` loads a sample config and checks attribute types.  
 
-- [ ] T005-baseline-fetch [P] Fetch and validate `data/raw/gfm_baseline.pt` according to `code/config.yaml`. Abort with a clear error if the file cannot be obtained. No synthetic weights may be generated.   <!-- FAILED-IN-EXECUTION: code/fetch_baseline.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/fetch_baseline.py exit=1 --> <!-- FAILED: unspecified -->
+- [~] T005-baseline-fetch [P] Fetch and validate `data/raw/gfm_baseline.pt` according to `code/config.yaml`. Abort with a clear error if the file cannot be obtained. No synthetic weights may be generated. <!-- FAILED: unspecified -->
   - **Depends on** T007a  
   - **Verification**: `tests/integration/test_baseline_fetch.py` asserts the file exists and matches a known checksum.  
 
@@ -60,7 +60,7 @@
   - **Depends on** T046-fetch-gfm-weights  
   - **Verification**: `tests/unit/test_gfm_diff.py` checks that gradients flow through inputs but not through weights.  
 
-- [ ] T008 [P] Add a GitHub Actions workflow `.github/workflows/ci.yml` that runs on a 2‑core x86_64 runner with no GPU, enforces the 6‑hour timeout, and installs `requirements.txt`.  
+- [ ] T008 [P] Add a GitHub Actions workflow `.github/workflows/ci.yml` that runs on a 2‑core x86_64 runner with no GPU, enforces the 6‑hour timeout, and installs `requirements.txt`.   <!-- FAILED: unspecified -->
   - **Verification**: The CI run itself serves as verification; include a badge in README that asserts the workflow passes.  
 
 - [ ] T009a-fetch-stats [US1] [Depends on T007b] Generate or fetch `data/raw/gam_reference_stats.json` (mean/covariance of training latents). Abort if unavailable.   <!-- FAILED-IN-EXECUTION: code/statistical_reference.py exit=1 --> <!-- FAILED-IN-EXECUTION: scripts/compute_reference_stats.py exit=1 -->
