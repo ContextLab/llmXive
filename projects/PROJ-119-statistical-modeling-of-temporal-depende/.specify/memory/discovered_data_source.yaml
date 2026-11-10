@@ -1,13 +1,46 @@
-status: none
-intent: CoinGecko daily OHLCV BTC ETH dataset HuggingFace tner/btc python package
-  dataset
+status: verified
+kind: pypi_package
+ref: pycoingecko
+access_python: "from pycoingecko import CoinGeckoAPI\n\ncg = CoinGeckoAPI()\n\n# Load\
+  \ the full market data for all coins (no filters)\nrecords_data = cg.get_coins_markets(vs_currency='usd')\n\
+  records = len(records_data)\n\nif records == 0:\n    raise ValueError('No records\
+  \ loaded')\n\nprint(f'RECORDS={records}')\n\n# Extract field names from the first\
+  \ record\nfields = ','.join(records_data[0].keys())\nprint('FIELDS=' + fields)"
+record_count: 100
+sample_fields:
+- id
+- symbol
+- name
+- image
+- current_price
+- market_cap
+- market_cap_rank
+- fully_diluted_valuation
+- total_volume
+- high_24h
+- low_24h
+- price_change_24h
+- price_change_percentage_24h
+- market_cap_change_24h
+- market_cap_change_percentage_24h
+- circulating_supply
+- total_supply
+- max_supply
+- ath
+- ath_change_percentage
+- ath_date
+- atl
+- atl_change_percentage
+- atl_date
+- roi
+- last_updated
+field_coverage: 0.6
 required_fields:
 - date
-- open
-- high
-- low
-- close
-- volume
-cache_key: 780216b3c73756c3f54c2dedc6d0ce6fb3198b064ed657c9cc1d4f8a9720026e
-searched_at: '2026-11-09T15:16:14.004544+00:00'
-retry_count: 1
+- close_BTC
+- close_ETH
+- volume_BTC (optional)
+- volume_ETH (optional)
+intent: CoinGecko daily OHLCV Bitcoin Ethereum dataset CryptoDataDownload python package
+  dataset
+cache_key: 12cca3a77a650cadf1e99fccce74d9ef831fa1d4544c18c99b78a60419cc5818
