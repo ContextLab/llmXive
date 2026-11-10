@@ -1,6 +1,6 @@
 status: none
-intent: MM-OCEAN video dataset download HuggingFace transcripts behavior tags python
-  package dataset
+intent: MM-OCEAN multimodal personality dataset HuggingFace download python package
+  dataset
 required_fields:
 - video_id
 - video_url
@@ -8,7 +8,9 @@ required_fields:
 - setting
 - culture
 - behavior_tags
-- grounding_metadata
-cache_key: 2eb6142f4d01ddcc5f9c05d46738112087a8b493c0daf984645faa78e6506598
-searched_at: '2026-11-08T06:19:11.246703+00:00'
+- trait_rating
+- grounding_score
+- metadata
+cache_key: a9a1d556c02a0066d6080272b59a9ba9fc00738bebed9903fe485cc09faa4e6d
+searched_at: '2026-11-10T18:24:45.473362+00:00'
 retry_count: 1
