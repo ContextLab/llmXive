@@ -1,12 +1,13 @@
 status: none
-intent: OpenFlights airport routes network dataset python package dataset
+intent: OpenFlights airport routes network real-world scale-free network with coordinates
+  Kaggle airline routes python package dataset
 required_fields:
 - node_id
 - latitude
 - longitude
-- source_node_id
-- target_node_id
-- edge_weight (optional)
-cache_key: 0ddaf606e1e38f5fa385f9265804b93391cbb8fdf2784220a3fb0043baa15e00
-searched_at: '2026-11-08T23:07:09.073123+00:00'
+- source
+- target
+- edge_weight
+cache_key: d531cf5f90f6c0726ecdc1c423b25d38b6b3c0ad0b50f14ee95a195849c9a6e2
+searched_at: '2026-11-10T01:07:50.387974+00:00'
 retry_count: 1
