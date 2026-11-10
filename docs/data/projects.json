@@ -28690,7 +28690,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-10T09:06:37.777187+00:00",
+  "generated_at": "2026-11-10T09:18:07.306669+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -58956,6 +58956,14 @@
       "last_run_log": [
         {
           "agent": "planner",
+          "duration_s": 80.210645,
+          "ended_at": "2026-11-10T09:06:46.210491Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-10T09:05:25.999846Z"
+        },
+        {
+          "agent": "planner",
           "duration_s": 78.826979,
           "ended_at": "2026-11-09T11:06:20.702481Z",
           "model": "zai-org.glm-5.3",
@@ -59025,14 +59033,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-11-01T13:06:18.471464Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 77.885978,
-          "ended_at": "2026-10-31T15:07:23.133017Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-10-31T15:06:05.247039Z"
         }
       ],
       "paper_status": null,
@@ -156963,6 +156963,14 @@
       "last_run_log": [
         {
           "agent": "flesh_out",
+          "duration_s": 3.382233,
+          "ended_at": "2026-11-10T09:13:24.404992Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-10T09:13:21.022759Z"
+        },
+        {
+          "agent": "flesh_out",
           "duration_s": 19.625485,
           "ended_at": "2026-11-03T18:30:42.170285Z",
           "model": "zai-org.glm-5.3",
@@ -157032,14 +157040,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-08-16T13:59:38.599025Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 68.765337,
-          "ended_at": "2026-08-16T13:59:38.595188Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-08-16T13:58:29.829851Z"
         }
       ],
       "paper_status": null,
@@ -175610,6 +175610,30 @@
   ],
   "recent_activity": [
     {
+      "agent": "flesh_out",
+      "duration_s": 3.382233,
+      "ended_at": "2026-11-10T09:13:24.404992Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-873-llmxive-follow-up-extending-active-learn",
+      "project_stage": "flesh_out_in_progress",
+      "severity": "hard",
+      "started_at": "2026-11-10T09:13:21.022759Z"
+    },
+    {
+      "agent": "planner",
+      "duration_s": 80.210645,
+      "ended_at": "2026-11-10T09:06:46.210491Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-140-evaluating-the-efficacy-of-code-summariz",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-11-10T09:05:25.999846Z"
+    },
+    {
       "agent": "implementer",
       "duration_s": 7.004688,
       "ended_at": "2026-11-10T09:06:05.817476Z",
@@ -181683,30 +181707,6 @@
       "project_stage": "in_progress",
       "severity": "hard",
       "started_at": "2026-11-07T10:04:52.503555Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 4.681988,
-      "ended_at": "2026-11-07T10:04:15.097921Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-044-evaluating-the-effectiveness-of-differen",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-11-07T10:04:10.415933Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 9.773218,
-      "ended_at": "2026-11-07T09:12:10.788815Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-267-exploring-the-relationship-between-atmos",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-11-07T09:12:01.015597Z"
     }
   ],
   "reviewed_preprints": [
