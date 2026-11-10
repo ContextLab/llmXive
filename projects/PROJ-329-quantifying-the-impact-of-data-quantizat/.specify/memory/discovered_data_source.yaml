@@ -1,18 +1,19 @@
 status: none
-intent: download SXS binary black hole waveform catalog for PyCBC python package dataset
+intent: LIGO Open Science Center GWTC-3 binary black hole waveforms SXS catalog PyCBC
+  python package dataset
 required_fields:
-- m1
-- m2
-- spin1x
-- spin1y
+- mass1_solar_masses
+- mass2_solar_masses
 - spin1z
-- spin2x
-- spin2y
 - spin2z
-- distance
-- inclination
+- luminosity_distance_Mpc
+- inclination_angle_rad
+- polarization_angle_rad
+- sampling_rate_Hz
 - h_plus
 - h_cross
-cache_key: 1ff747a78e190604f1444f9a7caf4b7cf1683bd9e134a24b54747898ba4286ff
-searched_at: '2026-11-09T00:12:25.603580+00:00'
+- start_time
+- end_time
+cache_key: 99bc48d0c8367cee12ea5be91d22526ca70149018132d6528bac0e6a74b5d40b
+searched_at: '2026-11-10T02:08:26.136328+00:00'
 retry_count: 1
