@@ -1,6 +1,5 @@
 status: none
-intent: Wisconsin Card Sorting Test dataset with MMSE reference scores python package
-  dataset
+intent: Wisconsin Card Sorting Test MMSE open dataset python package dataset
 required_fields:
 - participant_id
 - condition
@@ -10,6 +9,6 @@ required_fields:
 - age
 - education_years
 - gender
-cache_key: 9f6740221e598f05322cfbf16c1ee769fc9fd718effffccf2a7ff85e99fcd9b9
-searched_at: '2026-11-09T21:06:41.607214+00:00'
+cache_key: 78274fdca3111c3951c44f0ace673a4e27fb33495e04455b1d93b19a67a7e241
+searched_at: '2026-11-10T21:07:22.280158+00:00'
 retry_count: 1
