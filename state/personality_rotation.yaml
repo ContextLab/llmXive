@@ -1,14 +1,7 @@
 last_used: freeman-dyson
-last_used_at: '2026-11-10T04:04:38.954135+00:00'
+last_used_at: '2026-11-10T06:04:38.778196+00:00'
 last_outcome: model_error
 history:
-- slug: rosalind-franklin
-  started_at: '2026-10-17T00:06:47.692766+00:00'
-  ended_at: '2026-10-17T02:06:02.951846+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/reviews/research/rosalind-franklin-simulated__2026-10-17__research.md
 - slug: stephen-wolfram
   started_at: '2026-10-17T02:06:02.951846+00:00'
   ended_at: '2026-10-17T04:08:12.674278+00:00'
@@ -972,4 +965,8 @@ history:
 - slug: geoffrey-west
   started_at: '2026-11-10T02:05:17.291942+00:00'
   ended_at: '2026-11-10T04:04:38.954135+00:00'
+  outcome: model_error
+- slug: geoffrey-west
+  started_at: '2026-11-10T04:04:38.954135+00:00'
+  ended_at: '2026-11-10T06:04:38.778196+00:00'
   outcome: model_error
