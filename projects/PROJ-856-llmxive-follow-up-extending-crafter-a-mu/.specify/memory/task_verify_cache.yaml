@@ -1,66 +1,8 @@
 T000:
-  c: false
-  h: e6b20b4b5c91313c17c4f16cbd995af0d8044339bd3d80ff1016cbf67ab10c3f
-  r: "The required files (`requirements.txt`, `src/utils/seeds.py`, `src/utils/checksums.py`,\
-    \ `data/checksums.txt`) exist, but there is no evidence that `pip install -r requirements.txt`\
-    \ actually succeeded, nor any proof that the SHA\u2011256 values in `data/checksums.txt`\
-    \ were verified against the real files (e.g., command output or test logs). Provide\
-    \ installation logs and a verification run showing the checksums match."
-  sig: b0ec6ca99b7ab24be1f4c043745b6ce9bdf7f7abe0980a043cd36963f719aa35
-T001:
   c: true
-  h: 841fff798c26558a2992af2f35e92ed670afbd8cd3b40f22513472274dbca311
-  r: "Checked `src/run_pipeline.py` \u2013 it defines an argparse entry point with\
-    \ automatic `--help` support and a `--version` flag that prints the semantic version\
-    \ `0.1.0`. Also verified the presence of `quickstart.md`. Both required artifacts\
-    \ exist and contain the needed functionality."
-  sig: d1d289a8384e2efb6e1640f66c213166391d59e28e89e1cf3ef53136c2d579f5
-T002:
-  c: true
-  h: 86467e017aa6c48ad92eb5220e74d81be53707d27a767943301d1eb1b92387c2
-  r: "Checked `src/curators/curate_failed_figures.py`: the script exists, is non\u2011\
-    empty, parses `--num 50`, attempts to download a verified URL, aborts with exit\u202F\
-    1 and the exact message \u201CVerified dataset source not available\u201D when\
-    \ the download fails, and otherwise curates the requested 50 figures into output\
-    \ directories."
-  sig: 6f638d90a38c0fd143a1ecc988ef73ada290550ba1a2e965cd63d9a7a1ab21fc
-T003:
-  c: true
-  h: 85fe0b7f876d1d2aa69088432eb496406bdd2b759726295e674a11629e702460
-  r: "Checked `src/interfaces/structured_harness.py`, `src/interfaces/chat_interface.py`,\
-    \ and `src/interfaces/session.py` for the required FastAPI `/edit` endpoints and\
-    \ the `/init_session` endpoint that randomizes interface order and enforces a\
-    \ 10\u2011minute wash\u2011out, and verified that `tests/interfaces/test_interfaces.py`\
-    \ runs successfully against these endpoints. The implementations provide the needed\
-    \ functionality and the tests confirm correct responses."
-  sig: 29168b1b201932806ad1d36dad5f2b1ed85913bc92d9ce13e78f9a8787d9228f
-T004:
-  c: false
-  h: a36a005cb09807fae62dc9c2e81f1debfe6f9885354d9a02b956ae68f051bf64
-  r: "The logger module exists and can write millisecond\u2011precision JSON lines,\
-    \ and the unit tests validate schema conformity, but there is no evidence of a\
-    \ FastAPI endpoint being exercised by a TestClient, nor any log entry showing\
-    \ the required `subjective_load` (NASA\u2011TLX) field or an `aborted` status.\
-    \ The provided `interactions.jsonl` sample lacks `subjective_load`, and no test\
-    \ demonstrates that a FastAPI request triggers logging with the correct timestamps\
-    \ and optional fields. Adding a FastAPI route that calls `log_interaction` and\
-    \ a test that uses `TestClient` to verify a logged line containing `"
-  sig: 2bec530f8bd1952d2eba271778f547da2adaeedd7556af39e058726c288a7d8d
-T006:
-  c: false
-  h: 0cab946ab1d0758ae340114aeefa64a9f999421aae5388569ebb8d469a4d0241
-  r: "The required files exist, and `simulate_participants.py` appears to generate\
-    \ >7\u202F500 log lines, but there is no evidence that `python -m src.simulation.power_analysis`\
-    \ actually prints a required N\u202F\u2265\u202F32 and exits with status\u202F\
-    0, nor any proof that the generated `interactions.jsonl` lines all pass the `interaction_log`\
-    \ schema test. Execution output and schema\u2011validation results are needed."
-  sig: 8d404d4e61cfb6aea2eb6a1827133019781fd59db1ea63cf5e277a5d061a3857
-T007:
-  c: false
-  h: 6e4a0d883a1ec76ee890bf0f275273d34498c89eecdc6a76b9017bf5439ddff0
-  r: "The aggregation script and the session\u2011aware JSONL output exist and contain\
-    \ the required fields, and the test suite passes, but the required artifact that\
-    \ records the final effective\u202FN per participant (`effective_N_by_participant.jsonl`)\
-    \ is not present in the repository. Without this file the task\u2019s \u201Crecord\
-    \ the final effective N per participant\u201D requirement is unmet."
-  sig: 7d89a6a5e46c7a368100df062b5740ef24ca0168ce4997fbc4cb9e1367f3df1d
+  h: 02c0595046e2894f6462731d4fd86b6885698cc9d11f5a6c33d38c8b44276b9f
+  r: Checked that `requirements.txt`, `src/utils/seeds.py`, `src/utils/checksums.py`,
+    `scripts/verify_env.sh`, and the generated `data/env_evidence/pip_install.log`
+    all exist with proper content, and that the provided test logs show the verification
+    script ran successfully.
+  sig: 9455345c2417bb9be640fb329fefdc6f1d5ed25b82ffc51c316f5b863a3bfe13

@@ -7,11 +7,11 @@ Checked boxes indicate completed work that satisfies the specification; unchecke
 
 ## Phase 0 – Environment setup (split for clarity)
 
-- [ ] T000 [P] **Create reproducible Python environment and verify installation**  
+- [X] T000 [P] **Create reproducible Python environment and verify installation**  
   - **Files**: `requirements.txt`, `src/utils/seeds.py`, `src/utils/checksums.py`  
   - **Verification**: `scripts/verify_env.sh` installs pinned dependencies and writes full pip output to `data/env_evidence/pip_install.log`. The task satisfies Constitution Principle I (Reproducibility) by guaranteeing a deterministic environment.
 
-- [ ] T014 **Validate data checksums after environment provisioning**  
+- [ ] T014 **Validate data checksums after environment provisioning**   <!-- FAILED-IN-EXECUTION: scripts/verify_checksums.sh exit=126 -->
   - **Files**: `data/checksums.txt`, `src/utils/checksums.py`, `data/env_evidence/checksum_verify.log`  
   - **Verification**: Running `scripts/verify_checksums.sh` recomputes SHA‑256 for every file listed in `data/checksums.txt`, writes results to `data/env_evidence/checksum_verify.log`, and exits 0 only if all match.
 

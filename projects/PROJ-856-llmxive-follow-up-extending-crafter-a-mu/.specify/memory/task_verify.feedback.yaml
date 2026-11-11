@@ -1,68 +1,34 @@
 T000:
-  reason: "The required files (`requirements.txt`, `src/utils/seeds.py`, `src/utils/checksums.py`,\
-    \ `data/checksums.txt`) exist, but there is no evidence that `pip install -r requirements.txt`\
-    \ actually succeeded, nor any proof that the SHA\u2011256 values in `data/checksums.txt`\
-    \ were verified against the real files (e.g., command output or test logs). Provide\
-    \ installation logs and a verification run showing the checksums match."
-  task: 63cb785ad60849e3caad4e88b36a90dc16d45849d7d3436f96b3354127241d03
+  task: 207bb67fe89271486b79cf476bed74442038d803ded80a6a490cc259ed8c8c1b
 T001:
-  task: 33b0619536c5f27a80371343dc50d7d8dc1269231f6184f6f9ec957d445cbb8c
+  task: 6708946dc57ad8a96757a178d2d3293242cf1965457a8a827cee759c0b2b6fbf
 T002:
-  task: 3133f3e03756a5ce38464bf745bb3c6d0ff384145e3b573db0503e5616d6d239
+  task: 79455451772cb3d29dd24a7853ed519aac8642b3cc331af0fa016c39aeb35cf0
 T003:
-  task: dbf9a91563acd8266b94ceb0cd265230aa07b3708ef6725c19587239924819ff
+  task: eddbf913d8da62c47d25b3725a24fbb4a0a84d5b75521292b44cc4c363eb6745
 T004:
-  reason: "The logger module exists and can write millisecond\u2011precision JSON\
-    \ lines, and the unit tests validate schema conformity, but there is no evidence\
-    \ of a FastAPI endpoint being exercised by a TestClient, nor any log entry showing\
-    \ the required `subjective_load` (NASA\u2011TLX) field or an `aborted` status.\
-    \ The provided `interactions.jsonl` sample lacks `subjective_load`, and no test\
-    \ demonstrates that a FastAPI request triggers logging with the correct timestamps\
-    \ and optional fields. Adding a FastAPI route that calls `log_interaction` and\
-    \ a test that uses `TestClient` to verify a logged line containing `"
-  task: d94402329fbfa8637993ab610740efdf24a33787b4fb06f5a38448d31e2fa0e2
+  task: 8485edadb4695216ed6c98bcb058499a7d8825ebebc9b321cca2c68ff42a73e4
 T005:
-  reason: "The three required source modules and the unit\u2011test file are present\
-    \ and implement the dual\u2011success logic correctly, but the referenced `semantic_validation.schema.yaml`\
-    \ is missing, so we cannot verify that the generated records actually conform\
-    \ to the required schema. Adding the schema file (or otherwise proving conformance)\
-    \ is needed to complete the task."
-  task: 55e2f555d7f99ddb9ddcd2466a1de5c787372d5c8886162fb7d8743883775f41
+  task: 167f54568b23dd0b66bb4aec5c2161aff72d9a2b21e09f729730d4ce8907d5cf
 T006:
-  reason: "The required files exist, and `simulate_participants.py` appears to generate\
-    \ >7\u202F500 log lines, but there is no evidence that `python -m src.simulation.power_analysis`\
-    \ actually prints a required N\u202F\u2265\u202F32 and exits with status\u202F\
-    0, nor any proof that the generated `interactions.jsonl` lines all pass the `interaction_log`\
-    \ schema test. Execution output and schema\u2011validation results are needed."
-  task: e96f06895a9ad6b36f01119a0f00a251ca1c38485ed78c982123e821a3dce3e1
+  task: 48d0deee4f6e78c29e5766f23ba0625901d2c88de23c73d35cad41c3575a8e39
 T007:
-  reason: "The aggregation script and the session\u2011aware JSONL output exist and\
-    \ contain the required fields, and the test suite passes, but the required artifact\
-    \ that records the final effective\u202FN per participant (`effective_N_by_participant.jsonl`)\
-    \ is not present in the repository. Without this file the task\u2019s \u201Crecord\
-    \ the final effective N per participant\u201D requirement is unmet."
-  task: f940264c5ec0a5940309d8a88a7ac432aae2b24fc6ea98b65f0b9c1638ae3816
+  task: 5505adc34ab331d456c6d1520a6f6357c75c92d2835d4ac32fbdbee34722204a
 T008:
-  reason: 'Requested task execution failed; rerun successfully: src/analysis/wilcoxon_analysis.py
-    exit=2'
-  task: 1a7dfae22e56ae80edf1cc80434dfb6930c6869b5eb566c064cf9c540a0b44dc
+  task: b519d02802a6a7986e3d899ad25d14a09e8e0ad1faab9bf07ecd30eacf9f9ebf
 T009:
-  reason: 'Requested task execution failed; rerun successfully: src/report/generate_report.py
-    exit=1'
-  task: dc09d71c7c4a6bf8a0adbdea089ac33fc8700e2e71f06b5e491c19d227581e5a
+  task: 17356d0a3af552c094df93a0cdec02ea1531face0c2578b28752189e1a119e29
 T010:
-  task: a981bfb8da0bc0714f1f715fa921060d4446b870a164842d22da9feb53c1f369
+  task: 7b3fbd55f2bc43d5cfa133e07c15386ee3e193610a81f623f519b4acbdb9ad01
 T011:
-  task: 8f8eba4f63380561e4c4ecc71376caa0434a99c473352b7cdd7a07b5dd37db76
+  task: de32a856fda84abb36e8e558a53ebb20a19338c3d8c86ba0d86ed36114343829
 T012:
-  task: 65d7e4689edd4837c8d37098048e902599fe1b6837c708d52a409c9d58a2f3aa
+  task: bbea01b83e67290e759ce13926e217223ff3c84d301174cab33004d01eaf8fb6
 T013:
-  task: bc8d626c7a888582f923818380515ddc86fcccfa33f894be5905406cc16f3eca
+  task: d46a8818a0885c2e793d42cc8927a23d3d84d10f935bebf83f49c104b516ac0c
 T014:
-  task: 910943d8420614c12be3888cb742b0ea45788c6fa0915b27b33f9dd3fb396ca5
+  reason: 'Requested task execution failed; rerun successfully: scripts/verify_checksums.sh
+    exit=126'
+  task: e896d0f252fedd91cec9b832786473d9d2c3089f88acbf7c7bf695a0cc621ba2
 T015:
-  task: a26499f556583c6a161026476d178bc7023b9461475a084b4f25be74e9577ea4
-T016:
-  task: 42f33bc6f4ee6d20e8ed2dba933c179b15da509b01c6f19d30ad73ad1322298a
-T017:
-  task: 9a3836057739e13b2bc123ce679249c67793a9c7171815ae8dcc2fb7f5833b6f
+  task: fdc1cb02e8dcbc6168d328dfe451c89698064e31c48abb6ba4909ecab8a4b463

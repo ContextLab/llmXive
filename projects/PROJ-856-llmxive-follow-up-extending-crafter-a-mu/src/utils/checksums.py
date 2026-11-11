@@ -40,7 +40,7 @@ def main() -> None:
         lines.append(f"{checksum}  {rel_path}")
 
     # Write with real newlines (the previous version emitted a literal
-    # "\\n" sequence, producing a single broken line).
+    # \"\\n\" sequence, producing a single broken line).
     out_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
     print(f"Wrote checksums for {len(all_files)} files to {out_path}")
