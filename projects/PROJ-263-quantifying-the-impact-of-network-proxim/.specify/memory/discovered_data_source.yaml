@@ -1,13 +1,12 @@
 status: none
-intent: OpenFlights airport routes network real-world scale-free network with coordinates
-  Kaggle airline routes python package dataset
+intent: download Gowalla social network dataset with geographic coordinates and Brightkite
+  network python package dataset
 required_fields:
 - node_id
 - latitude
 - longitude
 - source
 - target
-- edge_weight
-cache_key: d531cf5f90f6c0726ecdc1c423b25d38b6b3c0ad0b50f14ee95a195849c9a6e2
-searched_at: '2026-11-10T01:07:50.387974+00:00'
+cache_key: bc275a6e2906831f112ac6707914235d384ee407537b96667211c7ebcc4b3a63
+searched_at: '2026-11-11T01:19:48.418613+00:00'
 retry_count: 1
