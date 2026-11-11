@@ -1,14 +1,7 @@
-last_used: marie-curie
-last_used_at: '2026-11-11T02:04:28.307958+00:00'
-last_outcome: model_error
+last_used: richard-feynman
+last_used_at: '2026-11-11T04:05:02.513402+00:00'
+last_outcome: abstained
 history:
-- slug: freeman-dyson
-  started_at: '2026-10-17T20:05:04.441930+00:00'
-  ended_at: '2026-10-17T22:04:38.849401+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-347-evaluating-the-impact-of-code-generation/reviews/research/freeman-dyson-simulated__2026-10-17__research.md
 - slug: geoffrey-west
   started_at: '2026-10-17T22:04:38.849401+00:00'
   ended_at: '2026-10-18T00:05:27.841177+00:00'
@@ -946,3 +939,7 @@ history:
   started_at: '2026-11-11T00:05:30.430900+00:00'
   ended_at: '2026-11-11T02:04:28.307958+00:00'
   outcome: model_error
+- slug: richard-feynman
+  started_at: '2026-11-11T02:04:28.307958+00:00'
+  ended_at: '2026-11-11T04:05:02.513402+00:00'
+  outcome: abstained
