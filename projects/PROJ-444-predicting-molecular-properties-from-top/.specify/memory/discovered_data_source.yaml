@@ -1,17 +1,27 @@
 status: verified
 kind: pypi_package
 ref: PubChemPy
-access_python: "import pubchempy as pcp\n\ncids = list(range(1, 101))\ncompounds =\
-  \ pcp.get_compounds(cids, namespace='cid')\nrecords = [{'pubchem_id': c.cid, 'smiles':\
-  \ getattr(c, 'isomeric_smiles', None)} for c in compounds]\n\nprint(f\"RECORDS={len(records)}\"\
-  )\nif records:\n    print(\"FIELDS=pubchem_id,smiles\")"
+access_python: 'import pubchempy as pcp
+
+
+  cids = list(range(1, 101))
+
+  compounds = pcp.get_compounds(cids, namespace=''cid'')
+
+  records = [{''cid'': c.cid, ''smiles'': getattr(c, ''canonical_smiles'', None)}
+  for c in compounds]
+
+
+  print(f"RECORDS={len(records)}")
+
+  print("FIELDS=cid,smiles")'
 record_count: 100
 sample_fields:
-- pubchem_id
+- cid
 - smiles
 field_coverage: 1.0
 required_fields:
+- cid
 - smiles
-- pubchem_id
 intent: PubChem small molecule SMILES parquet download python package dataset
-cache_key: 02de1bdecfca5df17fcc6a17b7e13b7569950f1e29bc64eb5466fb6b1248d0e4
+cache_key: f4fae2d4e26d060221c2f353de59c944aa8033f8e89f6674e51cc9e3fefbb61d
