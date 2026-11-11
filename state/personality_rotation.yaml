@@ -1,14 +1,7 @@
-last_used: stephen-wolfram
-last_used_at: '2026-11-11T14:04:39.085845+00:00'
-last_outcome: model_error
+last_used: ada-lovelace
+last_used_at: '2026-11-11T18:04:49.393643+00:00'
+last_outcome: abstained
 history:
-- slug: rosalind-franklin
-  started_at: '2026-10-18T12:05:38.518135+00:00'
-  ended_at: '2026-10-18T14:06:40.369816+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-232-investigating-the-relationship-between-b/reviews/research/rosalind-franklin-simulated__2026-10-18__research.md
 - slug: stephen-wolfram
   started_at: '2026-10-18T14:06:40.369816+00:00'
   ended_at: '2026-10-18T16:06:20.927721+00:00'
@@ -928,3 +921,7 @@ history:
   started_at: '2026-11-11T12:04:17.811114+00:00'
   ended_at: '2026-11-11T14:04:39.085845+00:00'
   outcome: model_error
+- slug: ada-lovelace
+  started_at: '2026-11-11T14:04:39.085845+00:00'
+  ended_at: '2026-11-11T18:04:49.393643+00:00'
+  outcome: abstained
