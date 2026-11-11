@@ -22,7 +22,7 @@ _ ERROR collecting projects/PROJ-849-llmxive-follow-up-extending-agent-explor/te
 ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-849-llmxive-follow-up-extending-agent-explor/tests/unit/test_tool_mapper.py'.
 Hint: make sure your test modules/packages have valid Python names.
 Traceback:
-/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/importlib/__init__.py:126: in import_module
     return _bootstrap._gcd_import(name[level:], package, level)
 tests/unit/test_tool_mapper.py:7: in <module>
     from lib.tool_mapper import ToolMapper
@@ -35,6 +35,6 @@ ERROR tests/unit/test_metrics.py
 ERROR tests/unit/test_retrieval_service.py
 ERROR tests/unit/test_tool_mapper.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 6 errors in 5.41s ===============================
+============================== 6 errors in 3.77s ===============================
 
 

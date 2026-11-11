@@ -1,3 +1,3 @@
 """
-src.cli package initialization.
+cli package initializer.
 """

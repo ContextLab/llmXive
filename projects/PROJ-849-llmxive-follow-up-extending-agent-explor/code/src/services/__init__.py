@@ -1,3 +1,3 @@
 """
-src.services package initialization.
+services package initializer.
 """

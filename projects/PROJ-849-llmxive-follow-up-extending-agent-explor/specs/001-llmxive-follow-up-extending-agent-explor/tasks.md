@@ -24,7 +24,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001-struct-src Create `projects/PROJ-849-llmxive-follow-up-extending-agent-explor/code/src/` and subdirs (`models/`, `services/`, `lib/`, `cli/`). **CRITICAL**: Create `__init__.py` in `models/`, `services/`, `lib/`, and `cli/` to make them valid Python packages.
+- [~] T001-struct-src Create `projects/PROJ-849-llmxive-follow-up-extending-agent-explor/code/src/` and subdirs (`models/`, `services/`, `lib/`, `cli/`). **CRITICAL**: Create `__init__.py` in `models/`, `services/`, `lib/`, and `cli/` to make them valid Python packages.
 - [ ] T001-data-raw Create `data/raw/` directory.
 - [ ] T001-data-tool-mappings Create `data/tool_mappings/` directory.
 - [ ] T001-data-cached Create `data/cached/` directory.

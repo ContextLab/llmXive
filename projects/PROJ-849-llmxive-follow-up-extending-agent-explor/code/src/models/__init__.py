@@ -1,3 +1,3 @@
 """
-src.models package initialization.
+models package initializer.
 """
