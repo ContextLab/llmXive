@@ -28690,7 +28690,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-11T13:06:41.998629+00:00",
+  "generated_at": "2026-11-11T13:17:17.255472+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -127364,6 +127364,14 @@
       "last_run_log": [
         {
           "agent": "planner",
+          "duration_s": 157.787897,
+          "ended_at": "2026-11-11T13:07:14.858037Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-11T13:04:37.070140Z"
+        },
+        {
+          "agent": "planner",
           "duration_s": 114.045874,
           "ended_at": "2026-11-10T15:07:27.431449Z",
           "model": "zai-org.glm-5.3",
@@ -127433,14 +127441,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-11-03T07:06:27.710988Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 145.298943,
-          "ended_at": "2026-11-02T09:10:05.275962Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-11-02T09:07:39.977019Z"
         }
       ],
       "paper_status": null,
@@ -175642,6 +175642,18 @@
   ],
   "recent_activity": [
     {
+      "agent": "planner",
+      "duration_s": 157.787897,
+      "ended_at": "2026-11-11T13:07:14.858037Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-533-evaluating-the-impact-of-data-transforma",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-11-11T13:04:37.070140Z"
+    },
+    {
       "agent": "implementer",
       "duration_s": 3.206498,
       "ended_at": "2026-11-11T13:06:05.283521Z",
@@ -181721,21 +181733,6 @@
       "project_stage": "in_progress",
       "severity": "hard",
       "started_at": "2026-11-08T18:04:44.317276Z"
-    },
-    {
-      "agent": "personality",
-      "display_name": "Ada Lovelace (simulated)",
-      "duration_s": 6.566117,
-      "ended_at": "2026-11-08T18:04:34.964070+00:00",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "model_kind": "personality_simulator",
-      "outcome": "model_error",
-      "personality_slug": "ada-lovelace",
-      "project_id": "PROJ-106-the-influence-of-narrative-framing-on-at",
-      "project_stage": "planned",
-      "severity": "hard",
-      "started_at": "2026-11-08T18:04:28.397953+00:00"
     }
   ],
   "reviewed_preprints": [
