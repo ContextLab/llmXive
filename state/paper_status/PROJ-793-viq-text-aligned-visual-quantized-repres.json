@@ -3,12 +3,12 @@
   "audit": {
     "passed": true,
     "defects": [],
-    "audited_at": "2026-11-11T13:48:01.772086+00:00"
+    "audited_at": "2026-11-11T17:17:47.237996+00:00"
   },
   "repair_rounds": 0,
   "llmxive_compile_attempts": 0,
   "status": "audited",
   "failure": null,
   "paper_id": "PROJ-793-viq-text-aligned-visual-quantized-repres",
-  "updated_at": "2026-11-11T13:48:01.772101+00:00"
+  "updated_at": "2026-11-11T17:17:47.238009+00:00"
 }
