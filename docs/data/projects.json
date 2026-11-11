@@ -28690,7 +28690,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-11T15:15:41.216512+00:00",
+  "generated_at": "2026-11-11T16:05:47.007841+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -40934,6 +40934,14 @@
       "id": "PROJ-063-computational-screening-of-deep-eutectic",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "project_initializer",
+          "duration_s": 3.430035,
+          "ended_at": "2026-11-11T15:11:36.226996Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-11T15:11:32.796961Z"
+        },
         {
           "agent": "research_question_validator",
           "duration_s": 109.654298,
@@ -85503,6 +85511,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 6.032118,
+          "ended_at": "2026-11-11T16:05:09.017434Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-11T16:05:02.985316Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 6.784102,
           "ended_at": "2026-11-10T18:05:41.610613Z",
           "model": "zai-org.glm-5.3",
@@ -85572,14 +85588,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-11-03T10:06:35.769390Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 3.863996,
-          "ended_at": "2026-11-02T12:08:30.426112Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-11-02T12:08:26.562116Z"
         }
       ],
       "paper_status": null,
@@ -117309,6 +117317,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 4.259872,
+          "ended_at": "2026-11-11T16:05:15.917636Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-11T16:05:11.657764Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 3.663546,
           "ended_at": "2026-11-10T18:05:40.115805Z",
           "model": "zai-org.glm-5.3",
@@ -117378,14 +117394,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-11-03T10:08:34.296666Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 5.827531,
-          "ended_at": "2026-11-02T12:08:43.564912Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-11-02T12:08:37.737381Z"
         }
       ],
       "paper_status": null,
@@ -175642,6 +175650,42 @@
   ],
   "recent_activity": [
     {
+      "agent": "implementer",
+      "duration_s": 4.259872,
+      "ended_at": "2026-11-11T16:05:15.917636Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-474-neural-correlates-of-simulated-social-ex",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-11-11T16:05:11.657764Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 6.032118,
+      "ended_at": "2026-11-11T16:05:09.017434Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-287-statistical-analysis-of-publicly-availab",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-11-11T16:05:02.985316Z"
+    },
+    {
+      "agent": "project_initializer",
+      "duration_s": 3.430035,
+      "ended_at": "2026-11-11T15:11:36.226996Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-063-computational-screening-of-deep-eutectic",
+      "project_stage": "validated",
+      "severity": "hard",
+      "started_at": "2026-11-11T15:11:32.796961Z"
+    },
+    {
       "agent": "planner",
       "duration_s": 126.081552,
       "ended_at": "2026-11-11T15:08:10.518233Z",
@@ -181697,45 +181741,6 @@
       "project_stage": "flesh_out_complete",
       "severity": "hard",
       "started_at": "2026-11-08T20:04:55.543665Z"
-    },
-    {
-      "agent": "personality",
-      "display_name": "Ada Lovelace (simulated)",
-      "duration_s": 5.425044,
-      "ended_at": "2026-11-08T20:04:51.041305+00:00",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "model_kind": "personality_simulator",
-      "outcome": "model_error",
-      "personality_slug": "ada-lovelace",
-      "project_id": "PROJ-057-investigating-the-impact-of-compiler-opt",
-      "project_stage": "planned",
-      "severity": "hard",
-      "started_at": "2026-11-08T20:04:45.616261+00:00"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 4.916461,
-      "ended_at": "2026-11-08T20:04:44.834064Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-1044-llmxive-follow-up-extending-why-can-t-i",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-11-08T20:04:39.917603Z"
-    },
-    {
-      "agent": "planner",
-      "duration_s": 118.979552,
-      "ended_at": "2026-11-08T19:06:51.290491Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-533-evaluating-the-impact-of-data-transforma",
-      "project_stage": "clarified",
-      "severity": "hard",
-      "started_at": "2026-11-08T19:04:52.310939Z"
     }
   ],
   "reviewed_preprints": [
