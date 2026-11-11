@@ -41,15 +41,15 @@ Checked boxes indicate completed work that satisfies the specification; unchecke
   - **Files**: `src/validation/vector_match.py`, `src/validation/semantic_similarity.py`, `src/validation/run_validation.py`, `specs/001-llmxive-follow-up-extending-crafter-a-mu/contracts/semantic_validation.schema.yaml`, `tests/validation/test_dual_success.py`, `data/validation/semantic_validation.jsonl` (generated)  
   - **Verification**: Unit tests create three scenarios (exact match only, semantic‑only pass, total failure) and invoke `jsonschema.validate` against the newly added schema. All tests must pass, and running `run_validation.py` must produce a JSONL file where every line validates successfully.
 
-- [ ] T006 [US-1] **Run a priori power analysis and prove required sample size ≥ 40**  
+- [~] T006 [US-1] **Run a priori power analysis and prove required sample size ≥ 40**  
   - **Files**: `src/simulation/power_analysis.py`, `src/simulation/simulate_participants.py`, `data/logs/interactions.jsonl` (synthetic), `tests/simulation/test_power_analysis.py`  
   - **Verification**: Execute `python -m src.simulation.power_analysis --effect-size 0.5 --alpha 0.025 --test mixed_effects`. The script prints “Required N = X” where X ≥ 40 and exits 0. The test asserts the printed N meets the threshold and that the exit code is 0. Additionally, `tests/simulation/test_interaction_schema.py` runs `jsonschema.validate` on every line of the synthetic `interactions.jsonl` to confirm schema compliance.
 
-- [ ] T007 [US-2] **Aggregate validation records and produce per‑participant effective‑N file**  
+- [~] T007 [US-2] **Aggregate validation records and produce per‑participant effective‑N file**  
   - **Files**: `src/analysis/aggregate_validation.py`, `data/results/semantic_validation_by_session.jsonl`, `data/results/effective_N_by_participant.jsonl`, `tests/analysis/test_aggregation.py`  
   - **Verification**: Running the aggregation script prints “Aggregation complete: X participants, Y valid tasks”. The test loads both JSONL files, checks that each `semantic_validation_by_session` record includes `session_id`, `task_id`, and `overall_success`, and that `effective_N_by_participant.jsonl` contains an integer `effective_N` ≥ 1 for every participant.
 
-- [ ] T012 [US-1] **Execute retention verification (≥ 28 of ≥ 32 participants with at least one primary‑success trial)**  
+- [ ] T012 [US-1] **Execute retention verification (≥ 28 of ≥ 32 participants with at least one primary‑success trial)**   <!-- FAILED-IN-EXECUTION: src/analysis/retention_check.py exit=1 -->
   - **Files**: `src/validation/retention_check.py`, `tests/validation/test_retention_check.py`  
   - **Verification**: Running the script on the synthetic dataset prints “Retention check passed: 32/32 participants meet criteria” and exits 0. The test feeds an edge‑case dataset (27 qualifying participants) and asserts exit 1 with the correct error message.
 

@@ -39,7 +39,7 @@ while IFS= read -r line || [[ -n "$line" ]]; do
     continue
   fi
 
-  # Compute actual SHA‑256 using a small Python snippet (portable, no external tools)
+  # Compute actual SHA‑256 using an embedded Python snippet (portable, no external tools)
   actual_checksum=$(python - <<'PYEOF'
 import hashlib
 import pathlib

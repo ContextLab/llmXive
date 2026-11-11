@@ -8,18 +8,13 @@ attempts to download a **verified** CrafterBench subset (exactly 50 failed
 figures).  If the verified source is unavailable the script aborts with a
 clear error message “Verified dataset source not available”, fulfilling FR‑001.
 
-The CLI accepts the historic ``--num`` flag, the newer ``--num-tasks`` alias,
-an optional ``--download`` flag for backward‑compatibility with older
-quick‑start commands, ``--output-dir`` (or ``-o``), and ``--verify-only``
-for deterministic synthetic generation used only in CI.
-
+The CLI accepts ``--num`` (or ``--num-tasks`` alias) and ``--output-dir``.
 All random operations are seeded for determinism.
 """
 
 import argparse
 import hashlib
 import json
-import os
 import random
 import sys
 import tempfile
@@ -212,42 +207,6 @@ def _checksum_file(file_path: Path) -> str:
     return h.hexdigest()
 
 # ----------------------------------------------------------------------
-# Synthetic data generation (used when ``--verify-only`` is set)
-# ----------------------------------------------------------------------
-def _generate_synthetic(num: int, output_dir: str) -> None:
-    """
-    Generate a deterministic synthetic dataset without external network
-    access.  Images are simple white canvases with a red error rectangle;
-    ground‑truth vectors follow the pattern ``[idx, width, height]``.
-    """
-    base_path = Path(output_dir)
-    figures_dir = base_path / "figures"
-    gt_dir = base_path / "ground_truth"
-    figures_dir.mkdir(parents=True, exist_ok=True)
-    gt_dir.mkdir(parents=True, exist_ok=True)
-
-    checksums = []
-
-    for idx in range(num):
-        # Create a plain white image (32×32, matching CIFAR‑10 size)
-        img = Image.new("RGB", (32, 32), color="white")
-        img_err = _inject_error(img, error_id=idx)
-
-        fig_path = figures_dir / f"figure_{idx}.png"
-        _write_png(img_err, fig_path)
-
-        gt_path = gt_dir / f"ground_truth_{idx}.json"
-        gt_vector = {"vector": [idx, 32, 32]}
-        _write_json(gt_vector, gt_path)
-
-        checksums.append(f"{_checksum_file(fig_path)}  {fig_path.name}")
-        checksums.append(f"{_checksum_file(gt_path)}  {gt_path.name}")
-
-    checksum_path = base_path / "checksums.txt"
-    checksum_path.parent.mkdir(parents=True, exist_ok=True)
-    checksum_path.write_text("\\n".join(checksums) + "\\n", encoding="utf-8")
-
-# ----------------------------------------------------------------------
 # Core routine
 # ----------------------------------------------------------------------
 def curate_failed_figures(num: int = 50, output_dir: str = "data") -> None:
@@ -315,34 +274,11 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         default="data",
         help="Base output directory (default: data)",
     )
-    parser.add_argument(
-        "--verify-only",
-        action="store_true",
-        default=False,
-        help="Generate deterministic synthetic data without downloading external datasets",
-    )
-    # Compatibility flag used by older quick‑start scripts.
-    parser.add_argument(
-        "--download",
-        action="store_true",
-        default=False,
-        help=argparse.SUPPRESS,
-    )
     return parser
 
 def main() -> None:
     parser = _build_arg_parser()
     args = parser.parse_args()
-
-    # ``--verify-only`` takes precedence – generate synthetic data.
-    if args.verify_only:
-        _generate_synthetic(num=args.num, output_dir=args.output_dir)
-        return
-
-    # ``--download`` is accepted for backward compatibility but has no
-    # effect beyond signalling intent.  The real download is performed
-    # inside ``_load_crafterbench``.
-    _ = args.download  # unused, retained for compatibility
 
     # Before attempting a potentially long download, quickly check for network.
     if not _check_network():

@@ -1,14 +1,41 @@
 T000:
   task: 207bb67fe89271486b79cf476bed74442038d803ded80a6a490cc259ed8c8c1b
 T001:
+  reason: "Checked `src/run_pipeline.py` and the test log `code/.tasks/T001.tests_test_run_pipeline.py.log`.\
+    \ The script defines a `--version` flag that prints \u201Crun_pipeline.py 0.1.0\u201D\
+    , which does not match the expected output of a plain semantic version string\
+    \ (the test fails to find the version). Consequently the requirement that `python\
+    \ -m src.run_pipeline --version` prints a semantic version string is not met.\
+    \ The `--help` behavior appears fine, but the version output must be corrected\
+    \ (e.g., print only `0.1.0`)."
   task: 6708946dc57ad8a96757a178d2d3293242cf1965457a8a827cee759c0b2b6fbf
 T002:
+  reason: "The provided `curate_failed_figures.py` only contains a placeholder URL\
+    \ and aborts when the dataset cannot be fetched; there is no evidence that it\
+    \ ever downloads a real verified subset or creates the required 50 figure images\
+    \ and ground\u2011truth JSON files. The test logs only cover the failure path,\
+    \ and no curated data artifacts are present. A real verified URL and successful\
+    \ execution producing the dataset are needed."
   task: 79455451772cb3d29dd24a7853ed519aac8642b3cc331af0fa016c39aeb35cf0
 T003:
+  reason: "The required test file `tests/interfaces/test_session.py` is missing, and\
+    \ `src/interfaces/session.py` implements a 10\u2011minute wash\u2011out with a\
+    \ 400 error and lacks the `expertise_level` and `NASA\u2011TLX` fields, contrary\
+    \ to the task\u2019s specification of a 5\u2011minute wash\u2011out, HTTP\u202F\
+    429 on early repeat, and inclusion of those fields."
   task: eddbf913d8da62c47d25b3725a24fbb4a0a84d5b75521292b44cc4c363eb6745
 T004:
+  reason: "Checked `tests/logger/test_logging_endpoint.py` \u2013 the \u201Caborted\u201D\
+    \ test fails because the logged record lacks a `status` field, and the required\
+    \ `interaction_log.schema.yaml` file is missing, so conformance cannot be verified."
   task: 8485edadb4695216ed6c98bcb058499a7d8825ebebc9b321cca2c68ff42a73e4
 T005:
+  reason: "The test `tests/validation/test_dual_success.py` crashes when loading `semantic_validation.schema.yaml`\
+    \ because it is written in YAML, but the test reads it with `json.load`. This\
+    \ makes the schema unreadable, so the unit\u2011test never reaches the validation\
+    \ of the generated records. The schema file must be a valid JSON document (keys\
+    \ quoted, proper commas) so that `json.load` succeeds and the dual\u2011success\
+    \ records can be validated."
   task: 167f54568b23dd0b66bb4aec5c2161aff72d9a2b21e09f729730d4ce8907d5cf
 T006:
   task: 48d0deee4f6e78c29e5766f23ba0625901d2c88de23c73d35cad41c3575a8e39
@@ -23,6 +50,8 @@ T010:
 T011:
   task: de32a856fda84abb36e8e558a53ebb20a19338c3d8c86ba0d86ed36114343829
 T012:
+  reason: 'Requested task execution failed; rerun successfully: src/analysis/retention_check.py
+    exit=1'
   task: bbea01b83e67290e759ce13926e217223ff3c84d301174cab33004d01eaf8fb6
 T013:
   task: d46a8818a0885c2e793d42cc8927a23d3d84d10f935bebf83f49c104b516ac0c
@@ -31,4 +60,7 @@ T014:
     exit=126'
   task: e896d0f252fedd91cec9b832786473d9d2c3089f88acbf7c7bf695a0cc621ba2
 T015:
+  reason: "The required test file `tests/contract/test_contracts.py` is missing, so\
+    \ the contract\u2011test suite cannot be run or verified as passing. The task\u2019\
+    s core artifact does not exist."
   task: fdc1cb02e8dcbc6168d328dfe451c89698064e31c48abb6ba4909ecab8a4b463

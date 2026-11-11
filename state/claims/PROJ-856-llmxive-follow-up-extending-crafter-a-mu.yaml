@@ -204,3 +204,57 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-25T03:42:14Z'
+- artifact_path: projects/PROJ-856-llmxive-follow-up-extending-crafter-a-mu/quickstart.md
+  attempts: 1
+  canonical: minimum required participants approximately 40 for mixed-effects model
+  claim_id: c_f0d8e0bc
+  context: "In step 4, the power analysis script prints the minimum required participants\
+    \ (\u2248\u202F40 for the mixed\u2011effects model) and exits with status\u202F\
+    0 if the planned N meets or exceeds it."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The script prints the minimum required participants (\u2248\u202F40 for\
+    \ the mixed\u2011effects model) and exits with status\u202F0 if the planned N\
+    \ meets or exceeds it."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-11-11T01:24:44Z'
+- artifact_path: projects/PROJ-856-llmxive-follow-up-extending-crafter-a-mu/quickstart.md
+  attempts: 1
+  canonical: pipeline completed output after running end-to-end pipeline
+  claim_id: c_56f08d62
+  context: "Step 10 runs the end\u2011to\u2011end pipeline and expects the output:\
+    \ Pipeline completed."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Running the end\u2011to\u2011end pipeline prints 'Pipeline completed'."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-11-11T01:24:44Z'
+- artifact_path: projects/PROJ-856-llmxive-follow-up-extending-crafter-a-mu/quickstart.md
+  attempts: 1
+  canonical: "report contains statistical tables and NASA\u2011TLX scores"
+  claim_id: c_52efce43
+  context: "Step 8 states that the report includes mean/median tables, test statistics,\
+    \ effect sizes, confidence intervals, success\u2011rate breakdowns, and average\
+    \ NASA\u2011TLX scores."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The report includes mean/median tables, test statistics, effect sizes,\
+    \ confidence intervals, success\u2011rate breakdowns, and average NASA\u2011TLX\
+    \ scores."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-11-11T01:24:44Z'

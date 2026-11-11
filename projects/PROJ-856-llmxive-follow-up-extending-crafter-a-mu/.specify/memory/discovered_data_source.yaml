@@ -1,13 +1,13 @@
 status: none
-intent: CrafterBench failed figure generation dataset download python package
+intent: download CrafterBench figure generation dataset with errors python package
+  dataset
 required_fields:
 - figure_id
-- raster_image_file
-- injected_error_type
-- injected_error_location
+- image_path
+- error_type
+- error_location
 - ground_truth_layout_vector
-- original_figure_id
-- error_severity
-cache_key: 52e5f5d1acdf8174517d00d240c8677301e8968ad6a78c200a074a17085f827e
-searched_at: '2026-11-11T01:23:15.106563+00:00'
+- metadata
+cache_key: a5fe40360f25925cedd29c2ae4fcdf6be38d5ac1695d6a2f5589ec4b50cb6d5d
+searched_at: '2026-11-11T01:29:00.656660+00:00'
 retry_count: 1

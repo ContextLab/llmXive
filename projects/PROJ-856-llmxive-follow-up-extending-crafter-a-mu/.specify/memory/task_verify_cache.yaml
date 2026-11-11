@@ -6,3 +6,56 @@ T000:
     all exist with proper content, and that the provided test logs show the verification
     script ran successfully.
   sig: 9455345c2417bb9be640fb329fefdc6f1d5ed25b82ffc51c316f5b863a3bfe13
+T001:
+  c: false
+  h: df83d54c8301c54ad585aa8a0a2946d92fafd146a86c07a0f87e0186d2362adc
+  r: "Checked `src/run_pipeline.py` and the test log `code/.tasks/T001.tests_test_run_pipeline.py.log`.\
+    \ The script defines a `--version` flag that prints \u201Crun_pipeline.py 0.1.0\u201D\
+    , which does not match the expected output of a plain semantic version string\
+    \ (the test fails to find the version). Consequently the requirement that `python\
+    \ -m src.run_pipeline --version` prints a semantic version string is not met.\
+    \ The `--help` behavior appears fine, but the version output must be corrected\
+    \ (e.g., print only `0.1.0`)."
+  sig: 8c2cd11096e2dcc83fbae4fccb293d3684f41c9fadd603ae2d883c66c95ecc6e
+T002:
+  c: false
+  h: 764dc90464655577882a9e3e4108b7a4ced2db96090a469b9ba53a827a75f963
+  r: "The provided `curate_failed_figures.py` only contains a placeholder URL and\
+    \ aborts when the dataset cannot be fetched; there is no evidence that it ever\
+    \ downloads a real verified subset or creates the required 50 figure images and\
+    \ ground\u2011truth JSON files. The test logs only cover the failure path, and\
+    \ no curated data artifacts are present. A real verified URL and successful execution\
+    \ producing the dataset are needed."
+  sig: f2fe105c88b81f02593bfbfd92759db3f545090c650f46494853c6f33733c71d
+T003:
+  c: false
+  h: fce0936c145b7d0875015e26c88c7657b1cf967e9d16266232c595afee953562
+  r: "The required test file `tests/interfaces/test_session.py` is missing, and `src/interfaces/session.py`\
+    \ implements a 10\u2011minute wash\u2011out with a 400 error and lacks the `expertise_level`\
+    \ and `NASA\u2011TLX` fields, contrary to the task\u2019s specification of a 5\u2011\
+    minute wash\u2011out, HTTP\u202F429 on early repeat, and inclusion of those fields."
+  sig: 8e58fb7acbba9b943bd29a32187142607af38954803c38cf3f0b379f4d67daf2
+T004:
+  c: false
+  h: d1f365f01be01a21bd00ef4f8297ae409c93124e89f8f527aa89d28967f278ca
+  r: "Checked `tests/logger/test_logging_endpoint.py` \u2013 the \u201Caborted\u201D\
+    \ test fails because the logged record lacks a `status` field, and the required\
+    \ `interaction_log.schema.yaml` file is missing, so conformance cannot be verified."
+  sig: ddcfa1c2a2725b26b2f2d188a8e5ac7f45d5022ced86c92f450695eab38520e4
+T005:
+  c: false
+  h: d85fa5064a312b20b5b87fba03f4f963eda8414cecd66e7bc7716d5945719c25
+  r: "The test `tests/validation/test_dual_success.py` crashes when loading `semantic_validation.schema.yaml`\
+    \ because it is written in YAML, but the test reads it with `json.load`. This\
+    \ makes the schema unreadable, so the unit\u2011test never reaches the validation\
+    \ of the generated records. The schema file must be a valid JSON document (keys\
+    \ quoted, proper commas) so that `json.load` succeeds and the dual\u2011success\
+    \ records can be validated."
+  sig: 0c0d095a17794272c2ee233b599ab5d86aaa85709153ec0b378c6795e1a2af5b
+T015:
+  c: false
+  h: 975d509fa52e25d2dab94031a8942b8a07659f73684b9b6ab48eacb095d4a1fa
+  r: "The required test file `tests/contract/test_contracts.py` is missing, so the\
+    \ contract\u2011test suite cannot be run or verified as passing. The task\u2019\
+    s core artifact does not exist."
+  sig: 9c7e6ee46927edc5ed4595723f150a5540c49f7583d0b8f69e55c11bb462def2
