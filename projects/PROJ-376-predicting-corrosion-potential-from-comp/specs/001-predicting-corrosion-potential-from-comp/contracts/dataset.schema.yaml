@@ -1,30 +1,28 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-type: object
+title: "Processed Corrosion Dataset Schema"
+description: "Schema for the preprocessed dataset used for model training and evaluation, ensuring compositional transformations and environmental metadata are present (FR-003, FR-013, FR-020)."
+type: "object"
 required:
-  - record_id
-  - alloy_designation
-  - ph
-  - temperature_celsius
-  - corrosion_potential_mV
-  - composition_clr
-  - electrolyte_type_onehot
+  - "specific_alloy_designation"
+  - "ph"
+  - "temperature_celsius"
+  - "corrosion_potential_mV"
 properties:
-  record_id:
-    type: string
-  alloy_designation:
-    type: string
+  specific_alloy_designation:
+    type: "string"
+    description: "The unique alloy grade used for Group Split (LOSO) to prevent data leakage (FR-004, FR-012)."
   ph:
-    type: number
+    type: "number"
+    minimum: 0.0
+    maximum: 14.0
+    description: "The aqueous pH of the environment; values outside 0-14 are excluded from primary analysis (FR-016)."
   temperature_celsius:
-    type: number
+    type: "number"
+    description: "The environmental temperature in degrees Celsius."
   corrosion_potential_mV:
-    type: number
-  composition_clr:
-    type: array
-    items:
-      type: number
-  electrolyte_type_onehot:
-    type: array
-    items:
-      type: number
-additionalProperties: false
+    type: "number"
+    description: "The target variable: corrosion potential measured in millivolts (mV) vs SHE."
+  electrolyte_type:
+    type: "string"
+    description: "The categorical type of the electrolyte used in the measurement."
+additionalProperties: true # Allows for CLR-transformed elemental weight fractions (e.g., clr_Fe, clr_Cr) as per FR-020.

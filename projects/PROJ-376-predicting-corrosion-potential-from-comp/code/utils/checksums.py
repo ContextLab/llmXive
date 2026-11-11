@@ -1,13 +1,15 @@
 """
 checksums.py
---------------
+------------
 
-Generate SHA‑256 checksums for all files under ``data/raw/`` and record them in the
-project‑level state file ``state/projects/PROJ-376-predicting-corrosion-potential-from-comp.yaml``.
-The script can be invoked directly or imported; the ``generate_checksums`` function
-performs the core work.
+Generate SHA-256 checksums for all files under ``data/raw/`` and record them in a
+project-owned manifest file ``data/logs/raw_checksums.yaml``.
 
-The state file is a YAML document with a top‑level ``artifact_hashes`` mapping:
+This script satisfies the requirement to track raw data integrity while adhering
+to the constraint that the ``state/`` directory is platform-owned and must not
+be written to by project code.
+
+The manifest file is a YAML document with a top-level ``artifact_hashes`` mapping:
 
 .. code-block:: yaml
 
@@ -19,11 +21,12 @@ import hashlib
 import yaml
 from pathlib import Path
 from typing import Dict
+from llmxive_toolkit import paths
 
 __all__ = ["generate_checksums"]
 
 def _compute_sha256(file_path: Path) -> str:
-    """Compute the SHA‑256 hash of ``file_path``."""
+    """Compute the SHA-256 hash of ``file_path``."""
     hasher = hashlib.sha256()
     with file_path.open("rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
@@ -31,38 +34,41 @@ def _compute_sha256(file_path: Path) -> str:
     return hasher.hexdigest()
 
 def generate_checksums(
-    raw_root: Path = Path("data/raw"),
-    state_file: Path = Path(
-        "state/projects/PROJ-376-predicting-corrosion-potential-from-comp.yaml"
-    ),
+    raw_root: Path = paths.data("raw"),
+    state_file: Path = paths.logs("raw_checksums.yaml"),
 ) -> None:
     """
-    Walk ``raw_root`` (recursively), compute SHA‑256 checksums for every regular file,
+    Walk ``raw_root`` (recursively), compute SHA-256 checksums for every regular file,
     and store the mapping in ``state_file`` under the ``artifact_hashes`` key.
 
     The function creates any missing parent directories, merges with an existing
-    state file (preserving other keys), and overwrites the ``artifact_hashes`` map
-    with the newly computed entries (updating existing ones if they changed).
+    manifest file (preserving other keys), and overwrites the ``artifact_hashes``
+    map with the newly computed entries.
 
     Parameters
     ----------
     raw_root: Path
         Root directory containing raw artefacts. Defaults to ``data/raw``.
     state_file: Path
-        YAML file where the checksum map is persisted. Defaults to the project‑level
-        state file under ``state/projects``.
+        YAML file where the checksum map is persisted. Defaults to
+        ``data/logs/raw_checksums.yaml``.
     """
-    # Ensure the raw directory exists (no error if it already does)
+    # Ensure the raw directory exists
     raw_root.mkdir(parents=True, exist_ok=True)
 
     # Compute hashes
     hashes: Dict[str, str] = {}
     for path in raw_root.rglob("*"):
         if path.is_file():
-            rel_path = path.as_posix()  # store POSIX style path relative to project root
+            # Store POSIX style path relative to project root for consistency
+            # We calculate the path relative to the project root
+            try:
+                rel_path = path.relative_to(paths.root).as_posix()
+            except ValueError:
+                rel_path = path.as_posix()
             hashes[rel_path] = _compute_sha256(path)
 
-    # Load (or create) the existing state YAML
+    # Load (or create) the existing manifest YAML
     state_file.parent.mkdir(parents=True, exist_ok=True)
     if state_file.exists():
         with state_file.open("r", encoding="utf-8") as f:
@@ -79,5 +85,5 @@ def generate_checksums(
         yaml.safe_dump(data, f, sort_keys=False)
 
 if __name__ == "__main__":
-    # When executed as a script, simply run the checksum generation with defaults.
+    # When executed as a script, run the checksum generation with defaults.
     generate_checksums()

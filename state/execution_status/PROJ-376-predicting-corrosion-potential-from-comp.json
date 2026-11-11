@@ -1,6 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-11-06T15:15:44Z",
-  "project_id": "PROJ-376-predicting-corrosion-potential-from-comp"
+  "updated_at": "2026-11-11T09:23:48Z",
+  "project_id": "PROJ-376-predicting-corrosion-potential-from-comp",
+  "replan_rounds": 1
 }

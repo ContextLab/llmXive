@@ -23,7 +23,7 @@ import pandas as pd
 import yaml
 
 from llmxive_toolkit import paths, get_logger
-from utils.exceptions import SchemaMismatchError
+from code.utils.exceptions import SchemaMismatchError
 
 # ----------------------------------------------------------------------
 # Configuration
@@ -96,7 +96,6 @@ def validate_against_schema(record: Dict[str, Any], schema: Dict[str, Any]) -> L
                 errors.append(f"Field '{field}' expected number, got {type(value).__name__}")
             elif expected_type == "string" and not isinstance(value, str):
                 errors.append(f"Field '{field}' expected string, got {type(value).__name__}")
-            # Additional checks can be added as needed.
     return errors
 
 def perform_validation(df: pd.DataFrame, schema: Dict[str, Any]) -> List[Dict[str, Any]]:

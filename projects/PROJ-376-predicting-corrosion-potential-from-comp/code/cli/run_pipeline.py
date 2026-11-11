@@ -16,6 +16,7 @@ from code.utils.logging import get_logger
 
 # Stage implementations
 from code.data.download_nist import main as download_main
+from code.data.validate_raw import main as validate_main
 
 # Optional imports for future stages – they may not exist yet.
 # Import lazily inside the stub functions to avoid ImportError.
@@ -26,14 +27,15 @@ def run_download_stage() -> None:
     logger.info("Running download stage")
     download_main()
 
+def run_validate_stage() -> None:
+    """Execute the raw data schema validation script."""
+    logger.info("Running validate stage")
+    validate_main()
+
 # Stub placeholders for stages that are not yet implemented.
 def _run_stub_stage(stage_name: str) -> None:
     """Log a stub stage invocation."""
     logger.info(f"Stage '{stage_name}' is not yet implemented; skipping.")
-    # Future implementations can replace this function with the real logic.
-
-def run_validate_stage() -> None:
-    _run_stub_stage("validate")
 
 def run_preprocess_stage() -> None:
     _run_stub_stage("preprocess")
@@ -72,7 +74,7 @@ def main() -> None:
     stage_func = STAGE_DISPATCH.get(args.stage)
     if stage_func is None:
         # Defensive: should never happen because argparse restricts choices.
-        sys.stderr.write(f"Unsupported stage: {args.stage}\\n")
+        sys.stderr.write(f"Unsupported stage: {args.stage}\n")
         sys.exit(1)
 
     try:

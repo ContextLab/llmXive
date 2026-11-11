@@ -2,8 +2,8 @@
 Setup script for creating the required project directory hierarchy and
 generating a verification manifest.
 
-When executed as a module (`python -m code.utils.setup_dirs`), this script
-ensures that the following directories exist relative to the project root:
+When executed, this script ensures that the following directories exist
+relative to the project root:
 
   - code/
   - data/
@@ -12,9 +12,10 @@ ensures that the following directories exist relative to the project root:
   - data/logs/
   - results/
 
-It then writes a JSON file ``data/processed/setup_dirs_verified.json`` containing
-a list of objects, each with the absolute path of a created directory and the
-timestamp (ISO‑8601, UTC) at which the directory was confirmed/created.
+It then writes a JSON file ``data/processed/setup_dirs_verified.json``
+containing a list of objects, each with the absolute path of a created
+directory and the timestamp (ISO‑8601, UTC) at which the directory was
+confirmed/created.
 
 The script exits with status 0 on success; any unexpected exception will
 propagate and cause a non‑zero exit code.
@@ -72,6 +73,7 @@ def ensure_directories(dirs: List[Path]) -> List[Dict[str, str]]:
 def write_manifest(entries: List[Dict[str, str]]) -> Path:
     """
     Write the verification manifest to ``data/processed/setup_dirs_verified.json``.
+    The platform owns ``state/``, so we write to a project-owned data directory.
 
     Parameters
     ----------

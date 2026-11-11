@@ -2,10 +2,13 @@
 Verification script for the directory‑setup manifest produced by
 ``code.utils.setup_dirs`` (T001a).
 
-The script reads ``state/setup_dirs_verified.json`` and checks that
-every required directory (code, data, data/raw, data/processed, data/logs,
-results) is present in the manifest. If any entry is missing, a
-``RuntimeError`` is raised; otherwise the script exits with status 0.
+The script reads the manifest and checks that every required directory 
+(code, data, data/raw, data/processed, data/logs, results) is present 
+in the manifest. If any entry is missing, a ``RuntimeError`` is raised; 
+otherwise the script exits with status 0.
+
+Note: The manifest is stored in ``data/processed/setup_dirs_verified.json`` 
+to avoid shadowing the platform-owned ``state/`` directory.
 """
 import json
 from pathlib import Path
@@ -14,6 +17,7 @@ from llmxive_toolkit import paths, get_logger
 log = get_logger(__name__)
 
 # Required directories that should be listed in the manifest.
+# We resolve these to absolute paths to match the format stored in the JSON.
 REQUIRED_DIRS = {
     str(paths.code().resolve()),
     str(paths.data().resolve()),
@@ -23,9 +27,8 @@ REQUIRED_DIRS = {
     str(paths.results().resolve()),
 }
 
-# The manifest is stored in the platform‑owned ``state`` directory.
-# Reading from this location is allowed; the script does not write there.
-MANIFEST_PATH = paths.state("setup_dirs_verified.json")
+# The manifest is stored in a project-owned directory.
+MANIFEST_PATH = paths.data("processed", "setup_dirs_verified.json")
 
 def load_manifest() -> list[dict]:
     """Load the JSON manifest containing directory creation records.

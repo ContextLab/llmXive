@@ -57,7 +57,7 @@ Unchecked boxes indicate work that still needs to be completed or corrected; che
 
 ## Phase 3 – Data ingestion  
 
-- [ ] **T006** Implement the NIST‑IR‑8200 download script with exponential‑backoff retry logic (FR‑001, FR‑015) and optional Materials Project augmentation (FR‑019). Abort with `DataInsufficientError` if < 500 records after merging.   <!-- FAILED-IN-EXECUTION: code/cli/run_pipeline.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/cli/run_pipeline_download_test.py exit=4; code/cli/run_pipeline_validate_test.py exit=4; code/cli/run_pipeline_preprocess_test.py exit=4; code/cli/run_pipeline_train_test.py exit=4; code/cli/run_pipeline_evaluate_test.py exit=4; code/cli/run_pipeline_interpret_test.py exit=4 -->
+- [ ] **T006** Implement the NIST‑IR‑8200 download script with exponential‑backoff retry logic (FR‑001, FR‑015) and optional Materials Project augmentation (FR‑019). Abort with `DataInsufficientError` if < 500 records after merging.   <!-- FAILED-IN-EXECUTION: code/cli/run_pipeline.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/cli/run_pipeline_download_test.py exit=4; code/cli/run_pipeline_validate_test.py exit=4; code/cli/run_pipeline_preprocess_test.py exit=4; code/cli/run_pipeline_train_test.py exit=4; code/cli/run_pipeline_evaluate_test.py exit=4; code/cli/run_pipeline_interpret_test.py exit=4 --> <!-- FAILED: unspecified -->
   **File path**: `code/data/download_nist.py`.  
   **Outputs**: `data/raw/nist/` (raw NIST CSV/JSON) and `data/raw/materials_project/` (composition augment files).  
   **Verification**: Successful run creates both directories, logs attempts in `data/logs/download.log`, writes `data/logs/download_summary.json` containing `record_count` and `alloy_designation_count`, and exits with non‑zero status if thresholds are unmet.
@@ -66,7 +66,7 @@ Unchecked boxes indicate work that still needs to be completed or corrected; che
   **File path**: `code/utils/checksums.py`.  
   **Verification**: After execution, the state YAML contains an `artifact_hashes` map with entries for each raw file; a unit test confirms the map is populated.
 
-- [ ] **T007** Add a schema‑validation step that checks the raw ingest against `ingest.schema.yaml`, enforces non‑null composition, pH, temperature, corrosion potential, and the minimum‑record constraints (FR‑011, FR‑014, FR‑017).   <!-- FAILED-IN-EXECUTION: code/data/validate_raw.py exit=1 -->
+- [ ] **T007** Add a schema‑validation step that checks the raw ingest against `ingest.schema.yaml`, enforces non‑null composition, pH, temperature, corrosion potential, and the minimum‑record constraints (FR‑011, FR‑014, FR‑017).   <!-- FAILED-IN-EXECUTION: code/data/validate_raw.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/cli/run_pipeline.py exit=1 -->
   **File path**: `code/data/validate_raw.py`.  
   **Artifact**: `data/logs/schema_validation.json` summarising total records, unique alloys, and any violations.  
   **Verification**: Script exits with status 0 only when all criteria are satisfied; otherwise it raises `SchemaMismatchError` with a clear message.  

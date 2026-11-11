@@ -1,62 +1,75 @@
-"""
-Unit test for the checksum generation utility.
-
-The test creates a temporary raw file, runs ``generate_checksums`` and then
-verifies that the state YAML contains an entry for the newly created file.
-"""
-import os
+import pytest
 import yaml
 from pathlib import Path
-
+from llmxive_toolkit import paths
 from code.utils.checksums import generate_checksums
 
-def test_generate_checksums(tmp_path):
-    # ----------------------------------------------------------------------
-    # Setup: ensure a clean ``data/raw`` directory and create a dummy file.
-    # ----------------------------------------------------------------------
-    raw_dir = Path("data/raw")
+def test_generate_checksums_creates_file():
+    """Verify that generate_checksums creates the manifest and records hashes."""
+    # Setup: create a dummy raw file
+    raw_dir = paths.data("raw")
     raw_dir.mkdir(parents=True, exist_ok=True)
-
-    dummy_file = raw_dir / "dummy.txt"
-    dummy_content = "checksum test content"
-    dummy_file.write_text(dummy_content, encoding="utf-8")
-
-    # Ensure the state file does not contain stale data from previous runs.
-    state_file = Path(
-        "state/projects/PROJ-376-predicting-corrosion-potential-from-comp.yaml"
-    )
-    if state_file.parent.exists():
-        # Remove any existing state file to guarantee a fresh start.
-        for p in state_file.parent.iterdir():
-            p.unlink()
-    else:
-        state_file.parent.mkdir(parents=True, exist_ok=True)
-
-    # ----------------------------------------------------------------------
-    # Execute the checksum generation.
-    # ----------------------------------------------------------------------
-    generate_checksums()
-
-    # ----------------------------------------------------------------------
-    # Verify the YAML contains the expected mapping.
-    # ----------------------------------------------------------------------
-    assert state_file.is_file(), "State file was not created"
-
-    with state_file.open("r", encoding="utf-8") as f:
-        data = yaml.safe_load(f)
-
-    assert isinstance(data, dict), "State file did not contain a YAML mapping"
-    assert "artifact_hashes" in data, "Missing 'artifact_hashes' key in state file"
-
-    artifact_hashes = data["artifact_hashes"]
-    rel_path = dummy_file.as_posix()
-    assert rel_path in artifact_hashes, f"Checksum for {rel_path} not recorded"
-
-    # Clean up the dummy file (the raw directory may contain other files that are
-    # part of the pipeline, so we only remove the one we created).
-    dummy_file.unlink()
-    # Optionally remove the raw directory if it is now empty.
+    test_file = raw_dir / "test_checksum_file.txt"
+    test_file.write_text("checksum test content", encoding="utf-8")
+    
+    manifest_path = paths.logs("raw_checksums.yaml")
+    # Ensure clean state
+    if manifest_path.exists():
+        manifest_path.unlink()
+    
     try:
-        raw_dir.rmdir()
-    except OSError:
-        pass  # Directory not empty – leave it for other pipeline stages.
+        # Execute
+        generate_checksums(raw_root=raw_dir, state_file=manifest_path)
+        
+        # Verify
+        assert manifest_path.exists()
+        with open(manifest_path, "r", encoding="utf-8") as f:
+            data = yaml.safe_load(f)
+        
+        assert "artifact_hashes" in data
+        # The path should be stored relative to project root
+        rel_path = test_file.relative_to(paths.root).as_posix()
+        assert rel_path in data["artifact_hashes"]
+        assert len(data["artifact_hashes"][rel_path]) == 64  # SHA-256 length
+    finally:
+        # Cleanup
+        if test_file.exists():
+            test_file.unlink()
+        if manifest_path.exists():
+            manifest_path.unlink()
+
+def test_generate_checksums_updates_existing():
+    """Verify that generate_checksums merges with existing manifest data."""
+    manifest_path = paths.logs("raw_checksums.yaml")
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    existing_data = {
+        "artifact_hashes": {"old_file.csv": "oldhash"},
+        "metadata": {"version": "1.0"}
+    }
+    with open(manifest_path, "w", encoding="utf-8") as f:
+        yaml.dump(existing_data, f)
+        
+    raw_dir = paths.data("raw")
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    test_file = raw_dir / "new_file.txt"
+    test_file.write_text("new content", encoding="utf-8")
+    
+    try:
+        generate_checksums(raw_root=raw_dir, state_file=manifest_path)
+        
+        with open(manifest_path, "r", encoding="utf-8") as f:
+            data = yaml.safe_load(f)
+        
+        # Check that old metadata is preserved
+        assert data["metadata"]["version"] == "1.0"
+        # Check that new file is added
+        rel_path = test_file.relative_to(paths.root).as_posix()
+        assert rel_path in data["artifact_hashes"]
+        # Check that old hash is still there
+        assert "old_file.csv" in data["artifact_hashes"]
+    finally:
+        if test_file.exists():
+            test_file.unlink()
+        if manifest_path.exists():
+            manifest_path.unlink()

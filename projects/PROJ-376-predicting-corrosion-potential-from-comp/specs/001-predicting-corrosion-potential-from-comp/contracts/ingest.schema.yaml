@@ -1,25 +1,26 @@
 $schema: "http://json-schema.org/draft-07/schema#"
+title: Ingest Schema for Corrosion Data
+description: Schema for raw data ingestion from the NIST Corrosion Database (NIST-IR-8200) as required by FR-001 and FR-011.
 type: object
+properties:
+  composition:
+    type: string
+    description: "JSON-encoded string of elemental weight fractions (e.g., '{\"Fe\": 0.7, \"Cr\": 0.18}')"
+  ph:
+    type: number
+    description: "Aqueous pH value of the environment"
+  temperature_celsius:
+    type: number
+    description: "Temperature of the environment in degrees Celsius"
+  corrosion_potential_mV:
+    type: number
+    description: "Corrosion potential measured in millivolts (mV) vs SHE"
+  specific_alloy_designation:
+    type: string
+    description: "Unique alloy grade identifier (e.g., 'SS304', 'Inconel625')"
 required:
-  - record_id
-  - alloy_designation
   - composition
   - ph
   - temperature_celsius
   - corrosion_potential_mV
-properties:
-  record_id:
-    type: string
-  alloy_designation:
-    type: string
-  composition:
-    type: object
-    additionalProperties:
-      type: number
-  ph:
-    type: number
-  temperature_celsius:
-    type: number
-  corrosion_potential_mV:
-    type: number
-additionalProperties: false
+  - specific_alloy_designation
