@@ -1,0 +1,25 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: SensitivityReport
+type: object
+properties:
+  threshold:
+    type: number
+    minimum: 0
+    maximum: 1
+  N:
+    type: integer
+    minimum: 1
+  false_positive_rate:
+    type: number
+    minimum: 0
+    maximum: 1
+  false_negative_rate:
+    type: number
+    minimum: 0
+    maximum: 1
+required:
+  - threshold
+  - N
+  - false_positive_rate
+  - false_negative_rate
+additionalProperties: false

@@ -1,19 +1,7 @@
-[build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "anyflow-extension"
-version = "0.1.0"
-description = "AnyFlow extension project with linting and formatting configuration"
-requires-python = ">=3.11"
-dependencies = []
-
-# Black configuration
 [tool.black]
 line-length = 88
-target-version = ["py311"]
-include = '\.pyi?$'
+target-version = ['py311']
+include = '\\.pyi?$'
 exclude = '''
 /(
     \.git
@@ -28,26 +16,15 @@ exclude = '''
 )/
 '''
 
-# Ruff configuration (also reads from pyproject.toml)
 [tool.ruff]
 line-length = 88
 target-version = "py311"
 select = [
-    "E",   # pycodestyle errors
-    "F",   # pyflakes
-    "W",   # pycodestyle warnings
-    "C90", # mccabe complexity
-    "I",   # import sorting
+    "E", "F", "W", "C90", "I", "N", "D", "UP", "YTT",
+    "BLE", "FBT", "B", "A", "COM", "C4", "DTZ",
+    "T10", "ISC", "ICN", "G", "PIE", "PYI", "PT",
+    "Q", "RET", "SLF", "SIM", "TID", "TCH", "ARG",
+    "ERA", "PD", "PGH", "PL", "TRY", "RUF"
 ]
-ignore = [
-    "E501",   # line too long (handled by black)
-    "E203",   # whitespace before ':'
-    "W503",   # line break before binary operator
-]
-exclude = [
-    ".git",
-    "__pycache__",
-    "build",
-    "dist",
-    ".venv",
-]
+ignore = ["E501"]
+exclude = ["__pycache__", "build", "dist", ".git", ".venv", "venv"]

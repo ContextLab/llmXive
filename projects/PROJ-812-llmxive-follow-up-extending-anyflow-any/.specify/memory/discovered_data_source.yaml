@@ -1,12 +1,14 @@
 status: none
-intent: download shot boundary detection dataset UCF101 Kinetics TRECVID VSB100 MovieNet
-  python package dataset
+intent: UCF101 Kinetics MovieNet shot boundary detection dataset download python package
+  dataset
 required_fields:
 - video_id
-- video_file_path
-- continuity_score
-- cut_label
-- annotator_id
-cache_key: 727c5952a9d14298803ff03f0fd894bedba5af49a4902b673503d19377cd44ea
-searched_at: '2026-09-19T12:41:29.291773+00:00'
+- video_path_or_url
+- "continuity_score (0.0\u20111.0)"
+- shot_boundary_timestamps
+- label (continuous/abrupt)
+- frame_rate
+- duration_seconds
+cache_key: 09ca81a75adae3ceb0d244f115b029bdf4e3c96ca29f31a969eb0c7ad7153cb6
+searched_at: '2026-11-11T03:19:08.677102+00:00'
 retry_count: 1
