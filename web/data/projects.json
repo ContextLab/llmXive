@@ -28690,7 +28690,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-11T04:33:15.493912+00:00",
+  "generated_at": "2026-11-11T05:05:56.176350+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -35915,6 +35915,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 5.775295,
+          "ended_at": "2026-11-11T05:05:25.520193Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-11T05:05:19.744898Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 2.745422,
           "ended_at": "2026-11-10T07:05:37.998458Z",
           "model": "zai-org.glm-5.3",
@@ -35984,14 +35992,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-11-02T23:06:36.352569Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 4.230979,
-          "ended_at": "2026-11-02T01:08:01.100277Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-11-02T01:07:56.869298Z"
         }
       ],
       "paper_status": null,
@@ -82225,6 +82225,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 3.468247,
+          "ended_at": "2026-11-11T05:05:11.170141Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-11T05:05:07.701894Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 3.080668,
           "ended_at": "2026-11-10T07:04:36.304805Z",
           "model": "zai-org.glm-5.3",
@@ -82294,14 +82302,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-11-02T23:06:51.942574Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 2.934566,
-          "ended_at": "2026-11-02T01:06:54.357752Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-11-02T01:06:51.423186Z"
         }
       ],
       "paper_status": null,
@@ -175634,6 +175634,30 @@
   ],
   "recent_activity": [
     {
+      "agent": "implementer",
+      "duration_s": 5.775295,
+      "ended_at": "2026-11-11T05:05:25.520193Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-033-predicting-material-properties-from-comp",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-11-11T05:05:19.744898Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 3.468247,
+      "ended_at": "2026-11-11T05:05:11.170141Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-268-predicting-molecular-ionization-energies",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-11-11T05:05:07.701894Z"
+    },
+    {
       "agent": "tasker",
       "duration_s": 3.532176,
       "ended_at": "2026-11-11T04:09:40.786461Z",
@@ -181704,30 +181728,6 @@
       "project_stage": "in_progress",
       "severity": "hard",
       "started_at": "2026-11-08T08:05:34.413992Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 4.605683,
-      "ended_at": "2026-11-08T08:05:21.323044Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-044-evaluating-the-effectiveness-of-differen",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-11-08T08:05:16.717361Z"
-    },
-    {
-      "agent": "research_question_validator",
-      "duration_s": 2.639102,
-      "ended_at": "2026-11-08T08:05:13.086796Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-497-evaluating-the-impact-of-code-generation",
-      "project_stage": "flesh_out_complete",
-      "severity": "hard",
-      "started_at": "2026-11-08T08:05:10.447694Z"
     }
   ],
   "reviewed_preprints": [
