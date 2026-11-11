@@ -1,11 +1,12 @@
 status: none
-intent: download LDBC Social Network Benchmark and LDBC Driver as python package dataset
+intent: download LDBC SNB and TPC-H query workloads with plan depth python package
+  dataset
 required_fields:
 - query_id
 - query_text
 - plan_depth
 - source_type
 - latency_ms
-cache_key: 40d6bb977cfe6d2cb45b46f33d66d45e41f135dc49a5c2845aa4f7109bae9072
-searched_at: '2026-11-10T19:07:16.542057+00:00'
+cache_key: 1f43201f40db365b528f066b312afa20660c3e75b1a81056bb523d09aef6730c
+searched_at: '2026-11-11T17:06:26.413018+00:00'
 retry_count: 1
