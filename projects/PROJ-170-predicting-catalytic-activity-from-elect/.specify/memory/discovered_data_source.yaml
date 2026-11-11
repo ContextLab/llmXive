@@ -1,17 +1,14 @@
 status: none
-intent: OC20 dataset Materials Project bulk descriptors CO2 hydrogenation study Doe
-  2025 python package dataset
+intent: Open Catalyst Project OC20 Materials Project bulk descriptors Catalysis Hub
+  dataset python package dataset
 required_fields:
+- material_id
 - structure
 - energy
 - d_band_center
 - p_band_center
 - bader_charge
 - log_TOF
-- material_id
-- composition
-- adsorbate
-- reaction_conditions
-cache_key: c4c0cbc3e1d1a59db365f369d251a77fe2a787b996f858e47561b4ba28b8cdde
-searched_at: '2026-11-10T06:10:22.663576+00:00'
+cache_key: 2ca295fdf28af20f0091f4a4117f82ab5617ac36b090735a7dc70f8198eecbf1
+searched_at: '2026-11-11T06:09:00.218539+00:00'
 retry_count: 1
