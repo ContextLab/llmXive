@@ -28690,7 +28690,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-11T22:35:57.444453+00:00",
+  "generated_at": "2026-11-11T23:05:29.024558+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -111988,6 +111988,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 8.48651,
+          "ended_at": "2026-11-11T23:04:58.792950Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-11T23:04:50.306440Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 7.480839,
           "ended_at": "2026-11-11T01:05:49.467467Z",
           "model": "zai-org.glm-5.3",
@@ -112057,14 +112065,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-11-03T17:15:52.993499Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 9.773977,
-          "ended_at": "2026-11-02T19:08:36.995088Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-11-02T19:08:27.221111Z"
         }
       ],
       "paper_status": null,
@@ -163230,6 +163230,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 5.34471,
+          "ended_at": "2026-11-11T23:04:55.185457Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-11T23:04:49.840747Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 3.797715,
           "ended_at": "2026-11-11T22:04:52.530547Z",
           "model": "zai-org.glm-5.3",
@@ -163299,14 +163307,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-09-26T06:42:03.940350Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 432.228097,
-          "ended_at": "2026-09-26T06:42:03.877522Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-26T06:34:51.649425Z"
         }
       ],
       "paper_status": null,
@@ -175667,6 +175667,30 @@
   "recent_activity": [
     {
       "agent": "implementer",
+      "duration_s": 8.48651,
+      "ended_at": "2026-11-11T23:04:58.792950Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-443-predicting-the-effect-of-alloying-on-the",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-11-11T23:04:50.306440Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 5.34471,
+      "ended_at": "2026-11-11T23:04:55.185457Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-908-llmxive-follow-up-extending-qwen-agentwo",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-11-11T23:04:49.840747Z"
+    },
+    {
+      "agent": "implementer",
       "duration_s": 3.788751,
       "ended_at": "2026-11-11T22:05:06.463679Z",
       "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
@@ -181730,30 +181754,6 @@
       "project_stage": "clarified",
       "severity": "hard",
       "started_at": "2026-11-09T01:05:37.176164Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 3.553738,
-      "ended_at": "2026-11-09T01:06:26.720178Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-181-predicting-species-distribution-shifts-u",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-11-09T01:06:23.166440Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 0.004756,
-      "ended_at": "2026-11-09T01:06:05.149771Z",
-      "failure_reason": "ValueError: Task review context refused 'structural_record.schema.yaml': contract budget exceeded (65536 bytes/file, 131072 bytes total); split or compact inputs without dropping requirements. Repair ",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-1009-llmxive-follow-up-extending-ui-mopd-mult",
-      "project_stage": "planned",
-      "severity": "hard",
-      "started_at": "2026-11-09T01:06:05.145015Z"
     }
   ],
   "reviewed_preprints": [
