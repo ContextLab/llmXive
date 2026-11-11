@@ -28690,7 +28690,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-11T10:06:05.546733+00:00",
+  "generated_at": "2026-11-11T10:33:49.152254+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -141451,6 +141451,14 @@
       "last_run_log": [
         {
           "agent": "planner",
+          "duration_s": 243.81689,
+          "ended_at": "2026-11-11T10:09:42.728486Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-11T10:05:38.911596Z"
+        },
+        {
+          "agent": "planner",
           "duration_s": 154.438868,
           "ended_at": "2026-11-10T10:07:27.638748Z",
           "model": "zai-org.glm-5.3",
@@ -141520,14 +141528,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-11-03T01:06:07.212573Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 196.115103,
-          "ended_at": "2026-11-02T03:11:22.641783Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-11-02T03:08:06.526680Z"
         }
       ],
       "paper_status": null,
@@ -175642,6 +175642,18 @@
   ],
   "recent_activity": [
     {
+      "agent": "planner",
+      "duration_s": 243.81689,
+      "ended_at": "2026-11-11T10:09:42.728486Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-735-transferability-of-dft-d3-dispersion-to-",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-11-11T10:05:38.911596Z"
+    },
+    {
       "agent": "implementer",
       "duration_s": 2.914914,
       "ended_at": "2026-11-11T10:05:21.706303Z",
@@ -181724,18 +181736,6 @@
       "project_stage": "in_progress",
       "severity": "hard",
       "started_at": "2026-11-08T15:04:38.953625Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 2.757156,
-      "ended_at": "2026-11-08T15:04:17.217071Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-327-can-publicly-available-microbiome-data-p",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-11-08T15:04:14.459915Z"
     }
   ],
   "reviewed_preprints": [
