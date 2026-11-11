@@ -1,19 +1,15 @@
 status: none
-intent: LIGO Open Science Center GWTC-3 binary black hole waveforms SXS catalog PyCBC
-  python package dataset
+intent: GWTC-3 binary black hole source parameter posterior samples download python
+  package dataset
 required_fields:
-- mass1_solar_masses
-- mass2_solar_masses
-- spin1z
-- spin2z
+- mass_1_solar_mass
+- mass_2_solar_mass
 - luminosity_distance_Mpc
-- inclination_angle_rad
-- polarization_angle_rad
-- sampling_rate_Hz
-- h_plus
-- h_cross
-- start_time
-- end_time
-cache_key: 99bc48d0c8367cee12ea5be91d22526ca70149018132d6528bac0e6a74b5d40b
-searched_at: '2026-11-10T02:08:26.136328+00:00'
+- spin_1z
+- spin_2z
+- right_ascension
+- declination
+- geocentric_time
+cache_key: d5c1b189c53a00cfcec0a4c8971c0b6eab7ae6439720dc3d7622f3a853064798
+searched_at: '2026-11-11T18:07:58.793905+00:00'
 retry_count: 1
