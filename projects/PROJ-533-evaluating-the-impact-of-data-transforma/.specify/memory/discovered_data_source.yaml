@@ -1,19 +1,35 @@
-status: none
-intent: download UCI Machine Learning Repository and OpenML datasets via HuggingFace
-  python package dataset
+status: verified
+kind: pypi_package
+ref: openml
+access_python: "import openml, pandas as pd\n# Retrieve the list of datasets as a\
+  \ pandas DataFrame\ndf = openml.datasets.list_datasets(output_format='dataframe')\n\
+  # Ensure we have a non\u2011zero number of rows\nrecord_count = len(df)\nprint(f'RECORDS={record_count}')\n\
+  # Map available columns to the requested field names\navailable_fields = []\nif\
+  \ 'did' in df.columns:\n    available_fields.append('dataset_id')\nif 'name' in\
+  \ df.columns:\n    available_fields.append('dataset_name')\nif 'url' in df.columns:\n\
+  \    available_fields.append('download_url')\nif 'NumberOfInstances' in df.columns:\n\
+  \    available_fields.append('num_instances')\nif 'NumberOfFeatures' in df.columns:\n\
+  \    available_fields.append('num_features')\nif 'NumberOfNumericFeatures' in df.columns:\n\
+  \    available_fields.append('num_numeric_features')\n# Print the fields we actually\
+  \ have\nprint('FIELDS=' + ','.join(available_fields))"
+record_count: 7120
+sample_fields:
+- dataset_id
+- dataset_name
+- num_instances
+- num_features
+- num_numeric_features
+field_coverage: 0.6
 required_fields:
 - dataset_id
 - dataset_name
 - download_url
-- source_repository
+- sha256_checksum
 - num_instances
 - num_features
 - num_numeric_features
-- target_column_name
-- target_type
+- categorical_target_column
 - missing_percentage_per_feature
-- sha256_checksum
-- metadata_json
-cache_key: a5e327fb4ff8a217f81e3487f518603552806e173e2bc1d1cebcda2d9c3ee1eb
-searched_at: '2026-11-11T13:07:14.341452+00:00'
-retry_count: 1
+- shapiro_wilk_p_values_per_numeric_feature
+intent: OpenML UCI Machine Learning Repository dataset download python package dataset
+cache_key: 187f13cc607a6827d334bc7b21abf18c8df3331df787d1123277bf3df534668a
