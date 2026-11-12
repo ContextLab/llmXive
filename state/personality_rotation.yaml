@@ -1,14 +1,7 @@
-last_used: alan-turing
-last_used_at: '2026-11-12T08:05:06.534189+00:00'
-last_outcome: model_error
+last_used: albert-einstein
+last_used_at: '2026-11-12T10:04:11.028496+00:00'
+last_outcome: abstained
 history:
-- slug: dan-rockmore
-  started_at: '2026-10-19T00:05:32.011243+00:00'
-  ended_at: '2026-10-19T02:08:47.218204+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-474-neural-correlates-of-simulated-social-ex/reviews/research/dan-rockmore-simulated__2026-10-19__research.md
 - slug: daniel-kahneman
   started_at: '2026-10-19T02:08:47.218204+00:00'
   ended_at: '2026-10-19T04:05:27.236411+00:00'
@@ -913,3 +906,7 @@ history:
   started_at: '2026-11-12T06:04:57.619763+00:00'
   ended_at: '2026-11-12T08:05:06.534189+00:00'
   outcome: model_error
+- slug: albert-einstein
+  started_at: '2026-11-12T08:05:06.534189+00:00'
+  ended_at: '2026-11-12T10:04:11.028496+00:00'
+  outcome: abstained
