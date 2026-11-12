@@ -1,21 +1,11 @@
-status: verified
-kind: pypi_package
-ref: datasets
-access_python: 'import datasets
-
-
-  ds = datasets.load_dataset("openai/gsm8k", "main", split="train")
-
-  print(f"RECORDS={len(ds)}")
-
-  print("FIELDS=" + ",".join(ds.column_names))'
-record_count: 7473
-sample_fields:
-- question
-- answer
-field_coverage: 1.0
+status: none
+intent: huggingface datasets gsm8k and bigbench logical deduction python package dataset
 required_fields:
-- question
-- answer
-intent: pip install huggingface datasets GSM8K and BigBench logical subset
-cache_key: 98cdedceebe034aa3c2de09d5fb9a401779511f2707897a7dba3b85ea132e225
+- question_text
+- ground_truth_answer
+- answer_explanation
+- example_id
+- split
+cache_key: e178c40e1ae4402dca8d31ec84498d51b2b99a632d009de720864774678d53bc
+searched_at: '2026-11-12T02:08:24.455588+00:00'
+retry_count: 1
