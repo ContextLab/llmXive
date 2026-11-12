@@ -1,14 +1,7 @@
-last_used: albert-einstein
-last_used_at: '2026-11-12T12:04:49.678420+00:00'
-last_outcome: model_error
+last_used: dan-rockmore
+last_used_at: '2026-11-12T14:04:54.523999+00:00'
+last_outcome: abstained
 history:
-- slug: david-krakauer
-  started_at: '2026-10-19T04:05:27.236411+00:00'
-  ended_at: '2026-10-19T06:05:46.986694+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-291-predicting-the-impact-of-residual-stress/reviews/research/david-krakauer-simulated__2026-10-19__research.md
 - slug: eric-kandel
   started_at: '2026-10-19T06:05:46.986694+00:00'
   ended_at: '2026-10-19T08:09:29.857065+00:00'
@@ -907,3 +900,7 @@ history:
   started_at: '2026-11-12T10:04:11.028496+00:00'
   ended_at: '2026-11-12T12:04:49.678420+00:00'
   outcome: model_error
+- slug: dan-rockmore
+  started_at: '2026-11-12T12:04:49.678420+00:00'
+  ended_at: '2026-11-12T14:04:54.523999+00:00'
+  outcome: abstained
