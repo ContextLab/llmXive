@@ -11,12 +11,12 @@
         "page": 43
       }
     ],
-    "audited_at": "2026-11-12T16:48:38.192202+00:00"
+    "audited_at": "2026-11-12T17:18:07.124416+00:00"
   },
   "repair_rounds": 3,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-704-measuring-epistemic-resilience-of-llms-u",
-  "updated_at": "2026-11-12T16:48:38.192215+00:00"
+  "updated_at": "2026-11-12T17:18:07.124427+00:00"
 }
