@@ -1,12 +1,31 @@
-status: none
-intent: download Gowalla social network dataset with geographic coordinates and Brightkite
-  network python package dataset
+status: verified
+kind: pypi_package
+ref: airportsdata
+access_python: 'import airportsdata
+
+
+  data = airportsdata.load(''IATA'')
+
+  records = len(data)
+
+  print(f"RECORDS={records}")
+
+  fields = [''node_id'',''latitude'',''longitude'']
+
+  print(''FIELDS='' + '',''.join(fields))'
+record_count: 7884
+sample_fields:
+- node_id
+- latitude
+- longitude
+field_coverage: 0.5
 required_fields:
 - node_id
 - latitude
 - longitude
-- source
-- target
-cache_key: bc275a6e2906831f112ac6707914235d384ee407537b96667211c7ebcc4b3a63
-searched_at: '2026-11-11T01:19:48.418613+00:00'
-retry_count: 1
+- edge_source
+- edge_target
+- edge_weight
+intent: World Airport network OpenFlights scale free network with latitude longitude
+  coordinates download python package dataset
+cache_key: 6185f1767e3609dbc64a77c223c8ddebe64ed73f5973ce8ad5600601c3caa684
