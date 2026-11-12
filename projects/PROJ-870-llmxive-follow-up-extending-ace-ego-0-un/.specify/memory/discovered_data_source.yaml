@@ -1,16 +1,16 @@
 status: none
-intent: download VLA egocentric video dataset with metadata and python package dataset
+intent: Ego4D egocentric video dataset with camera metadata ACE-Ego-0 VLA RoboCasa
+  RoboTwin python package dataset
 required_fields:
+- episode_id
 - video_id
-- segment_id
-- frame_path
-- timestamp
-- exposure
+- frame_timestamp
+- exposure_time
 - focal_length
-- image_entropy
-- hand_detection_confidence
-- lighting_metric
-- dynamic_reliability_score
-cache_key: 20f7db7c9553b9d33a82a433f29f39a2192d27df140ea73facc99be6790780da
-searched_at: '2026-11-11T21:15:08.322341+00:00'
+- camera_intrinsics
+- frame_image_path
+- resolution_width
+- resolution_height
+cache_key: 470bc7177c2b0024a20f090af838f2fa19aa6db686c8aa2c485ac1a7ff80b0b3
+searched_at: '2026-11-12T19:08:03.378119+00:00'
 retry_count: 1
