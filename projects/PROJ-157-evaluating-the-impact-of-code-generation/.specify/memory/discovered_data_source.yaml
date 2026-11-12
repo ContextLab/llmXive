@@ -1,14 +1,15 @@
 status: none
-intent: download Codeforces C++ benchmark open dataset paired with LLM generation
-  python package dataset
+intent: Codeforces C++ reference solutions codeforces-problems dataset download python
+  package dataset
 required_fields:
 - problem_id
-- problem_title
-- human_cpp_solution
-- llm_model_name
-- llm_generated_solution
-- generation_attempts
-- generation_success_flag
-cache_key: 718601c14a0af3440c0157126f041151c8d5a916e91f93a94ad0a0228a5a7d8a
-searched_at: '2026-11-11T16:09:09.387515+00:00'
+- problem_name
+- problem_statement
+- reference_solution_cpp
+- language
+- time_limit
+- memory_limit
+- tags
+cache_key: 9e89b08b506499ad42a192241064176447af32623d2b9462c9c755d6b785184f
+searched_at: '2026-11-12T15:09:20.682250+00:00'
 retry_count: 1
