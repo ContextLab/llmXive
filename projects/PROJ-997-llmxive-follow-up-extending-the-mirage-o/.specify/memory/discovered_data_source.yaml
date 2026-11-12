@@ -1,8 +1,12 @@
 status: none
-intent: Hugging Face quantization gap dataset gradient norms GSM8K python package
-  dataset
+intent: download hardware validated quantization gap dataset gradient norms curvature
+  KL divergence python package dataset
 required_fields:
+- prompt_id
 - prompt_text
+- model_name
+- gradient_norm
+- local_curvature
 - full_precision_logits
 - int8_logits
 - int4_logits
@@ -10,10 +14,6 @@ required_fields:
 - kl_divergence_int8
 - kl_divergence_int4
 - kl_divergence_fp8
-- gradient_norm
-- local_curvature
-- model_identifier
-- quantization_level
-cache_key: 971dee82c37747a45fed14ccf96ea16ed076c1504fd6de466bb51eb422284dd8
-searched_at: '2026-11-11T11:07:14.967458+00:00'
+cache_key: 800f771d4ded6e90df253aff5e84b21b0e02b84798bd5bc75a9e08973a9265fb
+searched_at: '2026-11-12T10:08:03.099813+00:00'
 retry_count: 1
