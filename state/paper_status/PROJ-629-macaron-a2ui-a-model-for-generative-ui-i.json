@@ -11,12 +11,12 @@
         "page": 33
       }
     ],
-    "audited_at": "2026-11-12T14:13:59.269817+00:00"
+    "audited_at": "2026-11-12T14:43:23.793417+00:00"
   },
   "repair_rounds": 3,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-629-macaron-a2ui-a-model-for-generative-ui-i",
-  "updated_at": "2026-11-12T14:13:59.269830+00:00"
+  "updated_at": "2026-11-12T14:43:23.793429+00:00"
 }
