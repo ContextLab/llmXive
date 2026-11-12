@@ -28690,7 +28690,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-12T07:18:26.625448+00:00",
+  "generated_at": "2026-11-12T08:05:26.448084+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -100235,6 +100235,14 @@
       "last_run_log": [
         {
           "agent": "personality",
+          "duration_s": 5.704935,
+          "ended_at": "2026-11-12T08:05:06.534189+00:00",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "model_error",
+          "started_at": "2026-11-12T08:05:00.829254+00:00"
+        },
+        {
+          "agent": "personality",
           "duration_s": 1.616557,
           "ended_at": "2026-11-12T06:04:57.619763+00:00",
           "model": "openai.gpt-oss-120b",
@@ -100304,14 +100312,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-09-18T15:19:14.499653Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 268.712507,
-          "ended_at": "2026-09-18T15:19:14.440244Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-18T15:14:45.727737Z"
         }
       ],
       "paper_status": null,
@@ -175674,6 +175674,21 @@
   ],
   "recent_activity": [
     {
+      "agent": "personality",
+      "display_name": "Albert Einstein (simulated)",
+      "duration_s": 5.704935,
+      "ended_at": "2026-11-12T08:05:06.534189+00:00",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "model_kind": "personality_simulator",
+      "outcome": "model_error",
+      "personality_slug": "albert-einstein",
+      "project_id": "PROJ-372-assessing-the-sensitivity-of-regression-",
+      "project_stage": "tasked",
+      "severity": "hard",
+      "started_at": "2026-11-12T08:05:00.829254+00:00"
+    },
+    {
       "agent": "research_question_validator",
       "duration_s": 2.583252,
       "ended_at": "2026-11-12T07:05:16.785100Z",
@@ -181744,18 +181759,6 @@
       "project_stage": "clarified",
       "severity": "hard",
       "started_at": "2026-11-09T10:05:05.455425Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 7.586008,
-      "ended_at": "2026-11-09T10:05:15.794204Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-247-evaluating-the-impact-of-code-generation",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-11-09T10:05:08.208196Z"
     }
   ],
   "reviewed_preprints": [
