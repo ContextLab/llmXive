@@ -1,8 +1,17 @@
-status: none
-intent: PubChem SMILES parquet download python package dataset
+status: verified
+kind: pypi_package
+ref: PubChemPy
+access_python: "import pubchempy as pcp\ncids = [2244, 3672, 5957]\ncompounds = pcp.get_compounds(cids,\
+  \ 'cid')\nrecords = []\nfor c in compounds:\n    records.append({\"cid\": c.cid,\
+  \ \"smiles\": c.canonical_smiles})\nprint(f\"RECORDS={len(records)}\")\nprint(f\"\
+  FIELDS={','.join(records[0].keys())}\")"
+record_count: 3
+sample_fields:
+- cid
+- smiles
+field_coverage: 1.0
 required_fields:
 - smiles
-- molecule_id
-cache_key: 217b36f833576c9350be977b1186e5a5534c6ab9a765af93fe25ad2b84411409
-searched_at: '2026-11-12T14:08:16.672168+00:00'
-retry_count: 1
+- cid
+intent: download PubChem canonical SMILES parquet dataset python package dataset
+cache_key: e1ad8d86872cede2f85ebf7eac0883ccff35e054524f69be673f3644a9d83909
