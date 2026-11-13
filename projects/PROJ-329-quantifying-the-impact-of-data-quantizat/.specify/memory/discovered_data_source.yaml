@@ -1,15 +1,19 @@
 status: none
-intent: GWTC-3 binary black hole source parameter posterior samples download python
-  package dataset
+intent: LIGO LOSC BBH waveform SXS catalog masses up to 50 solar masses python package
+  dataset
 required_fields:
-- mass_1_solar_mass
-- mass_2_solar_mass
-- luminosity_distance_Mpc
-- spin_1z
-- spin_2z
-- right_ascension
-- declination
-- geocentric_time
-cache_key: d5c1b189c53a00cfcec0a4c8971c0b6eab7ae6439720dc3d7622f3a853064798
-searched_at: '2026-11-11T18:07:58.793905+00:00'
+- mass_1_solar_masses
+- mass_2_solar_masses
+- luminosity_distance_mpc
+- spin1_x
+- spin1_y
+- spin1_z
+- spin2_x
+- spin2_y
+- spin2_z
+- strain_time_series
+- sampling_rate_hz
+- gps_start_time
+cache_key: 4c219138caa0fc9ba700c654e96b1e0b47aaf181bca297912f33d29b1433693e
+searched_at: '2026-11-13T02:09:40.515416+00:00'
 retry_count: 1
