@@ -28690,7 +28690,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-13T08:06:58.303121+00:00",
+  "generated_at": "2026-11-13T08:34:49.882239+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -97033,6 +97033,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 3.934968,
+          "ended_at": "2026-11-13T08:06:03.422754Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-13T08:05:59.487786Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 6.241962,
           "ended_at": "2026-11-12T10:05:02.610137Z",
           "model": "zai-org.glm-5.3",
@@ -97102,14 +97110,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-11-05T02:07:47.036994Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 4.617319,
-          "ended_at": "2026-11-04T04:07:01.527702Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-11-04T04:06:56.910383Z"
         }
       ],
       "paper_status": null,
@@ -175711,6 +175711,18 @@
     },
     {
       "agent": "implementer",
+      "duration_s": 3.934968,
+      "ended_at": "2026-11-13T08:06:03.422754Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-353-investigating-the-effectiveness-of-diffe",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-11-13T08:05:59.487786Z"
+    },
+    {
+      "agent": "implementer",
       "duration_s": 8.232492,
       "ended_at": "2026-11-13T08:06:01.874441Z",
       "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
@@ -181768,18 +181780,6 @@
       "project_stage": "in_progress",
       "severity": "hard",
       "started_at": "2026-11-10T11:05:47.890153Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 12.122381,
-      "ended_at": "2026-11-10T11:05:14.394721Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-818-llmxive-follow-up-extending-co-evolving",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-11-10T11:05:02.272340Z"
     }
   ],
   "reviewed_preprints": [
