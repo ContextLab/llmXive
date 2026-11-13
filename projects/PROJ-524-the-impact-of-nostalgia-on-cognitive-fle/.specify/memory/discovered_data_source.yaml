@@ -1,15 +1,9 @@
 status: none
-intent: Wisconsin Card Sorting Test and MMSE scores dataset python package dataset
-required_fields:
-- participant_id
-- condition
-- assignment_seed
-- wcst_perseverative_errors
-- wcst_categories_completed
-- mmse_score
-- age
-- education_years
-- gender
-cache_key: beefa9bf48887c279bfb4580789c9626913fa1a4e942678778053b351225879f
-searched_at: '2026-11-12T17:07:25.365161+00:00'
+intent: "Dataset Source URL(s) Variables Needed Verification Status Notes Real WCST\
+  \ dataset (collected in\u2011lab) N/A \u2013 data will be gathered by the research\
+  \ team using the protocol in , , , , , optional , , \u2705 Collected as per protocol\
+  \ The dataset will include a deterministic column (nostalgia vs. control) and "
+required_fields: []
+cache_key: f9e7dd55c40d4147a12e6d3a61fa583cda188289347bfbe1519aa3dac2d4f3e5
+searched_at: '2026-11-13T17:27:45.309763+00:00'
 retry_count: 1
