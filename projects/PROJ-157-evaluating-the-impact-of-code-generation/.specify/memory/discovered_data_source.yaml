@@ -1,15 +1,14 @@
 status: none
-intent: Codeforces C++ reference solutions codeforces-problems dataset download python
-  package dataset
+intent: Codeforces C++ benchmark problem dataset pip installable python package dataset
 required_fields:
 - problem_id
 - problem_name
 - problem_statement
-- reference_solution_cpp
+- human_solution_cpp
 - language
 - time_limit
 - memory_limit
-- tags
-cache_key: 9e89b08b506499ad42a192241064176447af32623d2b9462c9c755d6b785184f
-searched_at: '2026-11-12T15:09:20.682250+00:00'
+- test_cases
+cache_key: ac0f671570dde8fb5858ca1f4cd58d1324a90933ca23301b8327906da36b0e7a
+searched_at: '2026-11-13T14:08:25.565375+00:00'
 retry_count: 1
