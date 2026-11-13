@@ -28690,7 +28690,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-13T13:16:33.558755+00:00",
+  "generated_at": "2026-11-13T14:05:27.942349+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -100259,6 +100259,14 @@
       "last_run_log": [
         {
           "agent": "personality",
+          "duration_s": 1.104772,
+          "ended_at": "2026-11-13T14:05:12.112496+00:00",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "abstained",
+          "started_at": "2026-11-13T14:05:11.007724+00:00"
+        },
+        {
+          "agent": "personality",
           "duration_s": 5.889545,
           "ended_at": "2026-11-13T12:04:56.646236+00:00",
           "model": "openai.gpt-oss-120b",
@@ -100328,14 +100336,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "model_error",
           "started_at": "2026-11-12T22:04:41.990489+00:00"
-        },
-        {
-          "agent": "personality",
-          "duration_s": 0.85153,
-          "ended_at": "2026-11-12T18:04:24.085602+00:00",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "abstained",
-          "started_at": "2026-11-12T18:04:23.234072+00:00"
         }
       ],
       "paper_status": null,
@@ -175706,6 +175706,21 @@
   ],
   "recent_activity": [
     {
+      "agent": "personality",
+      "display_name": "John von Neumann (simulated)",
+      "duration_s": 1.104772,
+      "ended_at": "2026-11-13T14:05:12.112496+00:00",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "model_kind": "personality_simulator",
+      "outcome": "abstained",
+      "personality_slug": "john-von-neumann",
+      "project_id": "PROJ-372-assessing-the-sensitivity-of-regression-",
+      "project_stage": "tasked",
+      "severity": "soft",
+      "started_at": "2026-11-13T14:05:11.007724+00:00"
+    },
+    {
       "agent": "planner",
       "duration_s": 106.733004,
       "ended_at": "2026-11-13T13:06:35.041912Z",
@@ -181776,18 +181791,6 @@
       "project_stage": "planned",
       "severity": "soft",
       "started_at": "2026-11-10T16:05:11.303327+00:00"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 152.104677,
-      "ended_at": "2026-11-10T15:23:26.205888Z",
-      "failure_reason": "",
-      "model": "google.gemma-4-31B-it",
-      "outcome": "success",
-      "project_id": "PROJ-898-llmxive-follow-up-extending-geometric-ac",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-11-10T15:20:54.101211Z"
     }
   ],
   "reviewed_preprints": [
