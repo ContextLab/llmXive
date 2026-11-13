@@ -1,8 +1,9 @@
 status: none
-intent: "OEIS A008683 M\xF6bius function dataset download python package"
-required_fields:
-- n
-- mu
-cache_key: 1cc02a39d997567b6cfc5c54d9e20a520ba86ca5f6cdf6dff3a2bf2ff11162d0
-searched_at: '2026-11-12T22:05:39.943461+00:00'
+intent: "### User Story 1 - Generate M\xF6bius Sequence and Compute Short-Interval\
+  \ Autocorrelation (Priority: P1) (User Story ID: US-1) A researcher needs to compute\
+  \ the normalized autocorrelation of the M\xF6bius function $\\mu(n)$ across short\
+  \ intervals of lengths $L \\in \\{10^3, 10^4, 10^5\\}$ to verify if the emp"
+required_fields: []
+cache_key: b3230bc582ce0765b9e9abc8174dc9a13a16bd5a50d323f9b36b48f6f7940ed3
+searched_at: '2026-11-13T20:27:32.618712+00:00'
 retry_count: 1
