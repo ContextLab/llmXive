@@ -3,12 +3,12 @@
   "audit": {
     "passed": true,
     "defects": [],
-    "audited_at": "2026-11-13T17:58:09.274355+00:00"
+    "audited_at": "2026-11-13T18:46:25.471355+00:00"
   },
   "repair_rounds": 0,
   "llmxive_compile_attempts": 0,
   "status": "audited",
   "failure": null,
   "paper_id": "PROJ-694-beyond-scalar-rewards-by-internalizing-r",
-  "updated_at": "2026-11-13T17:58:09.274367+00:00"
+  "updated_at": "2026-11-13T18:46:25.471366+00:00"
 }
