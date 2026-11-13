@@ -1,13 +1,12 @@
 status: none
-intent: download IL benchmark energies Zenodo ionic liquid ion pairs and NIST IL database
-  python package dataset
+intent: download ionic liquid benchmark interaction energies CCSD(T)/CBS Zenodo dataset
+  and NIST thermophysical database
 required_fields:
-- ion_pair_id
-- dimer_coordinates_xyz
-- monomer1_coordinates_xyz
-- monomer2_coordinates_xyz
-- reference_interaction_energy_ccsd(t)_cbs
-- reference_dispersion_energy_optional
-cache_key: 5497e45c49707405edc186ea21a2f10aee51429976da7a69366a09143939ddf0
-searched_at: '2026-11-12T09:07:42.131305+00:00'
+- identifier
+- reference_interaction_energy
+- dimer_geometry_xyz
+- monomer1_geometry_xyz
+- monomer2_geometry_xyz
+cache_key: e824787f8dd50f73cf4d85c2786b76d4722840eedea7fc192681bde49a0f7319
+searched_at: '2026-11-13T10:09:28.886841+00:00'
 retry_count: 1
