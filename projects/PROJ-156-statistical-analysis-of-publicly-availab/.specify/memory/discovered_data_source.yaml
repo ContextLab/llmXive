@@ -1,11 +1,14 @@
 status: none
-intent: speedrun.com API Python package download run data for multiple games
+intent: download speedrun.com run records and Kaggle speedrun.com dataset via official
+  API python package dataset
 required_fields:
 - run_time_seconds
 - runner_id
 - attempt_number
 - category
 - submission_date
-cache_key: 48ec94e513c01e0e6983518bc95b0b63e56c251bcdb936db86e5d1cedd91dc51
-searched_at: '2026-11-12T06:08:40.588153+00:00'
+- total_prior_runs
+- time_since_first_run
+cache_key: 9092e15106411a3d080d36204b51a81becafc5a8e413046c511cefc804ea4fff
+searched_at: '2026-11-13T04:07:07.997178+00:00'
 retry_count: 1
