@@ -1,16 +1,9 @@
 status: none
-intent: Ego4D egocentric video dataset with camera metadata ACE-Ego-0 VLA RoboCasa
-  RoboTwin python package dataset
-required_fields:
-- episode_id
-- video_id
-- frame_timestamp
-- exposure_time
-- focal_length
-- camera_intrinsics
-- frame_image_path
-- resolution_width
-- resolution_height
-cache_key: 470bc7177c2b0024a20f090af838f2fa19aa6db686c8aa2c485ac1a7ff80b0b3
-searched_at: '2026-11-12T19:08:03.378119+00:00'
+intent: '### User Story 1 - Static Feature Extraction and Baseline Variance Quantification
+  (Priority: P1) **User Story ID**: US-1 As a researcher, I want to extract static
+  visual features (entropy, hand visibility, lighting) from egocentric video segments
+  and train a lightweight CPU-only regression model to '
+required_fields: []
+cache_key: 22c7a63d0ddfe6f428bc57ffeeb3a6dc2933d5084181e66337d5bb527d294e73
+searched_at: '2026-11-13T19:29:23.888956+00:00'
 retry_count: 1
