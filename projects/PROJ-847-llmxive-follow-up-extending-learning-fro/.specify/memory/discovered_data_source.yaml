@@ -1,9 +1,9 @@
 status: none
-intent: huggingface datasets gsm8k bigbench logical deduction python package dataset
-required_fields:
-- id
-- question
-- answer
-cache_key: 580b6bf0bee20dea3f7b7eeff75a85e0f332a3dd71f741b7a154e8f70db7786f
-searched_at: '2026-11-13T00:10:14.998506+00:00'
+intent: '### User Story 1 - Fixed-Density Baseline Convergence (Priority: P1) (See
+  US-1) The research team must be able to execute a controlled training simulation
+  using the d-OPSD framework with fixed retaining ratios ($\rho_{\text{teacher}}$)
+  to establish a performance baseline and observe the effect of st'
+required_fields: []
+cache_key: 99e0ca568c876ba01c73318a555726d49733149796aef343d2f218ca2feb0f09
+searched_at: '2026-11-13T22:30:17.356961+00:00'
 retry_count: 1
