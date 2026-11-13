@@ -1,11 +1,12 @@
 status: none
-intent: download LDBC SNB and TPC-H query latency benchmark python package dataset
+intent: download LDBC SNB and WatDiv query workload datasets with plan depth annotations
+  python package dataset
 required_fields:
 - query_id
 - query_text
 - plan_depth
 - source_type
-- latency_ms
-cache_key: b863866d04eaceba5d64ef669c2ffdf9d43277e77cd09e950f95147f94b84b8c
-searched_at: '2026-11-12T16:07:46.137085+00:00'
+- query_category
+cache_key: d0c2564cf45a2a196e6b516d8838ea090c1585997b56b57ca03e49ab9ac752ee
+searched_at: '2026-11-13T15:06:58.841997+00:00'
 retry_count: 1
