@@ -1,11 +1,9 @@
 status: none
-intent: huggingface datasets gsm8k and bigbench logical deduction python package dataset
+intent: huggingface datasets gsm8k bigbench logical deduction python package dataset
 required_fields:
-- question_text
-- ground_truth_answer
-- answer_explanation
-- example_id
-- split
-cache_key: e178c40e1ae4402dca8d31ec84498d51b2b99a632d009de720864774678d53bc
-searched_at: '2026-11-12T02:08:24.455588+00:00'
+- id
+- question
+- answer
+cache_key: 580b6bf0bee20dea3f7b7eeff75a85e0f332a3dd71f741b7a154e8f70db7786f
+searched_at: '2026-11-13T00:10:14.998506+00:00'
 retry_count: 1
