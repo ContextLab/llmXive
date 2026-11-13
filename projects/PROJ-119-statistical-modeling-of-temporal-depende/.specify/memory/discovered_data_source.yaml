@@ -1,10 +1,18 @@
 status: none
-intent: download daily Bitcoin Ethereum OHLCV from CoinGecko via HuggingFace tner/btc
-  python package dataset
+intent: HuggingFace tner btc ethereum daily OHLCV dataset from CoinGecko API python
+  package dataset
 required_fields:
 - date
+- btc_open
+- btc_high
+- btc_low
 - btc_close
+- btc_volume
+- eth_open
+- eth_high
+- eth_low
 - eth_close
-cache_key: 4b649294441e38433d63bc832a90e7ba44b48eb346f94c538a4646714f263bb8
-searched_at: '2026-11-12T13:08:03.952850+00:00'
+- eth_volume
+cache_key: 36349b0ba3d1dec279a7deb68d428bc0d16e77f0ba897a2896eae65c0afe9aac
+searched_at: '2026-11-13T12:07:47.423031+00:00'
 retry_count: 1
