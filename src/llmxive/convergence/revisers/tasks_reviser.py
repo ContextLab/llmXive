@@ -326,10 +326,15 @@ class _AbstractTasksReviser:
         # cannot (an open Markdown fence or duplicate identities, for example).
         # Classify only that generated-content failure as a malformed reply so
         # the existing bounded retry/kickback path handles it, not engine-failure.
+        from llmxive.execution.platform_paths import (
+            project_dir_of,
+            refuse_platform_path_tasks,
+        )
         from llmxive.speckit.task_lines import TaskFormatError, validate_open_tasks
 
         try:
             validate_open_tasks(new_tasks)
+            refuse_platform_path_tasks(new_tasks, project_dir_of(tasks_path))
         except TaskFormatError as exc:
             raise RuntimeError(
                 f"{type(self).__name__}: response has no usable tasks artifact: {exc}"

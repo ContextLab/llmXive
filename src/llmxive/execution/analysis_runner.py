@@ -69,6 +69,27 @@ class AnalysisRunResult:
     hollow: list[str] = field(default_factory=list)              # results that were never COMPUTED (null/NaN/empty)
 
 
+def _strip_shell_comment(line: str) -> str:
+    """Drop a trailing ``# comment`` the way a shell would.
+
+    A ``#`` starts a comment only at the start of a word and outside quotes;
+    ``--color=#ff0000``, ``page#section`` and ``'run #3'`` are data. The
+    executor runs commands without a shell, so a comment left on the line
+    reached the program as arguments (canary 7: ``pytest tests -v # runs all
+    ...`` exited 4, "file or directory not found: #").
+    """
+    quote = ""
+    for i, ch in enumerate(line):
+        if quote:
+            if ch == quote:
+                quote = ""
+        elif ch in "'\"":
+            quote = ch
+        elif ch == "#" and (i == 0 or line[i - 1].isspace()):
+            return line[:i].rstrip()
+    return line
+
+
 def extract_run_commands(quickstart_text: str) -> list[str]:
     """Return ordered Python, pytest and project shell-script commands from quickstart's bash blocks.
 
@@ -82,7 +103,7 @@ def extract_run_commands(quickstart_text: str) -> list[str]:
         # Join backslash line-continuations within the block.
         joined = re.sub(r"\\\s*\n\s*", " ", block)
         for raw in joined.splitlines():
-            line = raw.strip()
+            line = _strip_shell_comment(raw.strip())
             if not line:
                 continue
             if any(line.startswith(p) for p in _SKIP_PREFIXES):

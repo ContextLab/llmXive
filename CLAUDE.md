@@ -85,7 +85,10 @@ Cost Effectiveness (Free-First), Fail Fast, and Convergent Review.
   paid opt-in + credit guard) and retries the cap; when ALL tiers exhaust it
   routes back to `planned`/`paper_planned` with a DETERMINISTIC (no-LLM)
   re-plan report (artifacts produced + failing commands / unresolved panel
-  concerns + an "adjust the approach" note) the planner ingests. The
+  concerns + an "adjust the approach" note) the planner ingests. Task-verifier
+  exhaustion is counted PER TASK (`state/unverifiable.exhaustions`): the tier
+  follows the task that has exhausted its reject cap most often, and only a
+  task that exhausts it once per free tier re-plans the project. The
   execution fix-loop also self-heals data-contract bugs: a cross-script
   schema mismatch (CSV columns, a missing intermediate file) is detected
   from the failure, the REAL produced artifact's schema is read, and the

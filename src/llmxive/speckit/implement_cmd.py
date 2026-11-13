@@ -13,6 +13,8 @@ Stage transitions:
 
 from __future__ import annotations
 
+import os
+import posixpath
 import re
 from pathlib import Path
 from typing import Any
@@ -34,6 +36,13 @@ from llmxive.speckit.task_lines import (
     validate_open_tasks,
 )
 from llmxive.speckit.yaml_extract import parse_yaml_lenient
+
+
+def _loads_script(contents: str, script: str) -> bool:
+    """Whether ``contents`` imports or runs the file at ``script`` rather than being it."""
+    module = re.escape(Path(script).stem)
+    return script in contents or re.search(
+        rf"^\s*(?:from|import)\s+(?:\w+\.)*{module}\b", contents, re.MULTILINE) is not None
 
 
 class ImplementerAgent(SlashCommandAgent):
@@ -66,6 +75,9 @@ class ImplementerAgent(SlashCommandAgent):
         from llmxive.claims.task_requirements import read_task_document
         tasks_text = read_task_document(tasks_path, ctx.project_dir, persist=True)
         validate_open_tasks(tasks_text)
+        from llmxive.execution.platform_paths import refuse_platform_path_tasks
+
+        refuse_platform_path_tasks(tasks_text, ctx.project_dir)
         next_task = self._next_incomplete(tasks_text)
         completed = [m.group("id") for m in _TASK_RE.finditer(mask_fenced_code(tasks_text))
                      if m.group("status") in {"X", "x"}]
@@ -231,10 +243,13 @@ class ImplementerAgent(SlashCommandAgent):
             "task's `artifacts` list or use a different name that does."
         )
         user = "\n\n".join(user_parts)
-        return [
+        messages = [
             ChatMessage(role="system", content=system),
             ChatMessage(role="user", content=user),
         ]
+        # Kept so a retry can ask for further independent replies to the same prompt.
+        self._last_prompt = (mechanical_output["next_task_id"], messages)
+        return messages
 
     def _mark_task_skipped(
         self, mechanical_output: dict[str, Any], reason: str, exc: Exception | None
@@ -256,6 +271,174 @@ class ImplementerAgent(SlashCommandAgent):
         print(f"[implementer] marked {task_id} SKIPPED: {reason}")
 
     def write_artifacts(
+        self,
+        ctx: SlashCommandContext,
+        mechanical_output: dict[str, Any],
+        llm_response: ChatResponse,
+    ) -> list[str]:
+        """Apply one implementer reply, and undo it if it broke a passing test.
+
+        For a task that was already attempted, several independent replies are
+        tried and the best by executed checks is the one applied (see
+        :data:`RETRY_CANDIDATES`).
+        """
+        task_id = mechanical_output.get("next_task_id")
+        if mechanical_output.get("all_complete") or not task_id:
+            return self._write_attempt(ctx, mechanical_output, llm_response)
+        from llmxive.speckit import ratchet, scorecard
+
+        others = self._more_candidates(ctx, mechanical_output)
+        snapshot = ratchet.Snapshot.take(ctx.project_dir) if others else None
+        if snapshot is None:
+            return self._guarded_attempt(ctx, mechanical_output, llm_response)[0]
+        candidates = [llm_response, *others]
+        scores: list[tuple[bool, bool, int]] = []
+        # Every candidate starts from the same files, so the tests are measured
+        # once; and the best candidate's files and history are kept as they
+        # came out rather than produced a second time.
+        before = ratchet.measure(ctx.project_dir, log_dir=mechanical_output.get("task_log_dir", "code/.tasks"))
+        best, best_state, best_rows, written = 0, None, [], []
+        try:
+            for index, candidate in enumerate(candidates):
+                with scorecard.suspended() as rows:
+                    paths, score = self._guarded_attempt(ctx, mechanical_output, candidate, before=before)
+                scores.append(score)
+                # Kept, then claimed complete, then most passing tests; the earliest on a tie.
+                if best_state is None or score > scores[best]:
+                    state = ratchet.Snapshot.take(ctx.project_dir)
+                    if state is not None:
+                        if best_state is not None:
+                            best_state.close()
+                        best, best_state, best_rows, written = index, state, list(rows), paths
+                snapshot.restore()
+            if best_state is not None:
+                best_state.restore()
+                scorecard.replay(best_rows)
+        finally:
+            snapshot.close()
+            if best_state is not None:
+                best_state.close()
+        print(f"[implementer] {task_id}: {len(candidates)} candidate attempts, "
+              f"(kept, claimed, passing tests) = {scores}; applied candidate {best + 1}")
+        if best_state is None:  # too large to copy a second time: produce it again
+            written, _ = self._guarded_attempt(ctx, mechanical_output, candidates[0])
+        from llmxive.agents.task_verifier import definition_signatures, task_verification_state_path
+
+        tasks_path = Path(mechanical_output["tasks_path"])
+        scorecard.record(
+            task_verification_state_path(ctx.project_dir, tasks_path).parent, task_id, "candidates",
+            {"candidates": len(candidates), "candidates_claimed": sum(1 for _, claimed, _ in scores if claimed)},
+            definition=definition_signatures(tasks_path.read_text(encoding="utf-8")).get(task_id, ""))
+        return written
+
+    def _more_candidates(self, ctx: SlashCommandContext, mechanical_output: dict[str, Any]) -> list[ChatResponse]:
+        """Further independent replies for a task that was already attempted.
+
+        A first attempt gets one reply. So does a paper task, and any task when
+        ``LLMXIVE_RETRY_CANDIDATES`` is 1. A reply that cannot be obtained is
+        left out; the attempt goes ahead with those that can.
+        """
+        try:
+            wanted = int(os.environ.get("LLMXIVE_RETRY_CANDIDATES", RETRY_CANDIDATES))
+        except ValueError:
+            wanted = RETRY_CANDIDATES
+        task_id = mechanical_output["next_task_id"]
+        log_dir = mechanical_output.get("task_log_dir", "code/.tasks")
+        prompt = getattr(self, "_last_prompt", None)
+        if wanted <= 1 or log_dir != "code/.tasks" or prompt is None or prompt[0] != task_id:
+            return []
+        from llmxive.agents.task_verifier import rejection_reason
+
+        attempted = any((ctx.project_dir / log_dir).glob(f"{task_id}.*.log")) or bool(
+            rejection_reason(ctx.project_dir, Path(mechanical_output["tasks_path"]), task_id))
+        if not attempted:
+            return []
+        from concurrent.futures import ThreadPoolExecutor
+
+        from llmxive.backends.router import chat_with_fallback
+
+        def ask(_: int) -> ChatResponse | None:
+            try:
+                return chat_with_fallback(
+                    prompt[1], default_backend=ctx.default_backend.value,
+                    fallback_backends=[b.value for b in ctx.fallback_backends], model=ctx.default_model)
+            except Exception as exc:  # one missing candidate must not cost the attempt
+                print(f"[implementer] {task_id}: a further candidate reply failed: {type(exc).__name__}: {exc}"[:300])
+                return None
+
+        with ThreadPoolExecutor(max_workers=wanted - 1) as pool:
+            return [reply for reply in pool.map(ask, range(wanted - 1)) if reply is not None]
+
+    def _guarded_attempt(
+        self,
+        ctx: SlashCommandContext,
+        mechanical_output: dict[str, Any],
+        llm_response: ChatResponse,
+        *,
+        before: dict[str, int] | str | None = "measure",
+    ) -> tuple[list[str], tuple[bool, bool, int]]:
+        """Apply one reply under the ratchet.
+
+        Returns the written paths and ``(kept, claimed, passing tests)``:
+        whether the attempt broke no passing test, whether the task now stands
+        claimed complete, and how many of the project's tests pass.
+        """
+        from llmxive.agents.task_verifier import definition_signatures, task_verification_state_path
+        from llmxive.speckit import ratchet
+
+        task_id = mechanical_output["next_task_id"]
+        tasks_path = Path(mechanical_output["tasks_path"])
+
+        def claimed() -> bool:
+            return any(m.group("id") == task_id and m.group("status") in {"X", "x"}
+                       for m in _TASK_RE.finditer(mask_fenced_code(tasks_path.read_text(encoding="utf-8"))))
+
+        attempt = ratchet.begin(
+            ctx.project_dir, task_id,
+            task_verification_state_path(ctx.project_dir, tasks_path).parent,
+            definition_signatures(tasks_path.read_text(encoding="utf-8")).get(task_id, ""),
+            log_dir=mechanical_output.get("task_log_dir", "code/.tasks"),
+            before=before,
+        )
+        written = self._write_attempt(ctx, mechanical_output, llm_response)
+        if attempt is None:
+            return written, (True, claimed(), 0)
+        kept, broken = attempt.settle()
+        if kept:
+            # A mark left by an earlier undone attempt names test modules, not a
+            # command this task can rerun. They pass now, so the mark is spent;
+            # left in place it had the verifier reject the task unjudged on
+            # every later round (batch 3: 15 such rejections).
+            text = tasks_path.read_text(encoding="utf-8")
+            marked = clear_retried_execution_failures(
+                text, task_id, attempt.passing_modules | {"project tests"})
+            if attempt.own_broken:
+                modules = sorted({item.split("::", 1)[0].split(" (", 1)[0] for item in attempt.own_broken})
+                summary = "; ".join(f"{module} exit=1" for module in modules)
+                if f"FAILED-IN-EXECUTION: {summary} -->" not in marked:
+                    marked = mark_task(marked, task_id, "~", f" <!-- FAILED-IN-EXECUTION: {summary} -->")
+                else:
+                    marked = mark_task(marked, task_id, "~")
+                print(f"[implementer] attempt at {task_id} kept, but {len(attempt.own_broken)} of the "
+                      f"task's own test(s) no longer pass ({', '.join(attempt.own_broken[:3])})")
+            if marked != text:
+                tasks_path.write_text(marked, encoding="utf-8")
+            return written, (True, claimed(), attempt.passing_after)
+        # The files are back as they were, the task line included. Mark it the
+        # way a failed command is marked, so the bounded retry accounting that
+        # already exists for failed runs applies to it.
+        repo = ctx.project_dir.parent.parent
+        modules = sorted({item.split("::", 1)[0].split(" (", 1)[0] for item in broken if ".py" in item})
+        summary = "; ".join(f"{module} exit=1" for module in modules) or "project tests exit=1"
+        text = tasks_path.read_text(encoding="utf-8")
+        tasks_path.write_text(
+            mark_task(text, task_id, "~", f" <!-- FAILED-IN-EXECUTION: {summary} -->"), encoding="utf-8")
+        print(f"[implementer] attempt at {task_id} not kept: it broke {len(broken)} passing test(s) "
+              f"({', '.join(broken[:3])}{' ...' if len(broken) > 3 else ''}); files restored")
+        return ([str(path.relative_to(repo)) for path in (attempt.record_path(), tasks_path)],
+                (False, False, attempt.passing_after))
+
+    def _write_attempt(
         self,
         ctx: SlashCommandContext,
         mechanical_output: dict[str, Any],
@@ -335,6 +518,14 @@ class ImplementerAgent(SlashCommandAgent):
                 proj_prefix = f"projects/{project_root.name}/"
                 if rel.startswith(proj_prefix):
                     rel = rel[len(proj_prefix):]
+                # `tests/../specs/x.yaml` stays inside the project, so the
+                # escape check below lets it through, and the directory
+                # preparation then raised on the `..` and ended the whole run
+                # (batch 3 run 4, 2026-10-11). Write it where it points.
+                rel = posixpath.normpath(rel)
+                if rel == "." or rel == ".." or rel.startswith("../"):
+                    refuse(f"[implementer] refused out-of-project path: {relpath!r}")
+                    continue
                 proposed_rel = rel
                 # Canonicalize specs/<wrong-slug>/... → specs/<canonical>/...
                 # so the LLM's invented branch slug doesn't fragment artifacts
@@ -351,6 +542,30 @@ class ImplementerAgent(SlashCommandAgent):
                             + ("/" + parts[2] if len(parts) > 2 else "")
                         )
                 target = project_root / rel
+                from llmxive.project_files import SOURCE_DIRS
+
+                # A script is one file. A second copy at the project root that
+                # re-exports the first (canary 10: `from code.run_analysis
+                # import main`) gives the task's bare filename two meanings.
+                # A root script that is already there is edited like any other
+                # file, and a whole script sent under the bare name its task
+                # uses is the existing one, rewritten (batch 7, 2026-10-12:
+                # 53 such edits were dropped and the bugs they fixed stayed).
+                # Decided here so every check below sees the file really written.
+                if "/" not in rel and rel.endswith(".py") and not target.is_file():
+                    twin = next((f"{d}/{rel}" for d in SOURCE_DIRS if (project_root / d / rel).is_file()), None)
+                    if twin is not None and _loads_script(contents, twin):
+                        refuse(
+                            f"[implementer] refused {relpath!r}: `{twin}` already exists. "
+                            "Edit that file; do not add a second copy or a re-exporting "
+                            "wrapper at the project root."
+                        )
+                        continue
+                    if twin is not None:
+                        print(f"[implementer] writing {relpath!r} -> {twin!r}: the script already exists there")
+                        # The run requested below looks the path up again.
+                        art["path"] = rel = twin
+                        target = project_root / twin
                 # Reject paths that escape the project directory.
                 try:
                     target.resolve().relative_to(project_root.resolve())
@@ -395,20 +610,8 @@ class ImplementerAgent(SlashCommandAgent):
                     if not art.get("execute"):
                         refuse(f"[implementer] refused empty contents without execution: {relpath!r}")
                     continue
-                from llmxive.project_files import SOURCE_DIRS, has_code
+                from llmxive.project_files import has_code
 
-                # A script is one file. A second copy at the project root that
-                # re-exports the first (canary 10: `from code.run_analysis
-                # import main`) gives the task's bare filename two meanings.
-                if "/" not in rel and rel.endswith(".py"):
-                    twin = next((f"{d}/{rel}" for d in SOURCE_DIRS if (project_root / d / rel).is_file()), None)
-                    if twin is not None:
-                        refuse(
-                            f"[implementer] refused {relpath!r}: `{twin}` already exists. "
-                            "Edit that file; do not add a second copy or a re-exporting "
-                            "wrapper at the project root."
-                        )
-                        continue
                 # "Run it as it is", said with a comment where the contents go,
                 # must not erase the script. Canary 10 lost a 16 KB driver to
                 # `# The file exists already; this entry requests execution
@@ -501,6 +704,23 @@ class ImplementerAgent(SlashCommandAgent):
                             f"this task's `artifacts` list."
                         )
                         continue
+                # A file some script's run produced is that script's output.
+                # Written by hand it is an invented result that the producing
+                # task's tests may still pass (batch 1 run 2, 2026-10-11: a
+                # hand-written benchmark report replaced the measured one).
+                from llmxive.speckit import output_writers
+                produced_by = output_writers.last_writer(
+                    project_root, target.relative_to(project_root).as_posix(),
+                    mechanical_output.get("task_log_dir", "code/.tasks"))
+                if produced_by and not relpath.endswith((".py", ".sh")):
+                    refuse(
+                        f"[implementer] refusing to write {relpath!r}: "
+                        f"`{target.relative_to(project_root).as_posix()}` is produced by running "
+                        f"`{produced_by[0]}`" + (f" ({produced_by[1]})" if produced_by[1] else "")
+                        + ". Change that script so it writes the right content and request "
+                        "its execution; do not write its output by hand."
+                    )
+                    continue
                 recovered = prepare_artifact_directory(project_root, target.parent)
                 written.extend(str(path.relative_to(repo)) for path in recovered)
                 target.write_text(contents, encoding="utf-8")
@@ -581,14 +801,19 @@ class ImplementerAgent(SlashCommandAgent):
                     script_args = [str(arg) if type(arg) is int or (
                         type(arg) is float and math.isfinite(arg)) else arg
                         for arg in script_args]
+                from llmxive.speckit import output_writers
+                files_before = output_writers.snapshot(project_root)
+                put_back: list[str] = []
                 try:
                     if is_test:
                         tested.add(relpath)
-                        result = _sandbox.run_pytest_file(
-                            project_dir=project_root, test_relpath=relpath,
-                            script_args=script_args if art.get("execute") else [],
-                            timeout_s=int(art.get("timeout_s", 600)),
-                        )
+                        from llmxive.speckit import ratchet
+                        with ratchet.files_unchanged(project_root) as put_back:
+                            result = _sandbox.run_pytest_file(
+                                project_dir=project_root, test_relpath=relpath,
+                                script_args=script_args if art.get("execute") else [],
+                                timeout_s=int(art.get("timeout_s", 600)),
+                            )
                     elif relpath.endswith((".py", ".sh")):
                         runner = (_sandbox.run_shell_script if relpath.endswith(".sh")
                                   else _sandbox.run_python_script)
@@ -613,6 +838,12 @@ class ImplementerAgent(SlashCommandAgent):
                 )
                 recovered = prepare_artifact_directory(project_root, log_path.parent)
                 written.extend(str(path.relative_to(repo)) for path in recovered)
+                # Name what the run wrote, and what it took over from another
+                # script: a rerun that regenerates a file erases whatever only
+                # the other script put there.
+                files_written = output_writers.changed(files_before, output_writers.snapshot(project_root))
+                taken_over = output_writers.record(
+                    log_path.parent, relpath, task_id, files_written, owns=not is_test)
                 log_path.write_text(
                     f"# {relpath} (exit {result.returncode}, "
                     f"{result.duration_s:.1f}s, ok={result.ok})\n\n"
@@ -620,10 +851,26 @@ class ImplementerAgent(SlashCommandAgent):
                        if is_test else "")
                     + f"Arguments: {script_args!r}\n\n"
                     f"## stdout\n\n```\n{result.stdout}\n```\n\n"
-                    f"## stderr\n\n```\n{result.stderr}\n```\n",
+                    f"## stderr\n\n```\n{result.stderr}\n```\n\n"
+                    + output_writers.log_section(relpath, files_written, taken_over)
+                    + output_writers.put_back_section(put_back),
                     encoding="utf-8",
                 )
                 written.append(str(log_path.relative_to(repo)))
+                # One number per executed check, kept over time (see scorecard).
+                from llmxive.agents.task_verifier import (
+                    definition_signatures,
+                    task_verification_state_path,
+                )
+                from llmxive.speckit import scorecard
+                tasks_file = Path(mechanical_output["tasks_path"])
+                scorecard.record(
+                    task_verification_state_path(project_root, tasks_file).parent, task_id, "run",
+                    scorecard.run_values(relpath, script_args, result.returncode, result.stdout, is_test=is_test),
+                    definition=definition_signatures(tasks_file.read_text(encoding="utf-8")).get(task_id, ""))
+                registry = log_path.parent / output_writers.REGISTRY_NAME
+                if registry.is_file() and str(registry.relative_to(repo)) not in written:
+                    written.append(str(registry.relative_to(repo)))
                 execute_results.append((relpath, result))
 
             # Execution-result gating: if any execute:true script exited
@@ -694,6 +941,14 @@ class ImplementerAgent(SlashCommandAgent):
 
 
 ARTIFACT_REFUSAL_CAP = 3
+
+#: Independent replies requested for a task that was already attempted. The
+#: best by executed checks is applied. Measured on the stuck tasks of three
+#: finished runs (2026-10-11, single replies): 3 of 13, 1 of 11 and 0 of 4 were
+#: accepted, and the same prompt gave 1 of 4, 2 of 3 and 0 of 6 in three rounds,
+#: so one reply per retry mostly measures luck. ``LLMXIVE_RETRY_CANDIDATES``
+#: overrides it; 1 turns it off.
+RETRY_CANDIDATES = 3
 
 
 def _artifact_refusal_path(ctx: SlashCommandContext, task_id: str) -> Path:
