@@ -1,14 +1,7 @@
-last_used: david-krakauer
-last_used_at: '2026-11-13T00:04:56.688432+00:00'
+last_used: eric-kandel
+last_used_at: '2026-11-13T02:04:15.357747+00:00'
 last_outcome: abstained
 history:
-- slug: linus-pauling
-  started_at: '2026-10-19T14:05:35.776534+00:00'
-  ended_at: '2026-10-19T16:06:56.047175+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-414-investigating-the-relationship-between-b/reviews/research/linus-pauling-simulated__2026-10-19__research.md
 - slug: marie-curie
   started_at: '2026-10-19T16:06:56.047175+00:00'
   ended_at: '2026-10-19T18:06:35.595718+00:00'
@@ -891,4 +884,8 @@ history:
 - slug: david-krakauer
   started_at: '2026-11-12T22:04:55.500844+00:00'
   ended_at: '2026-11-13T00:04:56.688432+00:00'
+  outcome: abstained
+- slug: eric-kandel
+  started_at: '2026-11-13T00:04:56.688432+00:00'
+  ended_at: '2026-11-13T02:04:15.357747+00:00'
   outcome: abstained
