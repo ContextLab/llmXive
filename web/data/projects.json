@@ -28690,7 +28690,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-13T12:06:54.671784+00:00",
+  "generated_at": "2026-11-13T12:21:48.892084+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -55486,6 +55486,14 @@
       "last_run_log": [
         {
           "agent": "planner",
+          "duration_s": 118.464201,
+          "ended_at": "2026-11-13T12:07:47.585076Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-13T12:05:49.120875Z"
+        },
+        {
+          "agent": "planner",
           "duration_s": 185.19562,
           "ended_at": "2026-11-12T13:08:04.805661Z",
           "model": "zai-org.glm-5.3",
@@ -55555,14 +55563,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-11-04T14:07:17.425851Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 194.403646,
-          "ended_at": "2026-11-03T16:14:35.210902Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-11-03T16:11:20.807256Z"
         }
       ],
       "paper_status": null,
@@ -69666,6 +69666,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 3.06308,
+          "ended_at": "2026-11-13T12:15:47.210777Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-13T12:15:44.147697Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 41.486392,
           "ended_at": "2026-08-26T03:40:23.524409Z",
           "model": "qwen.qwen3.5-122b",
@@ -69735,14 +69743,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-08-03T11:04:54.630290Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 68.985603,
-          "ended_at": "2026-08-03T11:04:54.626863Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-08-03T11:03:45.641260Z"
         }
       ],
       "paper_status": null,
@@ -107366,6 +107366,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 7.070257,
+          "ended_at": "2026-11-13T12:06:29.953570Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-13T12:06:22.883313Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 8.291636,
           "ended_at": "2026-11-12T14:05:17.294734Z",
           "model": "zai-org.glm-5.3",
@@ -107435,14 +107443,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-11-05T06:08:01.830595Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 8.718385,
-          "ended_at": "2026-11-04T08:09:32.122095Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-11-04T08:09:23.403710Z"
         }
       ],
       "paper_status": null,
@@ -120695,6 +120695,14 @@
       "last_run_log": [
         {
           "agent": "research_question_validator",
+          "duration_s": 2.207523,
+          "ended_at": "2026-11-13T12:06:13.233653Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-13T12:06:11.026130Z"
+        },
+        {
+          "agent": "research_question_validator",
           "duration_s": 4.817126,
           "ended_at": "2026-11-12T14:04:54.718459Z",
           "model": "zai-org.glm-5.3",
@@ -120764,14 +120772,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-11-05T06:10:05.893087Z"
-        },
-        {
-          "agent": "research_question_validator",
-          "duration_s": 2.843911,
-          "ended_at": "2026-11-04T08:07:22.464959Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-11-04T08:07:19.621048Z"
         }
       ],
       "paper_status": null,
@@ -175707,6 +175707,42 @@
   "recent_activity": [
     {
       "agent": "implementer",
+      "duration_s": 3.06308,
+      "ended_at": "2026-11-13T12:15:47.210777Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-202-predicting-the-impact-of-molecular-chira",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-11-13T12:15:44.147697Z"
+    },
+    {
+      "agent": "planner",
+      "duration_s": 118.464201,
+      "ended_at": "2026-11-13T12:07:47.585076Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-119-statistical-modeling-of-temporal-depende",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-11-13T12:05:49.120875Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 7.070257,
+      "ended_at": "2026-11-13T12:06:29.953570Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-415-predicting-the-impact-of-alloying-on-the",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-11-13T12:06:22.883313Z"
+    },
+    {
+      "agent": "implementer",
       "duration_s": 3.637398,
       "ended_at": "2026-11-13T12:06:23.259133Z",
       "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
@@ -175716,6 +175752,18 @@
       "project_stage": "in_progress",
       "severity": "hard",
       "started_at": "2026-11-13T12:06:19.621735Z"
+    },
+    {
+      "agent": "research_question_validator",
+      "duration_s": 2.207523,
+      "ended_at": "2026-11-13T12:06:13.233653Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-494-predicting-molecular-dielectric-constant",
+      "project_stage": "flesh_out_complete",
+      "severity": "hard",
+      "started_at": "2026-11-13T12:06:11.026130Z"
     },
     {
       "agent": "implementer",
@@ -181740,54 +181788,6 @@
       "project_stage": "in_progress",
       "severity": "hard",
       "started_at": "2026-11-10T15:06:17.631962Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 4.033735,
-      "ended_at": "2026-11-10T15:05:52.574563Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-481-investigating-the-impact-of-code-complex",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-11-10T15:05:48.540828Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 3.765812,
-      "ended_at": "2026-11-10T15:05:39.601560Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-347-evaluating-the-impact-of-code-generation",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-11-10T15:05:35.835748Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 4.779969,
-      "ended_at": "2026-11-10T15:05:27.434665Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-332-quantifying-the-impact-of-magnetic-field",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-11-10T15:05:22.654696Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 3.456226,
-      "ended_at": "2026-11-10T15:05:26.370379Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-189-investigating-the-correlation-between-gu",
-      "project_stage": "planned",
-      "severity": "hard",
-      "started_at": "2026-11-10T15:05:22.914153Z"
     }
   ],
   "reviewed_preprints": [
