@@ -1,35 +1,39 @@
 status: verified
 kind: pypi_package
 ref: openml
-access_python: "import openml, pandas as pd\n# Retrieve the list of datasets as a\
-  \ pandas DataFrame\ndf = openml.datasets.list_datasets(output_format='dataframe')\n\
-  # Ensure we have a non\u2011zero number of rows\nrecord_count = len(df)\nprint(f'RECORDS={record_count}')\n\
-  # Map available columns to the requested field names\navailable_fields = []\nif\
-  \ 'did' in df.columns:\n    available_fields.append('dataset_id')\nif 'name' in\
-  \ df.columns:\n    available_fields.append('dataset_name')\nif 'url' in df.columns:\n\
-  \    available_fields.append('download_url')\nif 'NumberOfInstances' in df.columns:\n\
-  \    available_fields.append('num_instances')\nif 'NumberOfFeatures' in df.columns:\n\
-  \    available_fields.append('num_features')\nif 'NumberOfNumericFeatures' in df.columns:\n\
-  \    available_fields.append('num_numeric_features')\n# Print the fields we actually\
-  \ have\nprint('FIELDS=' + ','.join(available_fields))"
+access_python: "import openml, pandas as pd\n\ndf = openml.datasets.list_datasets(output_format='dataframe')\n\
+  # compute missing rate if possible\nif {'NumberOfMissingValues','NumberOfInstances','NumberOfFeatures'}.issubset(df.columns):\n\
+  \    df['missing_rate'] = df['NumberOfMissingValues'] / (df['NumberOfInstances']\
+  \ * df['NumberOfFeatures'])\nelse:\n    df['missing_rate'] = None\n# map available\
+  \ columns to the required field names\ncol_map = {\n    'did': 'dataset_id',\n \
+  \   'name': 'name',\n    'url': 'download_url',\n    'md5_checksum': 'sha256_checksum',\n\
+  \    'NumberOfInstances': 'n_instances',\n    'NumberOfFeatures': 'n_features',\n\
+  \    'NumberOfNumericFeatures': 'n_numeric_features',\n    'default_target_attribute':\
+  \ 'target_column',\n    'missing_rate': 'missing_rate',\n    'description': 'description'\n\
+  }\navailable = {new: df[old] for old, new in col_map.items() if old in df.columns}\n\
+  result = pd.DataFrame(available)\nprint(f\"RECORDS={len(result)}\")\nprint(\"FIELDS=\"\
+  \ + \",\".join(result.columns))"
 record_count: 7120
 sample_fields:
 - dataset_id
-- dataset_name
-- num_instances
-- num_features
-- num_numeric_features
-field_coverage: 0.6
+- name
+- n_instances
+- n_features
+- n_numeric_features
+- missing_rate
+field_coverage: 0.5
 required_fields:
 - dataset_id
-- dataset_name
+- name
 - download_url
 - sha256_checksum
-- num_instances
-- num_features
-- num_numeric_features
-- categorical_target_column
-- missing_percentage_per_feature
-- shapiro_wilk_p_values_per_numeric_feature
-intent: OpenML UCI Machine Learning Repository dataset download python package dataset
-cache_key: 187f13cc607a6827d334bc7b21abf18c8df3331df787d1123277bf3df534668a
+- n_instances
+- n_features
+- n_numeric_features
+- target_column
+- target_type
+- missing_rate
+- description
+- source_repository
+intent: download UCI Machine Learning Repository OpenML datasets python package dataset
+cache_key: 84ca6ada2fd58ab5083cb532fcbd74fc838286a43d77c906683d0f495f7d2676
