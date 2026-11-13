@@ -28690,7 +28690,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-13T17:24:35.698397+00:00",
+  "generated_at": "2026-11-13T18:08:14.274421+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -54307,6 +54307,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 1163.396062,
+          "ended_at": "2026-11-13T17:29:18.234820Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-13T17:09:54.838758Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 4.053165,
           "ended_at": "2026-11-12T19:04:35.799422Z",
           "model": "zai-org.glm-5.3",
@@ -54376,14 +54384,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-11-08T03:05:07.723975Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 4.426562,
-          "ended_at": "2026-11-07T15:05:13.019523Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-11-07T15:05:08.592961Z"
         }
       ],
       "paper_status": null,
@@ -125825,6 +125825,14 @@
       "last_run_log": [
         {
           "agent": "planner",
+          "duration_s": 1565.71219,
+          "ended_at": "2026-11-13T17:30:50.242146Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-13T17:04:44.529956Z"
+        },
+        {
+          "agent": "planner",
           "duration_s": 133.702025,
           "ended_at": "2026-11-12T17:07:25.867347Z",
           "model": "zai-org.glm-5.3",
@@ -125894,14 +125902,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-11-04T16:07:04.360378Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 64.408475,
-          "ended_at": "2026-11-03T18:13:14.623853Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-11-03T18:12:10.215378Z"
         }
       ],
       "paper_status": null,
@@ -175706,6 +175706,30 @@
   ],
   "recent_activity": [
     {
+      "agent": "planner",
+      "duration_s": 1565.71219,
+      "ended_at": "2026-11-13T17:30:50.242146Z",
+      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-524-the-impact-of-nostalgia-on-cognitive-fle",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-11-13T17:04:44.529956Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1163.396062,
+      "ended_at": "2026-11-13T17:29:18.234820Z",
+      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-112-investigating-the-correlation-between-di",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-11-13T17:09:54.838758Z"
+    },
+    {
       "agent": "implementer",
       "duration_s": 1167.261797,
       "ended_at": "2026-11-13T17:24:02.291046Z",
@@ -181761,30 +181785,6 @@
       "project_stage": "in_progress",
       "severity": "hard",
       "started_at": "2026-11-10T19:06:01.685870Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 9.511738,
-      "ended_at": "2026-11-10T19:05:54.116513Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-233-predicting-the-diffusion-coefficient-of-",
-      "project_stage": "planned",
-      "severity": "hard",
-      "started_at": "2026-11-10T19:05:44.604775Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 4.113813,
-      "ended_at": "2026-11-10T19:05:48.435712Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-069-statistical-analysis-of-sentiment-drift-",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-11-10T19:05:44.321899Z"
     }
   ],
   "reviewed_preprints": [
