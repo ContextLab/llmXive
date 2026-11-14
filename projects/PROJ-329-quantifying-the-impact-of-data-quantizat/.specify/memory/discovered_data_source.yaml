@@ -1,19 +1,9 @@
 status: none
-intent: LIGO LOSC BBH waveform SXS catalog masses up to 50 solar masses python package
-  dataset
-required_fields:
-- mass_1_solar_masses
-- mass_2_solar_masses
-- luminosity_distance_mpc
-- spin1_x
-- spin1_y
-- spin1_z
-- spin2_x
-- spin2_y
-- spin2_z
-- strain_time_series
-- sampling_rate_hz
-- gps_start_time
-cache_key: 4c219138caa0fc9ba700c654e96b1e0b47aaf181bca297912f33d29b1433693e
-searched_at: '2026-11-13T02:09:40.515416+00:00'
+intent: System MUST generate binary black hole merger waveforms with masses spanning
+  from the lower end of the considered interval up to 50 solar masses and distances
+  in the range from the lower end of the hundreds of Mpc up to 1000 Mpc using PyCBC
+  (See US-1).
+required_fields: []
+cache_key: 38b8038f7fcff98da10a9e107ecf7dde936248e2b0247e50e9eacd0c957f7e43
+searched_at: '2026-11-14T03:29:37.350149+00:00'
 retry_count: 1
