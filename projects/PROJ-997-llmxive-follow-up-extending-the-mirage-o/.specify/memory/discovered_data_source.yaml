@@ -1,16 +1,9 @@
 status: none
-intent: gsm8k dataset huggingface python package dataset
-required_fields:
-- prompt_text
-- full_precision_logits
-- int8_logits
-- int4_logits
-- fp8_logits
-- kl_divergence_int8
-- kl_divergence_int4
-- kl_divergence_fp8
-- gradient_norm
-- local_curvature
-cache_key: b89d333aee92bea991a7ff50ae13926784f54cc5aae7181e914d68197b65dd04
-searched_at: '2026-11-13T11:08:15.174951+00:00'
+intent: '### User Story 1 - Hardware-Validated Gap Dataset Generation (Priority: P1)
+  As a researcher, I need to generate a dataset pairing full-precision training signals
+  (gradient norms, local curvature) with ground-truth policy divergence measured by
+  a CPU-based quantized inference engine, so that I can tr'
+required_fields: []
+cache_key: c13ded93c5bea8b305d1017e36202c7cf45280fe2a9c3471d7a6fc260e191894
+searched_at: '2026-11-14T09:29:32.756151+00:00'
 retry_count: 1
