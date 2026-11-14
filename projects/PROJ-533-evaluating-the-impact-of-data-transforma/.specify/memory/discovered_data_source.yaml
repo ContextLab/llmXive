@@ -1,39 +1,9 @@
-status: verified
-kind: pypi_package
-ref: openml
-access_python: "import openml, pandas as pd\n\ndf = openml.datasets.list_datasets(output_format='dataframe')\n\
-  # compute missing rate if possible\nif {'NumberOfMissingValues','NumberOfInstances','NumberOfFeatures'}.issubset(df.columns):\n\
-  \    df['missing_rate'] = df['NumberOfMissingValues'] / (df['NumberOfInstances']\
-  \ * df['NumberOfFeatures'])\nelse:\n    df['missing_rate'] = None\n# map available\
-  \ columns to the required field names\ncol_map = {\n    'did': 'dataset_id',\n \
-  \   'name': 'name',\n    'url': 'download_url',\n    'md5_checksum': 'sha256_checksum',\n\
-  \    'NumberOfInstances': 'n_instances',\n    'NumberOfFeatures': 'n_features',\n\
-  \    'NumberOfNumericFeatures': 'n_numeric_features',\n    'default_target_attribute':\
-  \ 'target_column',\n    'missing_rate': 'missing_rate',\n    'description': 'description'\n\
-  }\navailable = {new: df[old] for old, new in col_map.items() if old in df.columns}\n\
-  result = pd.DataFrame(available)\nprint(f\"RECORDS={len(result)}\")\nprint(\"FIELDS=\"\
-  \ + \",\".join(result.columns))"
-record_count: 7120
-sample_fields:
-- dataset_id
-- name
-- n_instances
-- n_features
-- n_numeric_features
-- missing_rate
-field_coverage: 0.5
-required_fields:
-- dataset_id
-- name
-- download_url
-- sha256_checksum
-- n_instances
-- n_features
-- n_numeric_features
-- target_column
-- target_type
-- missing_rate
-- description
-- source_repository
-intent: download UCI Machine Learning Repository OpenML datasets python package dataset
-cache_key: 84ca6ada2fd58ab5083cb532fcbd74fc838286a43d77c906683d0f495f7d2676
+status: none
+intent: '### User Story 1 - Download and Filter Real-World Datasets (US-1) (Priority:
+  P1) As a researcher, I want to download and filter public datasets from UCI and
+  OpenML that contain continuous variables and known group labels, so that I have
+  valid real-world non-normal data for transformation analysis. *'
+required_fields: []
+cache_key: e50d2fbfe19f03dd6048e69c0f80a6b81c229fff6745618d513daa74cc4bcbb7
+searched_at: '2026-11-14T07:28:09.552801+00:00'
+retry_count: 1
