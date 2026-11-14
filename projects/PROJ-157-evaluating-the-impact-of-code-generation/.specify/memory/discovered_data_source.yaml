@@ -1,14 +1,9 @@
 status: none
-intent: Codeforces C++ benchmark problem dataset pip installable python package dataset
-required_fields:
-- problem_id
-- problem_name
-- problem_statement
-- human_solution_cpp
-- language
-- time_limit
-- memory_limit
-- test_cases
-cache_key: ac0f671570dde8fb5858ca1f4cd58d1324a90933ca23301b8327906da36b0e7a
-searched_at: '2026-11-13T14:08:25.565375+00:00'
+intent: '### User Story 1 - Dataset Acquisition and Preparation (Priority: P1) The
+  system MUST acquire a balanced dataset of programming challenges containing both
+  human-written reference solutions and LLM-generated variants. This is the foundational
+  step; without valid, paired data, no security analysis can'
+required_fields: []
+cache_key: b6c1af95181869437a87e7f198276914ba45b3eb31021d0ea2df82bf512f604c
+searched_at: '2026-11-14T13:29:59.992376+00:00'
 retry_count: 1
