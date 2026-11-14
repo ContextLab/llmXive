@@ -1,15 +1,9 @@
 status: none
-intent: Defects4J v2.0 benchmark bug localization python package dataset
-required_fields:
-- participant_id
-- task_id
-- condition
-- timestamp_ms
-- selected_line
-- ground_truth_line
-- project_name
-- buggy_method_id
-- bug_id
-cache_key: e7b9cea29d22c395bacc8984b0bf6fe9a57769616e13897aeaa7f51c9c8b506e
-searched_at: '2026-11-13T06:08:52.678420+00:00'
+intent: '### User Story 1 - Human Subject Study Data Collection (US-1) (Priority:
+  P1) **User Story ID**: US-1 As a researcher, I need to collect participant interaction
+  data (timestamps, line selections, participant IDs) across all three summary conditions
+  (baseline, LLM-generated, rule-based) so that I can '
+required_fields: []
+cache_key: b4505dd146cef425c6bb9d9cd678bc1ea59559cbc38c57124a804b9e056b5f5f
+searched_at: '2026-11-14T04:29:24.262030+00:00'
 retry_count: 1
