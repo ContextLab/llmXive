@@ -1,12 +1,10 @@
 status: none
-intent: download ionic liquid benchmark interaction energies CCSD(T)/CBS Zenodo dataset
-  and NIST thermophysical database
-required_fields:
-- identifier
-- reference_interaction_energy
-- dimer_geometry_xyz
-- monomer1_geometry_xyz
-- monomer2_geometry_xyz
-cache_key: e824787f8dd50f73cf4d85c2786b76d4722840eedea7fc192681bde49a0f7319
-searched_at: '2026-11-13T10:09:28.886841+00:00'
+intent: "### User Story 1 \u2013 Benchmark DFT\u2011D3 Interaction Energies (Priority:\
+  \ P1) A computational chemist wants to run an end\u2011to\u2011end benchmark that\
+  \ computes DFT\u2011D3 interaction energies for a set of ionic\u2011liquid ion\u2011\
+  pair complexes and compares them to high\u2011level CCSD(T)/CBS reference values,\
+  \ in order to assess"
+required_fields: []
+cache_key: 382be0660b02eb0885dedb90f76667368550c0457682c97b129c2eb853969a94
+searched_at: '2026-11-14T08:30:08.299790+00:00'
 retry_count: 1
