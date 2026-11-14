@@ -1,31 +1,9 @@
-status: verified
-kind: pypi_package
-ref: airportsdata
-access_python: 'import airportsdata
-
-
-  data = airportsdata.load(''IATA'')
-
-  records = len(data)
-
-  print(f"RECORDS={records}")
-
-  fields = [''node_id'',''latitude'',''longitude'']
-
-  print(''FIELDS='' + '',''.join(fields))'
-record_count: 7884
-sample_fields:
-- node_id
-- latitude
-- longitude
-field_coverage: 0.5
-required_fields:
-- node_id
-- latitude
-- longitude
-- edge_source
-- edge_target
-- edge_weight
-intent: World Airport network OpenFlights scale free network with latitude longitude
-  coordinates download python package dataset
-cache_key: 6185f1767e3609dbc64a77c223c8ddebe64ed73f5973ce8ad5600601c3caa684
+status: none
+intent: '### User Story 1 - Reproducible Baseline and Spatial SIR Simulation (Priority:
+  P1) (US-1) As a computational physicist, I need to run a standard SIR simulation
+  on a real-world scale-free network with and without geographic constraints so that
+  I can establish the baseline epidemic threshold and compa'
+required_fields: []
+cache_key: 7e9a620352fe554e60a8d54f1a85afbfeb435db96ba7e7c7aa2751daf8bd6c40
+searched_at: '2026-11-14T00:33:27.875909+00:00'
+retry_count: 1
