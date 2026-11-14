@@ -1,18 +1,10 @@
 status: none
-intent: HuggingFace tner btc ethereum daily OHLCV dataset from CoinGecko API python
-  package dataset
-required_fields:
-- date
-- btc_open
-- btc_high
-- btc_low
-- btc_close
-- btc_volume
-- eth_open
-- eth_high
-- eth_low
-- eth_close
-- eth_volume
-cache_key: 36349b0ba3d1dec279a7deb68d428bc0d16e77f0ba897a2896eae65c0afe9aac
-searched_at: '2026-11-13T12:07:47.423031+00:00'
+intent: "### User Story 1 \u2013 Quantify regime\u2011dependent dependence (US-1)\
+  \ (Priority: P1) A researcher wants a reproducible analysis that identifies low\u2011\
+  volatility and high\u2011volatility regimes in BTC\u2011ETH returns and reports\
+  \ the serial\u2011correlation coefficients and cross\u2011asset correlation matrices\
+  \ for each regime."
+required_fields: []
+cache_key: 853f474c8b61df5a7ead1747c2cd2a278ad7b467017dd5cf1dba6a6bfd3a27e2
+searched_at: '2026-11-14T11:32:12.162757+00:00'
 retry_count: 1
