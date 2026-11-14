@@ -3,12 +3,12 @@
   "stage": "clarified",
   "class": "transient",
   "fingerprint": "backend_chain_failed",
-  "consecutive_count": 20,
+  "consecutive_count": 21,
   "first_seen": "2026-10-25T00:06:44.017540+00:00",
-  "last_seen": "2026-11-13T15:06:59.564591+00:00",
-  "retry_after": "2026-11-14T12:26:59.564591+00:00",
-  "last_error": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-  "evidence": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+  "last_seen": "2026-11-14T14:33:22.245292+00:00",
+  "retry_after": "2026-11-15T11:53:22.245292+00:00",
+  "last_error": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(transient attempt 1): Connection error. | zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 3 consecutive failures / 30 min | openai.gpt-oss-120b(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 3 consecutive failures / 30 min | google.gemma-4-31B-it(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 1 consecutive failures / 30 min | anthropic.claude-haiku-4-5-20251001(permanent): Dartmouth: paid model 'anthropic.claude-haiku-4-5-20251001' refused: credit balance unavailable (ConnectionError: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))) \u2014 failing closed | local: transformers is not installed; r",
+  "evidence": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(transient attempt 1): Connection error. | zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently unavailable after ",
   "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
   "status": "retry_scheduled"
 }

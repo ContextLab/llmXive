@@ -1,12 +1,9 @@
 status: none
-intent: download LDBC SNB and WatDiv query workload datasets with plan depth annotations
-  python package dataset
-required_fields:
-- query_id
-- query_text
-- plan_depth
-- source_type
-- query_category
-cache_key: d0c2564cf45a2a196e6b516d8838ea090c1585997b56b57ca03e49ab9ac752ee
-searched_at: '2026-11-13T15:06:58.841997+00:00'
+intent: '### User Story 1 - Quantify Latency Penalties of High-Complexity Queries
+  on CPU (Priority: P1) (User Story ID: US-1) **Description**: As a system architect
+  evaluating edge deployment, I need to measure the end-to-end latency difference
+  between low-complexity (single-hop) and high-complexity (multi-h'
+required_fields: []
+cache_key: 7e4ca9b1ffe6a82f244d52e5290842aa9820f3fa3e5bc367507568350aef4e87
+searched_at: '2026-11-14T14:29:17.828045+00:00'
 retry_count: 1
