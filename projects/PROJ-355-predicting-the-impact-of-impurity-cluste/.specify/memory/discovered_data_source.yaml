@@ -1,16 +1,9 @@
 status: none
-intent: download bulk alloy compositions and spacegroup data from Materials Project
-  and OQMD python package dataset
-required_fields:
-- material_id
-- composition
-- spacegroup
-- segregation_energy
-- misorientation_angle
-- boundary_plane
-- strain
-- atomic_radius
-- electronegativity
-cache_key: c3941105d02b96a6ad47bc06e185e9094b8a1fbe6245b36e0f9ce018cb353007
-searched_at: '2026-11-09T01:08:51.942226+00:00'
+intent: "System MUST download bulk configuration files from Materials Project and\
+  \ OQMD using / with at most **3 failed attempts** before marking the dataset as\
+  \ inaccessible (See US\u20111). Required Variable Source Verified URL / Loader Fit\
+  \ Check Bulk alloy compositions, spacegroup, OQMD \u2705 Present; used to recons"
+required_fields: []
+cache_key: 99304184b9d23b55efcc2105d8c51de8a64019b4ebb91c206cd419cdb9f676d1
+searched_at: '2026-11-14T05:29:30.951161+00:00'
 retry_count: 1
