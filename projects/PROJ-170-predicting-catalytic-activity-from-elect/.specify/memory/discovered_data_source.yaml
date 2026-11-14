@@ -1,16 +1,9 @@
 status: none
-intent: download OC20 Materials Project bulk descriptors CO2 hydrogenation 2025 python
-  package dataset
-required_fields:
-- structure
-- energy
-- d_band_center
-- p_band_center
-- bader_charges
-- log_TOF
-- catalyst_id
-- reaction_conditions
-- reference
-cache_key: f73513087d30f48c1b31019bfdefd75c4f041f9f46aa952f5de3a011feddc3e1
-searched_at: '2026-11-13T03:08:14.234503+00:00'
+intent: "System MUST download the OC20 dataset, Materials Project bulk descriptors,\
+  \ and the recent CO\u2082 hydrogenation study dataset (Doe et al., 2025,) via and\
+  \ parse them into a unified Pandas DataFrame (See US-1). Verification: and must\
+  \ match, and the DataFrame must contain the required columns . Dataset Pur"
+required_fields: []
+cache_key: eaf2fd6a87adba888a14eb0ee8b0d4d630fd20d63f06b74215519f4be5becc76
+searched_at: '2026-11-14T01:31:04.592770+00:00'
 retry_count: 1
