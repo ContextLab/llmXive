@@ -1,16 +1,9 @@
 status: none
-intent: laser surface texturing wear dataset OpenML HuggingFace python package dataset
-required_fields:
-- laser_power
-- scanning_speed
-- pulse_frequency
-- pulse_duration
-- material_hardness
-- material_composition
-- geometry_type
-- wear_rate
-- coefficient_of_friction
-- source_repository
-cache_key: d5e37f9273bbb37a7d4297691dbd193582f8ead8023e459734165d4ffeecfd74
-searched_at: '2026-10-31T06:17:42.058588+00:00'
+intent: '### User Story 1 - Aggregate and Preprocess LST Wear Data (Priority: P1)
+  The researcher needs to ingest raw tabular data from diverse sources (OpenML, HuggingFace,
+  literature supplements), standardize the schema (process parameters vs. material
+  properties vs. wear outcomes), and handle missing value'
+required_fields: []
+cache_key: 53d16c0413b1e82453db11de59c331e7a2775ab0d3569e1f886d68c54bb6d7e1
+searched_at: '2026-11-14T06:42:15.161974+00:00'
 retry_count: 1
