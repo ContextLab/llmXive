@@ -28690,7 +28690,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-14T08:33:14.942777+00:00",
+  "generated_at": "2026-11-14T09:07:42.170850+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -141499,6 +141499,14 @@
       "last_run_log": [
         {
           "agent": "planner",
+          "duration_s": 1751.878451,
+          "ended_at": "2026-11-14T08:34:14.251681Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-14T08:05:02.373230Z"
+        },
+        {
+          "agent": "planner",
           "duration_s": 280.044443,
           "ended_at": "2026-11-13T10:09:29.145107Z",
           "model": "zai-org.glm-5.3",
@@ -141568,14 +141576,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-11-05T19:05:20.860982Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 173.164298,
-          "ended_at": "2026-11-04T21:11:31.330849Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-11-04T21:08:38.166551Z"
         }
       ],
       "paper_status": null,
@@ -175706,6 +175706,18 @@
   ],
   "recent_activity": [
     {
+      "agent": "planner",
+      "duration_s": 1751.878451,
+      "ended_at": "2026-11-14T08:34:14.251681Z",
+      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-735-transferability-of-dft-d3-dispersion-to-",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-11-14T08:05:02.373230Z"
+    },
+    {
       "agent": "implementer",
       "duration_s": 1202.580723,
       "ended_at": "2026-11-14T08:25:28.483284Z",
@@ -181761,18 +181773,6 @@
       "project_stage": "flesh_out_complete",
       "severity": "hard",
       "started_at": "2026-11-11T06:18:54.443448Z"
-    },
-    {
-      "agent": "planner",
-      "duration_s": 164.831764,
-      "ended_at": "2026-11-11T06:09:20.331556Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-170-predicting-catalytic-activity-from-elect",
-      "project_stage": "clarified",
-      "severity": "hard",
-      "started_at": "2026-11-11T06:06:35.499792Z"
     }
   ],
   "reviewed_preprints": [
