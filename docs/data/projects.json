@@ -28690,7 +28690,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-14T17:25:12.785319+00:00",
+  "generated_at": "2026-11-14T18:07:43.926633+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -156570,6 +156570,14 @@
       "last_run_log": [
         {
           "agent": "planner",
+          "duration_s": 1760.254851,
+          "ended_at": "2026-11-14T17:34:22.096477Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-14T17:05:01.841626Z"
+        },
+        {
+          "agent": "planner",
           "duration_s": 1682.060822,
           "ended_at": "2026-11-13T19:33:26.211036Z",
           "model": "zai-org.glm-5.3",
@@ -156639,14 +156647,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-11-05T21:04:51.839257Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 155.228218,
-          "ended_at": "2026-11-04T10:09:15.574902Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-11-04T10:06:40.346684Z"
         }
       ],
       "paper_status": null,
@@ -175706,6 +175706,18 @@
   ],
   "recent_activity": [
     {
+      "agent": "planner",
+      "duration_s": 1760.254851,
+      "ended_at": "2026-11-14T17:34:22.096477Z",
+      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-870-llmxive-follow-up-extending-ace-ego-0-un",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-11-14T17:05:01.841626Z"
+    },
+    {
       "agent": "implementer",
       "duration_s": 1135.20059,
       "ended_at": "2026-11-14T17:24:26.904505Z",
@@ -181749,21 +181761,6 @@
       "project_stage": "in_progress",
       "severity": "hard",
       "started_at": "2026-11-11T14:04:37.912826Z"
-    },
-    {
-      "agent": "personality",
-      "display_name": "Ada Lovelace (simulated)",
-      "duration_s": 4.590444,
-      "ended_at": "2026-11-11T14:04:39.085845+00:00",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "model_kind": "personality_simulator",
-      "outcome": "model_error",
-      "personality_slug": "ada-lovelace",
-      "project_id": "PROJ-376-predicting-corrosion-potential-from-comp",
-      "project_stage": "clarified",
-      "severity": "hard",
-      "started_at": "2026-11-11T14:04:34.495401+00:00"
     }
   ],
   "reviewed_preprints": [
