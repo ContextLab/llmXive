@@ -1,14 +1,9 @@
 status: none
-intent: download speedrun.com run records and Kaggle speedrun.com dataset via official
-  API python package dataset
-required_fields:
-- run_time_seconds
-- runner_id
-- attempt_number
-- category
-- submission_date
-- total_prior_runs
-- time_since_first_run
-cache_key: 9092e15106411a3d080d36204b51a81becafc5a8e413046c511cefc804ea4fff
-searched_at: '2026-11-13T04:07:07.997178+00:00'
+intent: "### User Story 1 - Data Acquisition and Preprocessing (Priority: P1) As a\
+  \ researcher, I want to download and clean speedrun data from speedrun.com for multiple\
+  \ games so that I have a validated dataset ready for statistical analysis. **Why\
+  \ this priority**: This is the foundational step\u2014without clean,"
+required_fields: []
+cache_key: ff9e3842a3d303981830c7d27e98a15b3899feb9d7767e1d4fecb6cedf7d6fca
+searched_at: '2026-11-14T02:29:51.564195+00:00'
 retry_count: 1
