@@ -28690,7 +28690,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-14T22:14:26.172018+00:00",
+  "generated_at": "2026-11-14T22:23:53.035437+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -77221,6 +77221,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 1101.473169,
+          "ended_at": "2026-11-14T22:23:15.712806Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-14T22:04:54.239637Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 1136.124677,
           "ended_at": "2026-11-14T00:27:20.162564Z",
           "model": "zai-org.glm-5.3",
@@ -77290,14 +77298,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-11-06T16:05:22.554542Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 33.023372,
-          "ended_at": "2026-11-05T18:06:25.959663Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-11-05T18:05:52.936291Z"
         }
       ],
       "paper_status": null,
@@ -142090,6 +142090,14 @@
       "last_run_log": [
         {
           "agent": "tasker",
+          "duration_s": 1096.166773,
+          "ended_at": "2026-11-14T22:22:58.066559Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-14T22:04:41.899786Z"
+        },
+        {
+          "agent": "tasker",
           "duration_s": 1136.427153,
           "ended_at": "2026-11-14T00:27:12.116992Z",
           "model": "zai-org.glm-5.3",
@@ -142159,14 +142167,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-11-06T14:06:01.475004Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 10.543016,
-          "ended_at": "2026-11-05T15:05:34.008003Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-11-05T15:05:23.464987Z"
         }
       ],
       "paper_status": null,
@@ -175706,6 +175706,30 @@
   ],
   "recent_activity": [
     {
+      "agent": "implementer",
+      "duration_s": 1101.473169,
+      "ended_at": "2026-11-14T22:23:15.712806Z",
+      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-247-evaluating-the-impact-of-code-generation",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-11-14T22:04:54.239637Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 1096.166773,
+      "ended_at": "2026-11-14T22:22:58.066559Z",
+      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-743-ambient-temperature-influence-on-moral-d",
+      "project_stage": "planned",
+      "severity": "hard",
+      "started_at": "2026-11-14T22:04:41.899786Z"
+    },
+    {
       "agent": "planner",
       "duration_s": 1563.660398,
       "ended_at": "2026-11-14T21:30:44.193319Z",
@@ -181734,30 +181758,6 @@
       "project_stage": "tasked",
       "severity": "hard",
       "started_at": "2026-11-11T18:05:38.858097Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 4.661943,
-      "ended_at": "2026-11-11T18:05:34.295062Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-712-predicting-individual-pain-sensitivity-f",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-11-11T18:05:29.633119Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 11.09152,
-      "ended_at": "2026-11-11T18:05:29.506849Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-084-assessing-the-predictive-power-of-machin",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-11-11T18:05:18.415329Z"
     }
   ],
   "reviewed_preprints": [
