@@ -28690,7 +28690,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-14T12:19:20.820875+00:00",
+  "generated_at": "2026-11-14T12:25:00.844308+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -44388,6 +44388,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 1088.592099,
+          "ended_at": "2026-11-14T12:24:11.580193Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-14T12:06:02.988094Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 13.558211,
           "ended_at": "2026-11-13T14:05:26.042489Z",
           "model": "zai-org.glm-5.3",
@@ -44457,14 +44465,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-11-06T06:06:44.119269Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 7.001825,
-          "ended_at": "2026-11-05T08:07:45.221389Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-11-05T08:07:38.219564Z"
         }
       ],
       "paper_status": null,
@@ -139213,6 +139213,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 1102.035078,
+          "ended_at": "2026-11-14T12:24:16.631525Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-14T12:05:54.596447Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 15.156579,
           "ended_at": "2026-11-13T14:05:21.519345Z",
           "model": "zai-org.glm-5.3",
@@ -139282,14 +139290,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-11-06T06:07:19.562586Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 4.464396,
-          "ended_at": "2026-11-05T08:06:41.708133Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-11-05T08:06:37.243737Z"
         }
       ],
       "paper_status": null,
@@ -175706,6 +175706,30 @@
   ],
   "recent_activity": [
     {
+      "agent": "implementer",
+      "duration_s": 1102.035078,
+      "ended_at": "2026-11-14T12:24:16.631525Z",
+      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-712-predicting-individual-pain-sensitivity-f",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-11-14T12:05:54.596447Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1088.592099,
+      "ended_at": "2026-11-14T12:24:11.580193Z",
+      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-084-assessing-the-predictive-power-of-machin",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-11-14T12:06:02.988094Z"
+    },
+    {
       "agent": "planner",
       "duration_s": 1822.363239,
       "ended_at": "2026-11-14T11:35:56.269047Z",
@@ -181746,30 +181770,6 @@
       "project_stage": "clarified",
       "severity": "ok",
       "started_at": "2026-11-11T09:15:06.069620Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 122.205952,
-      "ended_at": "2026-11-11T09:15:06.066368Z",
-      "failure_reason": "",
-      "model": "google.gemma-4-31B-it",
-      "outcome": "success",
-      "project_id": "PROJ-376-predicting-corrosion-potential-from-comp",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-11-11T09:13:03.860416Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 2.849298,
-      "ended_at": "2026-11-11T09:05:31.258907Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-856-llmxive-follow-up-extending-crafter-a-mu",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-11-11T09:05:28.409609Z"
     }
   ],
   "reviewed_preprints": [
