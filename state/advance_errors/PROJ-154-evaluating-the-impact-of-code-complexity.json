@@ -3,12 +3,12 @@
   "stage": "in_progress",
   "class": "transient",
   "fingerprint": "backend_chain_failed",
-  "consecutive_count": 1,
+  "consecutive_count": 2,
   "first_seen": "2026-10-29T06:22:29.731703+00:00",
-  "last_seen": "2026-10-29T06:22:29.731703+00:00",
-  "retry_after": "2026-10-29T06:32:29.731703+00:00",
-  "last_error": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-  "evidence": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+  "last_seen": "2026-11-14T12:32:47.532957+00:00",
+  "retry_after": "2026-11-14T12:52:47.532957+00:00",
+  "last_error": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(transient attempt 1): Connection error. | zai-org.glm-5.3(transient attempt 2): Connection error. | zai-org.glm-5.3(transient attempt 3): Connection error. | openai.gpt-oss-120b(transient attempt 1): Connection error. | google.gemma-4-31B-it(model-down attempt 1): Dartmouth 'google.gemma-4-31B-it' exhausted its total retry deadline | anthropic.claude-haiku-4-5-20251001(permanent): Dartmouth: paid model 'anthropic.claude-haiku-4-5-20251001' refused: credit balance unavailable (ConnectionError: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))) \u2014 failing closed | local: transformers is not installed; required by local backend",
+  "evidence": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(transient attempt 1): Connection error. | zai-org.glm-5.3(transient attempt 2): Connection error. | zai-org.glm-5.3(transient attempt 3)",
   "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
   "status": "retry_scheduled"
 }
