@@ -1,14 +1,14 @@
 {
   "project_id": "PROJ-757-meta-analysis-of-trust-perception-in-dee",
-  "stage": "clarified",
-  "class": "permanent",
-  "fingerprint": "unreachable_reference",
-  "consecutive_count": 0,
-  "first_seen": "2026-07-09T06:33:21.905199+00:00",
-  "last_seen": "2026-09-14T12:46:20.134750+00:00",
-  "retry_after": null,
-  "last_error": "research.md reference is unreachable: 'https://openalex.org/' (HTTP 403). FR-006 admits NO transient-retry leniency \u2014 re-run when the source recovers or fix the reference.",
-  "evidence": "research.md reference is unreachable: 'https://openalex.org/' (HTTP 403). FR-006 admits NO transient-retry leniency \u2014 re-run when the source recovers or fix the reference.",
-  "remediation": "The reference/source is unreachable, or the emitted artifact is an unfilled template with no valid content. Do NOT re-dispatch unchanged: route the evidence to a source-aware re-plan (inject a verified replacement source) or back to the emitter, or mark terminal if genuinely unrecoverable.",
-  "status": "cleared"
+  "stage": "in_progress",
+  "class": "transient",
+  "fingerprint": "backend_chain_failed",
+  "consecutive_count": 1,
+  "first_seen": "2026-11-14T15:28:35.919406+00:00",
+  "last_seen": "2026-11-14T15:28:35.919406+00:00",
+  "retry_after": "2026-11-14T15:38:35.919406+00:00",
+  "last_error": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(transient attempt 1): Connection error. | zai-org.glm-5.3(transient attempt 2): Connection error. | zai-org.glm-5.3(transient attempt 3): Connection error. | openai.gpt-oss-120b(transient attempt 1): Connection error. | google.gemma-4-31B-it(model-down attempt 1): Dartmouth 'google.gemma-4-31B-it' exhausted its total retry deadline | anthropic.claude-haiku-4-5-20251001(permanent): Dartmouth: paid model 'anthropic.claude-haiku-4-5-20251001' refused: credit balance unavailable (ConnectionError: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))) \u2014 failing closed | local: transformers is not installed; required by local backend",
+  "evidence": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(transient attempt 1): Connection error. | zai-org.glm-5.3(transient attempt 2): Connection error. | zai-org.glm-5.3(transient attempt 3)",
+  "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
+  "status": "retry_scheduled"
 }
