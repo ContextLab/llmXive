@@ -28690,7 +28690,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-14T19:25:04.819496+00:00",
+  "generated_at": "2026-11-14T20:07:38.150344+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -86195,6 +86195,14 @@
       "last_run_log": [
         {
           "agent": "planner",
+          "duration_s": 1680.123187,
+          "ended_at": "2026-11-14T19:32:47.746007Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-14T19:04:47.622820Z"
+        },
+        {
+          "agent": "planner",
           "duration_s": 1677.05349,
           "ended_at": "2026-11-13T21:32:44.780483Z",
           "model": "zai-org.glm-5.3",
@@ -86264,14 +86272,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-11-06T03:07:57.785913Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 151.854644,
-          "ended_at": "2026-11-05T05:08:24.646030Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-11-05T05:05:52.791386Z"
         }
       ],
       "paper_status": null,
@@ -175706,6 +175706,18 @@
   ],
   "recent_activity": [
     {
+      "agent": "planner",
+      "duration_s": 1680.123187,
+      "ended_at": "2026-11-14T19:32:47.746007Z",
+      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-11-14T19:04:47.622820Z"
+    },
+    {
       "agent": "implementer",
       "duration_s": 1167.272407,
       "ended_at": "2026-11-14T19:24:18.698553Z",
@@ -181749,18 +181761,6 @@
       "project_stage": "in_progress",
       "severity": "hard",
       "started_at": "2026-11-11T16:05:11.657764Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 6.032118,
-      "ended_at": "2026-11-11T16:05:09.017434Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-287-statistical-analysis-of-publicly-availab",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-11-11T16:05:02.985316Z"
     }
   ],
   "reviewed_preprints": [
