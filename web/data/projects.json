@@ -28690,7 +28690,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-14T00:35:03.914793+00:00",
+  "generated_at": "2026-11-14T00:45:48.748880+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -80749,6 +80749,14 @@
       "last_run_log": [
         {
           "agent": "planner",
+          "duration_s": 1764.051841,
+          "ended_at": "2026-11-14T00:38:02.559808Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-14T00:08:38.507967Z"
+        },
+        {
+          "agent": "planner",
           "duration_s": 121.88447,
           "ended_at": "2026-11-12T23:06:49.614762Z",
           "model": "zai-org.glm-5.3",
@@ -80818,14 +80826,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-11-05T04:10:41.361257Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 196.215918,
-          "ended_at": "2026-11-05T00:14:35.383924Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-11-05T00:11:19.168006Z"
         }
       ],
       "paper_status": null,
@@ -175706,6 +175706,18 @@
   ],
   "recent_activity": [
     {
+      "agent": "planner",
+      "duration_s": 1764.051841,
+      "ended_at": "2026-11-14T00:38:02.559808Z",
+      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-263-quantifying-the-impact-of-network-proxim",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-11-14T00:08:38.507967Z"
+    },
+    {
       "agent": "implementer",
       "duration_s": 1187.019891,
       "ended_at": "2026-11-14T00:28:36.600948Z",
@@ -181770,18 +181782,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-11-11T01:23:36.250168Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 12.878838,
-      "ended_at": "2026-11-11T01:22:15.541298Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-856-llmxive-follow-up-extending-crafter-a-mu",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-11-11T01:22:02.662460Z"
     }
   ],
   "reviewed_preprints": [
