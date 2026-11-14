@@ -1,17 +1,9 @@
-status: verified
-kind: pypi_package
-ref: PubChemPy
-access_python: "import pubchempy as pcp\ncids = [2244, 3672, 5957]\ncompounds = pcp.get_compounds(cids,\
-  \ 'cid')\nrecords = []\nfor c in compounds:\n    records.append({\"cid\": c.cid,\
-  \ \"smiles\": c.canonical_smiles})\nprint(f\"RECORDS={len(records)}\")\nprint(f\"\
-  FIELDS={','.join(records[0].keys())}\")"
-record_count: 3
-sample_fields:
-- cid
-- smiles
-field_coverage: 1.0
-required_fields:
-- smiles
-- cid
-intent: download PubChem canonical SMILES parquet dataset python package dataset
-cache_key: e1ad8d86872cede2f85ebf7eac0883ccff35e054524f69be673f3644a9d83909
+status: none
+intent: '### User Story 1 - Compute TDA Features for Molecular Dataset (Priority:
+  P1) As a researcher, I want to ingest a dataset of small organic molecules (SMILES)
+  and compute their topological descriptors (persistence images/Betti curves) so that
+  I can establish the baseline topological feature set for th'
+required_fields: []
+cache_key: 71d610f8d9b7aa99eb1d212ccb8f2c00e645957e9928bc769138f53bc43fdf26
+searched_at: '2026-11-14T12:29:29.211011+00:00'
+retry_count: 1
