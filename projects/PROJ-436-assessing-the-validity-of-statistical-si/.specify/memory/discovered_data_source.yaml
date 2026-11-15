@@ -1,10 +1,9 @@
 status: none
-intent: CausalData python package dataset OpenML UCI Machine Learning Repository
-required_fields:
-- id
-- covariates
-- treatment
-- outcome
-cache_key: 365691d872fed227b3ec42aac5ad168bd3198bf699736fd26464a4f262e93c42
-searched_at: '2026-10-27T01:35:54.925892+00:00'
+intent: System MUST download and load multiple public datasets that either (a) are
+  genuine RCTs with explicit treatment and outcome columns, **or** (b) are observational
+  datasets for which a synthetic treatment indicator (binary) and, if needed, a synthetic
+  outcome (continuous or binary) will be generated f
+required_fields: []
+cache_key: 099530863e25e9a0acd0f6ca9d2461fc990561c7ba48a7e5553649f56d58bd1b
+searched_at: '2026-11-15T12:42:20.997542+00:00'
 retry_count: 1
