@@ -28690,7 +28690,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-15T20:16:24.089888+00:00",
+  "generated_at": "2026-11-15T20:23:31.892876+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -77221,6 +77221,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 1090.083922,
+          "ended_at": "2026-11-15T20:22:59.879871Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-15T20:04:49.795949Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 1101.473169,
           "ended_at": "2026-11-14T22:23:15.712806Z",
           "model": "zai-org.glm-5.3",
@@ -77290,14 +77298,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-11-07T14:07:11.305711Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 9.132336,
-          "ended_at": "2026-11-06T16:05:31.686878Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-11-06T16:05:22.554542Z"
         }
       ],
       "paper_status": null,
@@ -175714,6 +175714,18 @@
   ],
   "recent_activity": [
     {
+      "agent": "implementer",
+      "duration_s": 1090.083922,
+      "ended_at": "2026-11-15T20:22:59.879871Z",
+      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-247-evaluating-the-impact-of-code-generation",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-11-15T20:04:49.795949Z"
+    },
+    {
       "agent": "planner",
       "duration_s": 1649.989066,
       "ended_at": "2026-11-15T19:32:37.726701Z",
@@ -181733,18 +181745,6 @@
       "project_stage": "in_progress",
       "severity": "hard",
       "started_at": "2026-11-12T15:05:20.198480Z"
-    },
-    {
-      "agent": "planner",
-      "duration_s": 159.919621,
-      "ended_at": "2026-11-12T14:08:17.224995Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-444-predicting-molecular-properties-from-top",
-      "project_stage": "clarified",
-      "severity": "hard",
-      "started_at": "2026-11-12T14:05:37.305374Z"
     }
   ],
   "reviewed_preprints": [
