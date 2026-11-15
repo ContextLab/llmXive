@@ -28690,7 +28690,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-15T15:14:05.899825+00:00",
+  "generated_at": "2026-11-15T15:24:15.535771+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -105003,6 +105003,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 1148.7278,
+          "ended_at": "2026-11-15T15:23:29.059201Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-15T15:04:20.331401Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 1150.204829,
           "ended_at": "2026-11-14T17:24:04.578616Z",
           "model": "zai-org.glm-5.3",
@@ -105072,14 +105080,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-11-07T09:05:37.664916Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 3.000223,
-          "ended_at": "2026-11-06T11:04:54.274692Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-11-06T11:04:51.274469Z"
         }
       ],
       "paper_status": null,
@@ -112020,6 +112020,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 1121.467502,
+          "ended_at": "2026-11-15T15:23:38.619868Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-15T15:04:57.152366Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 1189.763148,
           "ended_at": "2026-11-14T17:24:21.646242Z",
           "model": "zai-org.glm-5.3",
@@ -112089,14 +112097,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-11-07T09:05:04.337948Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 6.87837,
-          "ended_at": "2026-11-06T11:05:12.726324Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-11-06T11:05:05.847954Z"
         }
       ],
       "paper_status": null,
@@ -175715,6 +175715,30 @@
   "recent_activity": [
     {
       "agent": "implementer",
+      "duration_s": 1121.467502,
+      "ended_at": "2026-11-15T15:23:38.619868Z",
+      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-443-predicting-the-effect-of-alloying-on-the",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-11-15T15:04:57.152366Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1148.7278,
+      "ended_at": "2026-11-15T15:23:29.059201Z",
+      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-401-the-influence-of-emoji-use-on-perceived-",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-11-15T15:04:20.331401Z"
+    },
+    {
+      "agent": "implementer",
       "duration_s": 1178.470745,
       "ended_at": "2026-11-15T14:24:14.778423Z",
       "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
@@ -181727,30 +181751,6 @@
       "project_stage": "in_progress",
       "severity": "hard",
       "started_at": "2026-11-12T10:04:53.770580Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 6.241962,
-      "ended_at": "2026-11-12T10:05:02.610137Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-353-investigating-the-effectiveness-of-diffe",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-11-12T10:04:56.368175Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 4.011503,
-      "ended_at": "2026-11-12T10:04:59.637453Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-868-llmxive-follow-up-extending-locateanythi",
-      "project_stage": "planned",
-      "severity": "hard",
-      "started_at": "2026-11-12T10:04:55.625950Z"
     }
   ],
   "reviewed_preprints": [
