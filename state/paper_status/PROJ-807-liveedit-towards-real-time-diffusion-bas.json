@@ -11,12 +11,12 @@
         "page": 28
       }
     ],
-    "audited_at": "2026-11-15T18:19:47.288347+00:00"
+    "audited_at": "2026-11-15T18:49:50.620296+00:00"
   },
   "repair_rounds": 3,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-807-liveedit-towards-real-time-diffusion-bas",
-  "updated_at": "2026-11-15T18:19:47.288363+00:00"
+  "updated_at": "2026-11-15T18:49:50.620310+00:00"
 }
