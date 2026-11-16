@@ -28690,7 +28690,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-16T06:27:09.784093+00:00",
+  "generated_at": "2026-11-16T06:38:31.290603+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -61165,6 +61165,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 1175.754514,
+          "ended_at": "2026-11-16T06:26:49.355010Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-16T06:07:13.600496Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 1192.34513,
           "ended_at": "2026-11-15T08:25:16.030266Z",
           "model": "zai-org.glm-5.3",
@@ -61234,14 +61242,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-11-08T00:08:11.864909Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 5.43688,
-          "ended_at": "2026-11-07T02:06:07.726014Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-11-07T02:06:02.289134Z"
         }
       ],
       "paper_status": null,
@@ -120695,6 +120695,14 @@
       "last_run_log": [
         {
           "agent": "research_question_validator",
+          "duration_s": 1133.278526,
+          "ended_at": "2026-11-16T06:26:45.008230Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-16T06:07:51.729704Z"
+        },
+        {
+          "agent": "research_question_validator",
           "duration_s": 1142.128879,
           "ended_at": "2026-11-15T08:24:21.161452Z",
           "model": "zai-org.glm-5.3",
@@ -120764,14 +120772,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-11-08T00:08:52.479121Z"
-        },
-        {
-          "agent": "research_question_validator",
-          "duration_s": 2.70082,
-          "ended_at": "2026-11-07T02:06:12.030629Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-11-07T02:06:09.329809Z"
         }
       ],
       "paper_status": null,
@@ -175723,6 +175723,30 @@
   "recent_activity": [
     {
       "agent": "implementer",
+      "duration_s": 1175.754514,
+      "ended_at": "2026-11-16T06:26:49.355010Z",
+      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-153-decoding-regulatory-element-contribution",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-11-16T06:07:13.600496Z"
+    },
+    {
+      "agent": "research_question_validator",
+      "duration_s": 1133.278526,
+      "ended_at": "2026-11-16T06:26:45.008230Z",
+      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-494-predicting-molecular-dielectric-constant",
+      "project_stage": "flesh_out_complete",
+      "severity": "hard",
+      "started_at": "2026-11-16T06:07:51.729704Z"
+    },
+    {
+      "agent": "implementer",
       "duration_s": 1178.552447,
       "ended_at": "2026-11-16T06:26:37.672994Z",
       "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
@@ -181717,30 +181741,6 @@
       "project_stage": "in_progress",
       "severity": "hard",
       "started_at": "2026-11-13T01:04:50.943817Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 5.136856,
-      "ended_at": "2026-11-13T00:27:24.151209Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-498-investigating-the-relationship-between-n",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-11-13T00:27:19.014353Z"
-    },
-    {
-      "agent": "planner",
-      "duration_s": 106.728334,
-      "ended_at": "2026-11-13T00:10:15.346195Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-847-llmxive-follow-up-extending-learning-fro",
-      "project_stage": "clarified",
-      "severity": "hard",
-      "started_at": "2026-11-13T00:08:28.617861Z"
     }
   ],
   "reviewed_preprints": [
