@@ -28716,7 +28716,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-16T01:19:58.073817+00:00",
+  "generated_at": "2026-11-16T01:25:35.321326+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -96319,6 +96319,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 1117.997616,
+          "ended_at": "2026-11-16T01:25:12.015924Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-16T01:06:34.018308Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 1173.263459,
           "ended_at": "2026-11-15T03:25:19.286986Z",
           "model": "zai-org.glm-5.3",
@@ -96388,14 +96396,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-11-07T19:04:48.886066Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 7.046748,
-          "ended_at": "2026-11-06T21:05:09.790478Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-11-06T21:05:02.743730Z"
         }
       ],
       "paper_status": null,
@@ -177928,6 +177928,18 @@
   "recent_activity": [
     {
       "agent": "implementer",
+      "duration_s": 1117.997616,
+      "ended_at": "2026-11-16T01:25:12.015924Z",
+      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-342-predicting-the-influence-of-alloying-on-",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-11-16T01:06:34.018308Z"
+    },
+    {
+      "agent": "implementer",
       "duration_s": 1186.761531,
       "ended_at": "2026-11-16T00:51:50.733183Z",
       "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
@@ -183940,18 +183952,6 @@
       "project_stage": "in_progress",
       "severity": "hard",
       "started_at": "2026-11-12T19:06:11.734921Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 2.736791,
-      "ended_at": "2026-11-12T19:05:24.549876Z",
-      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-034-quantifying-uncertainty-in-small-sample-",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-11-12T19:05:21.813085Z"
     }
   ],
   "reviewed_preprints": [
