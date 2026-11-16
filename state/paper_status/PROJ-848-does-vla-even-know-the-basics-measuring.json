@@ -3,12 +3,12 @@
   "audit": {
     "passed": true,
     "defects": [],
-    "audited_at": "2026-11-16T08:21:56.740175+00:00"
+    "audited_at": "2026-11-16T08:58:20.264166+00:00"
   },
   "repair_rounds": 0,
   "llmxive_compile_attempts": 0,
   "status": "audited",
   "failure": null,
   "paper_id": "PROJ-848-does-vla-even-know-the-basics-measuring",
-  "updated_at": "2026-11-16T08:21:56.740188+00:00"
+  "updated_at": "2026-11-16T08:58:20.264178+00:00"
 }
