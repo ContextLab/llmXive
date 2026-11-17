@@ -3,12 +3,12 @@
   "audit": {
     "passed": true,
     "defects": [],
-    "audited_at": "2026-11-17T11:44:41.318908+00:00"
+    "audited_at": "2026-11-17T12:13:52.268501+00:00"
   },
   "repair_rounds": 0,
   "llmxive_compile_attempts": 0,
   "status": "audited",
   "failure": null,
   "paper_id": "PROJ-645-qwen-vla-unifying-vision-language-action",
-  "updated_at": "2026-11-17T11:44:41.318919+00:00"
+  "updated_at": "2026-11-17T12:13:52.268516+00:00"
 }
