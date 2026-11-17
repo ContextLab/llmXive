@@ -25,12 +25,12 @@
         "page": 14
       }
     ],
-    "audited_at": "2026-11-17T22:19:45.956802+00:00"
+    "audited_at": "2026-11-17T22:45:54.344480+00:00"
   },
   "repair_rounds": 3,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-693-abot-earth-0-5-generative-3d-earth-model",
-  "updated_at": "2026-11-17T22:19:45.956819+00:00"
+  "updated_at": "2026-11-17T22:45:54.344494+00:00"
 }

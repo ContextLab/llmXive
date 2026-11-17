@@ -18,12 +18,12 @@
         "page": 52
       }
     ],
-    "audited_at": "2026-11-17T22:20:26.688978+00:00"
+    "audited_at": "2026-11-17T22:46:35.395001+00:00"
   },
   "repair_rounds": 3,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-698-toward-generalist-autonomous-research-vi",
-  "updated_at": "2026-11-17T22:20:26.688993+00:00"
+  "updated_at": "2026-11-17T22:46:35.395014+00:00"
 }
