@@ -28690,7 +28690,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-18T09:17:37.625035+00:00",
+  "generated_at": "2026-11-18T09:24:02.475629+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -112020,6 +112020,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 1116.203416,
+          "ended_at": "2026-11-18T09:23:32.503168Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-18T09:04:56.299752Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 1200.676401,
           "ended_at": "2026-11-17T11:24:48.359689Z",
           "model": "zai-org.glm-5.3",
@@ -112089,14 +112097,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-11-10T03:04:46.396933Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 9.127915,
-          "ended_at": "2026-11-09T05:05:56.387401Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-11-09T05:05:47.259486Z"
         }
       ],
       "paper_status": null,
@@ -175731,6 +175731,18 @@
   "recent_activity": [
     {
       "agent": "implementer",
+      "duration_s": 1116.203416,
+      "ended_at": "2026-11-18T09:23:32.503168Z",
+      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-443-predicting-the-effect-of-alloying-on-the",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-11-18T09:04:56.299752Z"
+    },
+    {
+      "agent": "implementer",
       "duration_s": 1214.006851,
       "ended_at": "2026-11-18T08:27:23.418433Z",
       "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
@@ -181716,18 +181728,6 @@
       "project_stage": "in_progress",
       "severity": "hard",
       "started_at": "2026-11-15T02:05:45.714838Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 1113.133285,
-      "ended_at": "2026-11-15T02:24:25.104105Z",
-      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-798-systematic-assessment-of-non-coding-vari",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-11-15T02:05:51.970820Z"
     }
   ],
   "reviewed_preprints": [
