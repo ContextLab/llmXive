@@ -3,12 +3,12 @@
   "audit": {
     "passed": true,
     "defects": [],
-    "audited_at": "2026-11-19T19:28:03.288709+00:00"
+    "audited_at": "2026-11-19T20:19:02.542594+00:00"
   },
   "repair_rounds": 0,
   "llmxive_compile_attempts": 0,
   "status": "audited",
   "failure": null,
   "paper_id": "PROJ-624-lens-rethinking-training-efficiency-for",
-  "updated_at": "2026-11-19T19:28:03.288721+00:00"
+  "updated_at": "2026-11-19T20:19:02.542606+00:00"
 }
