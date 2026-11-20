@@ -28719,7 +28719,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-20T17:24:22.241579+00:00",
+  "generated_at": "2026-11-20T18:08:57.260203+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -95146,6 +95146,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 1155.452742,
+          "ended_at": "2026-11-20T17:23:42.959447Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-20T17:04:27.506705Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 1150.998122,
           "ended_at": "2026-11-19T19:24:00.299505Z",
           "model": "zai-org.glm-5.3",
@@ -95215,14 +95223,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-11-12T11:04:56.199668Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 2.62712,
-          "ended_at": "2026-11-11T13:04:57.176719Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-11-11T13:04:54.549599Z"
         }
       ],
       "paper_status": null,
@@ -129761,6 +129761,14 @@
       "last_run_log": [
         {
           "agent": "planner",
+          "duration_s": 1723.510359,
+          "ended_at": "2026-11-20T17:34:18.191667Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-20T17:05:34.681308Z"
+        },
+        {
+          "agent": "planner",
           "duration_s": 1702.829678,
           "ended_at": "2026-11-19T19:33:39.127540Z",
           "model": "zai-org.glm-5.3",
@@ -129830,14 +129838,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-11-12T11:05:00.773636Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 157.787897,
-          "ended_at": "2026-11-11T13:07:14.858037Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-11-11T13:04:37.070140Z"
         }
       ],
       "paper_status": null,
@@ -179259,6 +179259,30 @@
   ],
   "recent_activity": [
     {
+      "agent": "planner",
+      "duration_s": 1723.510359,
+      "ended_at": "2026-11-20T17:34:18.191667Z",
+      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-533-evaluating-the-impact-of-data-transforma",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-11-20T17:05:34.681308Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1155.452742,
+      "ended_at": "2026-11-20T17:23:42.959447Z",
+      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-332-quantifying-the-impact-of-magnetic-field",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-11-20T17:04:27.506705Z"
+    },
+    {
       "agent": "implementer",
       "duration_s": 1147.47567,
       "ended_at": "2026-11-20T17:23:41.593461Z",
@@ -185233,30 +185257,6 @@
       "project_stage": "planned",
       "severity": "hard",
       "started_at": "2026-11-17T11:04:54.428683Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 1120.602873,
-      "ended_at": "2026-11-17T11:23:23.047439Z",
-      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-266-exploring-the-correlation-between-molecu",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-11-17T11:04:42.444566Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 1117.292621,
-      "ended_at": "2026-11-17T10:26:01.207279Z",
-      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-252-exploring-the-correlation-between-atmosp",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-11-17T10:07:23.914658Z"
     }
   ],
   "reviewed_preprints": [
