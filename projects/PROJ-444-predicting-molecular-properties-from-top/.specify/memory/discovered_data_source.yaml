@@ -5,5 +5,5 @@ intent: '### User Story 1 - Compute TDA Features for Molecular Dataset (Priority
   I can establish the baseline topological feature set for th'
 required_fields: []
 cache_key: 71d610f8d9b7aa99eb1d212ccb8f2c00e645957e9928bc769138f53bc43fdf26
-searched_at: '2026-11-14T12:29:29.211011+00:00'
-retry_count: 1
+searched_at: '2026-11-21T23:29:24.978878+00:00'
+retry_count: 2
