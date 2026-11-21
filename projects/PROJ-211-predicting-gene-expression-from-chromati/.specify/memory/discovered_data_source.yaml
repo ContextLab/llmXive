@@ -2,5 +2,5 @@ status: none
 intent: Download paired RNA-seq and DNase-seq/ATAC-seq count data from ENCODE.
 required_fields: []
 cache_key: 4a2d40205e64cf0e9739364aece38f73277948316ae7f497868bd11f6fe81839
-searched_at: '2026-11-13T23:27:40.879602+00:00'
-retry_count: 1
+searched_at: '2026-11-21T07:27:13.542119+00:00'
+retry_count: 2
