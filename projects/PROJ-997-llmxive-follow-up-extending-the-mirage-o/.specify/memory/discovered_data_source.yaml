@@ -5,5 +5,5 @@ intent: '### User Story 1 - Hardware-Validated Gap Dataset Generation (Priority:
   a CPU-based quantized inference engine, so that I can tr'
 required_fields: []
 cache_key: c13ded93c5bea8b305d1017e36202c7cf45280fe2a9c3471d7a6fc260e191894
-searched_at: '2026-11-14T09:29:32.756151+00:00'
-retry_count: 1
+searched_at: '2026-11-21T17:29:05.518216+00:00'
+retry_count: 2
