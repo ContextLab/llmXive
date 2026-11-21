@@ -5,5 +5,5 @@ intent: "Dataset Source URL(s) Variables Needed Verification Status Notes Real W
   \ The dataset will include a deterministic column (nostalgia vs. control) and "
 required_fields: []
 cache_key: f9e7dd55c40d4147a12e6d3a61fa583cda188289347bfbe1519aa3dac2d4f3e5
-searched_at: '2026-11-13T17:27:45.309763+00:00'
-retry_count: 1
+searched_at: '2026-11-21T13:29:31.659896+00:00'
+retry_count: 2
