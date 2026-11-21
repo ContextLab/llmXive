@@ -28719,7 +28719,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-21T19:25:08.979222+00:00",
+  "generated_at": "2026-11-21T20:07:15.592676+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -56183,6 +56183,14 @@
       "last_run_log": [
         {
           "agent": "planner",
+          "duration_s": 1761.42776,
+          "ended_at": "2026-11-21T19:33:52.835011Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-21T19:04:31.407251Z"
+        },
+        {
+          "agent": "planner",
           "duration_s": 1743.263585,
           "ended_at": "2026-11-20T21:33:47.037358Z",
           "model": "zai-org.glm-5.3",
@@ -56252,14 +56260,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-11-13T12:05:49.120875Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 185.19562,
-          "ended_at": "2026-11-12T13:08:04.805661Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-11-12T13:04:59.610041Z"
         }
       ],
       "paper_status": null,
@@ -129573,6 +129573,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 1214.625108,
+          "ended_at": "2026-11-21T19:24:41.243141Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-21T19:04:26.618033Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 1189.559242,
           "ended_at": "2026-11-20T21:24:09.065691Z",
           "model": "zai-org.glm-5.3",
@@ -129642,14 +129650,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-11-13T13:05:07.295355Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 7.036537,
-          "ended_at": "2026-11-12T15:05:33.272219Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-11-12T15:05:26.235682Z"
         }
       ],
       "paper_status": null,
@@ -179259,6 +179259,30 @@
   ],
   "recent_activity": [
     {
+      "agent": "planner",
+      "duration_s": 1761.42776,
+      "ended_at": "2026-11-21T19:33:52.835011Z",
+      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-119-statistical-modeling-of-temporal-depende",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-11-21T19:04:31.407251Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1214.625108,
+      "ended_at": "2026-11-21T19:24:41.243141Z",
+      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-532-predicting-material-degradation-pathways",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-11-21T19:04:26.618033Z"
+    },
+    {
       "agent": "implementer",
       "duration_s": 1191.33262,
       "ended_at": "2026-11-21T19:24:37.846420Z",
@@ -185233,30 +185257,6 @@
       "project_stage": "in_progress",
       "severity": "hard",
       "started_at": "2026-11-18T13:04:50.045513Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 1085.514299,
-      "ended_at": "2026-11-18T13:23:04.426237Z",
-      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-145-evaluating-the-predictive-power-of-machi",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-11-18T13:04:58.911938Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 1193.388415,
-      "ended_at": "2026-11-18T12:35:36.854970Z",
-      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-108-assessing-the-impact-of-code-style-consi",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-11-18T12:15:43.466555Z"
     }
   ],
   "reviewed_preprints": [
