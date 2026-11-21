@@ -5,5 +5,5 @@ intent: "System MUST download the OC20 dataset, Materials Project bulk descripto
   \ match, and the DataFrame must contain the required columns . Dataset Pur"
 required_fields: []
 cache_key: eaf2fd6a87adba888a14eb0ee8b0d4d630fd20d63f06b74215519f4be5becc76
-searched_at: '2026-11-14T01:31:04.592770+00:00'
-retry_count: 1
+searched_at: '2026-11-21T09:29:42.722671+00:00'
+retry_count: 2
