@@ -5,5 +5,5 @@ intent: '### User Story 1 - Quantify Latency Penalties of High-Complexity Querie
   between low-complexity (single-hop) and high-complexity (multi-h'
 required_fields: []
 cache_key: 7e4ca9b1ffe6a82f244d52e5290842aa9820f3fa3e5bc367507568350aef4e87
-searched_at: '2026-11-14T14:29:17.828045+00:00'
-retry_count: 1
+searched_at: '2026-11-22T03:32:32.728124+00:00'
+retry_count: 2
