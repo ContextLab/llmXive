@@ -28719,7 +28719,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-22T10:33:10.446186+00:00",
+  "generated_at": "2026-11-22T11:05:32.098284+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -59779,6 +59779,14 @@
       "last_run_log": [
         {
           "agent": "planner",
+          "duration_s": 1670.917306,
+          "ended_at": "2026-11-22T10:32:53.461625Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-22T10:05:02.544319Z"
+        },
+        {
+          "agent": "planner",
           "duration_s": 1736.819033,
           "ended_at": "2026-11-21T12:34:32.940701Z",
           "model": "zai-org.glm-5.3",
@@ -59848,14 +59856,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-11-14T04:05:10.171620Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 70.12009,
-          "ended_at": "2026-11-13T06:08:53.532473Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-11-13T06:07:43.412383Z"
         }
       ],
       "paper_status": null,
@@ -179259,6 +179259,18 @@
   ],
   "recent_activity": [
     {
+      "agent": "planner",
+      "duration_s": 1670.917306,
+      "ended_at": "2026-11-22T10:32:53.461625Z",
+      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-140-evaluating-the-efficacy-of-code-summariz",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-11-22T10:05:02.544319Z"
+    },
+    {
       "agent": "implementer",
       "duration_s": 1154.333175,
       "ended_at": "2026-11-22T10:24:20.682041Z",
@@ -185245,18 +185257,6 @@
       "project_stage": "flesh_out_complete",
       "severity": "hard",
       "started_at": "2026-11-19T04:05:09.594828Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 1147.154313,
-      "ended_at": "2026-11-19T04:24:00.836500Z",
-      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-008-psychology-research",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-11-19T04:04:53.682187Z"
     }
   ],
   "reviewed_preprints": [
