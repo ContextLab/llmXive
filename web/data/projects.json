@@ -28716,7 +28716,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-22T18:33:33.200703+00:00",
+  "generated_at": "2026-11-22T19:06:10.063954+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -87195,6 +87195,14 @@
       "last_run_log": [
         {
           "agent": "planner",
+          "duration_s": 1745.864381,
+          "ended_at": "2026-11-22T18:33:38.450208Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-22T18:04:32.585827Z"
+        },
+        {
+          "agent": "planner",
           "duration_s": 1677.08971,
           "ended_at": "2026-11-21T08:33:23.727106Z",
           "model": "zai-org.glm-5.3",
@@ -87264,14 +87272,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-11-12T21:04:48.927694Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 134.118619,
-          "ended_at": "2026-11-11T23:10:51.288202Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-11-11T23:08:37.169583Z"
         }
       ],
       "paper_status": null,
@@ -160225,6 +160225,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 1147.832962,
+          "ended_at": "2026-11-22T18:32:21.434297Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "failed",
+          "started_at": "2026-11-22T18:13:13.601335Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 52.407387,
           "ended_at": "2026-10-09T21:45:34.406176Z",
           "model": "openai.gpt-oss-120b",
@@ -160294,14 +160302,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-09T21:26:49.161951Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 14.74397,
-          "ended_at": "2026-10-09T21:26:49.159875Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-09T21:26:34.415905Z"
         }
       ],
       "paper_status": null,
@@ -177959,6 +177959,30 @@
   ],
   "recent_activity": [
     {
+      "agent": "planner",
+      "duration_s": 1745.864381,
+      "ended_at": "2026-11-22T18:33:38.450208Z",
+      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-11-22T18:04:32.585827Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1147.832962,
+      "ended_at": "2026-11-22T18:32:21.434297Z",
+      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['openai.gpt-oss-120b', 'zai-org.glm-5.3', 'google.gemma-4-31B-it', 'anthropic",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "failed",
+      "project_id": "PROJ-881-llmxive-follow-up-extending-efficientrol",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-11-22T18:13:13.601335Z"
+    },
+    {
       "agent": "implementer",
       "duration_s": 1200.129022,
       "ended_at": "2026-11-22T18:25:09.311976Z",
@@ -183933,30 +183957,6 @@
       "project_stage": "in_progress",
       "severity": "hard",
       "started_at": "2026-11-19T12:06:00.908325Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 1104.687658,
-      "ended_at": "2026-11-19T12:24:49.789053Z",
-      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-743-ambient-temperature-influence-on-moral-d",
-      "project_stage": "planned",
-      "severity": "hard",
-      "started_at": "2026-11-19T12:06:25.101395Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 1104.452974,
-      "ended_at": "2026-11-19T12:24:26.385495Z",
-      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-555-investigating-the-potential-benefits-of-",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-11-19T12:06:01.932521Z"
     }
   ],
   "reviewed_preprints": [
