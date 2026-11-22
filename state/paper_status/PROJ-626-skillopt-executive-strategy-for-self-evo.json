@@ -3,12 +3,12 @@
   "audit": {
     "passed": true,
     "defects": [],
-    "audited_at": "2026-11-22T10:42:07.447349+00:00"
+    "audited_at": "2026-11-22T11:13:52.735827+00:00"
   },
   "repair_rounds": 0,
   "llmxive_compile_attempts": 0,
   "status": "audited",
   "failure": null,
   "paper_id": "PROJ-626-skillopt-executive-strategy-for-self-evo",
-  "updated_at": "2026-11-22T10:42:07.447361+00:00"
+  "updated_at": "2026-11-22T11:13:52.735837+00:00"
 }
