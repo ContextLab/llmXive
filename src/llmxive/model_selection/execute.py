@@ -48,7 +48,7 @@ from datetime import UTC, datetime, timedelta
 from enum import Enum
 from pathlib import Path
 
-from llmxive.backends.base import BaseBackend, ChatMessage, ChatResponse
+from llmxive.backends.base import BackendCredentialError, BaseBackend, ChatMessage, ChatResponse
 from llmxive.backends.hf_budget import reserve_funded, settle_funded
 from llmxive.backends.huggingface import PreInferenceRejection, request_was_sent
 from llmxive.backends.router import (
@@ -96,6 +96,9 @@ from llmxive.model_selection.types import (
 )
 
 logger = logging.getLogger(__name__)
+
+#: The on-machine backend; skipped after a remote credential failure (see ``execute``).
+_LOCAL_BACKEND = "local"
 
 #: Characters allowed in a ledger reservation id (matches ledger_transport's
 #: validation ``^[A-Za-z0-9._-]+$``, C9); model ids carry ``/`` ``:`` ``.`` so
@@ -738,8 +741,11 @@ def execute(
     local/single-runner/test mode by passing an EXPLICIT ``LedgerConfig`` (e.g.
     ``LedgerConfig(remote=None)``). Free-only chains never touch the env or the
     ledger. Without a ``ledger_repo`` (or when the config/ledger read fails) paid
-    candidates are skipped (fail closed). Raises :class:`ChainExhausted` if no
-    candidate succeeds, or re-raises a request-level permanent refusal (abort)
+    candidates are skipped (fail closed). Once a remote candidate is skipped for a
+    missing or rejected credential (``BackendCredentialError``), one warning names
+    the backend and exception type and every LOCAL candidate after it is skipped;
+    other remote candidates are still tried. Raises :class:`ChainExhausted` if no
+    candidate succeeds (naming that credential failure when there was one), or re-raises a request-level permanent refusal (abort)
     unchanged; raises ``ValueError`` on the fail-fast budget check before any call.
     """
     now = now or datetime.now(UTC)
@@ -823,8 +829,20 @@ def execute(
 
     notes: list[str] = []
     allowance_denied = False  # a funded hold was refused by the allowance (see paid below)
+    #: Set once a REMOTE candidate is skipped for a missing or rejected credential:
+    #: from then on LOCAL candidates are skipped (other remote ones are still tried),
+    #: so a credential problem never degrades silently to a weak local model.
+    credential_failure: str | None = None
     for candidate_index, candidate in enumerate(chain.candidates):
         ref = candidate.model_ref
+        if credential_failure is not None and ref.backend == _LOCAL_BACKEND:
+            reason = (
+                f"local {ref.model_id!r} skipped: {credential_failure} earlier in this chain — "
+                "a remote credential problem never falls back to a local model"
+            )
+            notes.append(reason)
+            emit_audit(route_audit, CandidateOutcome(route_id, candidate_index, ref, "skip", reason))
+            continue
         reservation_id: str | None = None
         reserved_credits = 0.0
         funded = candidate.cost_class == "funded"
@@ -1088,6 +1106,17 @@ def execute(
                 )
                 raise
             notes.append(f"{ref.model_id!r}: {disp.value}: {type(exc).__name__}: {exc}")
+            if (
+                credential_failure is None
+                and isinstance(exc, BackendCredentialError)
+                and ref.backend != _LOCAL_BACKEND
+            ):
+                # Only the exception TYPE: a credential error's text may echo a key.
+                credential_failure = f"{ref.backend} credential failure ({type(exc).__name__})"
+                logger.warning(
+                    "execute: %s; local candidates are skipped for the rest of this chain",
+                    credential_failure,
+                )
             emit_audit(
                 route_audit,
                 CandidateOutcome(route_id, candidate_index, ref, "advance", f"{disp.value}: {type(exc).__name__}"),
@@ -1125,6 +1154,12 @@ def execute(
                             "execute: mark_retained(%s) failed: %s", reservation_id, exc
                         )
 
+    if credential_failure is not None:
+        raise ChainExhausted(
+            f"execute: no candidate served the call after a {credential_failure}; local "
+            "candidates were not tried (a missing or rejected remote key must be fixed, not "
+            f"masked by a local model); chain of {len(chain.candidates)} candidate(s); notes={notes}"
+        )
     raise ChainExhausted(
         f"execute: chain of {len(chain.candidates)} candidate(s) exhausted without success; "
         f"notes={notes}"

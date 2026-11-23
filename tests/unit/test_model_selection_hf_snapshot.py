@@ -73,6 +73,28 @@ def test_parse_hf_catalog_synthetic_edges():
     assert observed["acme/alpha-large:prov-a"] == ObservedModel(200000, frozenset({"structured", "vision"}))
 
 
+def test_vision_comes_only_from_the_model_level_input_modalities():
+    """The recorded router catalog states image input once per MODEL
+    (``architecture.input_modalities``); its provider rows carry no modality or
+    image field. So a funded candidate is vision-eligible exactly when its model
+    lists ``image`` — the same for every provider of that model — and never
+    otherwise. Which providers actually accept an image is not published; a
+    provider that refuses one answers 404 and the chain advances."""
+    _, _, observed = _parse_hf_catalog(CAT)
+    provider_keys = {k for m in CAT["data"] for p in m["providers"] for k in p}
+    assert not {k for k in provider_keys if "modal" in k or "image" in k or "vision" in k}
+    checked_vision = checked_text = 0
+    for m in CAT["data"]:
+        image = "image" in (m.get("architecture") or {}).get("input_modalities", [])
+        for p in m["providers"]:
+            mid = f"{m['id']}:{p['provider']}"
+            if mid in observed:
+                assert ("vision" in observed[mid].features) is image, mid
+                checked_vision += image
+                checked_text += not image
+    assert checked_vision and checked_text  # the fixture exercises both sides
+
+
 def test_parse_hf_catalog_family_and_vendor_come_from_the_repo_alone():
     raw = {"data": [{"id": "Acme/Alpha", "providers": [{"provider": "p1", "status": "live",
                                                         "pricing": {"input": 1, "output": 1}}]}]}

@@ -188,7 +188,8 @@ def disposition_of(exc: BaseException) -> CandidateDisposition:
     """Classify a backend failure into a :class:`CandidateDisposition`. The typed
     ``PaidGuardDenied`` split is what lets a paid-guard denial SKIP (not ABORT):
     it is checked BEFORE its ``PermanentBackendError`` base. ``BackendUnavailable``
-    (breaker open) and every transient class advance; any other permanent aborts.
+    (breaker open, Hugging Face 402, or a router 404 naming no usable provider for
+    this request) and every transient class advance; any other permanent aborts.
     """
     if isinstance(exc, PaidGuardDenied):
         return CandidateDisposition.SKIP

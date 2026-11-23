@@ -2656,7 +2656,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_hf_snapshot.py",
       "kind": "model_id_literal",
-      "line": 239,
+      "line": 261,
       "models": [
         "qwen3.5"
       ],

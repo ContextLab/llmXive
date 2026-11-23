@@ -60,6 +60,19 @@ class HFPaymentRequired(PreInferenceRejection, BackendUnavailable):
     """HTTP 402: the bill-to group has no credit (or the bill-to header was missing)."""
 
 
+class HFRouteUnavailable(BackendUnavailable):
+    """HTTP 404: the router has no provider it may use for this model and request
+    (for example "No allowed providers are available for the selected model" when
+    the pinned provider serves the model's text calls but not image input).
+
+    Another candidate may serve the request, so the chain advances
+    (``disposition_of`` treats every :class:`BackendUnavailable` that way). It is
+    NOT a :class:`PreInferenceRejection`: the funded hold is charged in full, as for
+    any rejection other than 401/402/403. Being a permanent error it does not count
+    toward the model's circuit breaker, so the pair's text calls are unaffected.
+    """
+
+
 class HFCredentialRejected(PreInferenceRejection, BackendCredentialError):
     """The credential cannot serve any request.
 
@@ -152,10 +165,13 @@ class HuggingFaceBackend(BaseBackend):
         return token, bill_to  # type: ignore[return-value]
 
     def _breaker(self, model: str) -> CircuitBreaker:
+        """The per-model breaker. ``dict.setdefault`` is atomic, so threads that
+        race on a model's first call all get the SAME breaker (a check-then-set
+        could hand two threads different breakers and lose a recorded failure)."""
         br = self._breakers.get(model)
         if br is None:
-            br = self._breakers[model] = CircuitBreaker(
-                max_consecutive=3, window_s=1800.0, label="Hugging Face"
+            br = self._breakers.setdefault(
+                model, CircuitBreaker(max_consecutive=3, window_s=1800.0, label="Hugging Face")
             )
         return br
 
@@ -240,6 +256,8 @@ class HuggingFaceBackend(BaseBackend):
                 raise HFPaymentRequired(msg)
             if status in (401, 403):
                 raise HFCredentialRejected(msg, http_status=status)
+            if status == 404:
+                raise HFRouteUnavailable(msg)  # this pair cannot serve this request; try the next
             if status in (408, 429) or status >= 500:
                 raise TransientBackendError(msg)
             raise PermanentBackendError(msg)
@@ -284,6 +302,7 @@ __all__ = [
     "ROUTER_BASE_URL",
     "HFCredentialRejected",
     "HFPaymentRequired",
+    "HFRouteUnavailable",
     "HuggingFaceBackend",
     "PreInferenceRejection",
     "fetch_router_catalog",

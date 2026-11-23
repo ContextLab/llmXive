@@ -204,3 +204,87 @@ def test_make_backend_keeps_the_breaker_across_calls(monkeypatch):
     monkeypatch.setenv("LLMXIVE_HF_BILL_TO", "grp_breaker_other")
     make_backend("huggingface")._breaker(model).call(lambda: ran.append(1))
     assert ran == [1]
+
+
+# The router's reply when the pinned provider cannot serve THIS request (seen live
+# 2026-11-23 for an image request to a provider that served the same model's text
+# calls). Provider names here are placeholders.
+_NO_PROVIDER_404 = {"error": "No allowed providers are available for the selected model. "
+                             "Providers serving acme/alpha-large: prov-b, prov-c"}
+
+
+def test_router_404_is_route_unavailable_and_advances_the_chain():
+    from llmxive.backends.huggingface import HFRouteUnavailable
+    from llmxive.backends.router import CandidateDisposition, disposition_of
+
+    with ReplayServer({("POST", "/chat/completions"): [(404, _NO_PROVIDER_404)]}) as srv:
+        with pytest.raises(HFRouteUnavailable, match="No allowed providers") as ei:
+            _be(srv).chat(MSG, model=M)
+    assert isinstance(ei.value, BackendUnavailable)          # the unavailable-backend class
+    assert not isinstance(ei.value, PreInferenceRejection)   # owner rule: not a zero-charge rejection
+    assert disposition_of(ei.value) is CandidateDisposition.RETRY_ADVANCE
+    assert len(srv.requests) == 1
+
+
+@pytest.mark.parametrize("status", [400, 422])
+def test_malformed_request_stays_permanent_and_aborts(status):
+    from llmxive.backends.huggingface import HFRouteUnavailable
+    from llmxive.backends.router import CandidateDisposition, disposition_of
+
+    with ReplayServer({("POST", "/chat/completions"): [(status, {"error": "bad request"})]}) as srv:
+        with pytest.raises(PermanentBackendError) as ei:
+            _be(srv).chat(MSG, model=M)
+    assert not isinstance(ei.value, (HFRouteUnavailable, BackendUnavailable))
+    assert disposition_of(ei.value) is CandidateDisposition.ABORT
+
+
+def test_route_unavailable_does_not_trip_the_model_breaker():
+    """A pair that cannot serve image input still serves text: repeated 404s must not
+    open the per-model breaker that its text calls share."""
+    from llmxive.backends.huggingface import HFRouteUnavailable
+
+    script = [(404, _NO_PROVIDER_404)] * 4 + [OK]
+    with ReplayServer({("POST", "/chat/completions"): script}) as srv:
+        be = _be(srv)
+        for _ in range(4):
+            with pytest.raises(HFRouteUnavailable):
+                be.chat(MSG, model=M)
+        assert be.chat(MSG, model=M).text == "ok"
+    assert len(srv.requests) == 5
+
+
+def test_breaker_creation_is_race_free_under_threads():
+    """Concurrent first use of one model id must yield ONE breaker, so no recorded
+    failure is lost on a breaker that was then replaced. Against the old
+    check-then-set code this fails within the 200 rounds."""
+    import sys
+    import threading
+
+    be = HuggingFaceBackend(token="hf_t", bill_to="grp123")
+    model = "race/one:prov-a"
+
+    def one_round() -> bool:
+        be._breakers.clear()
+        barrier, got = threading.Barrier(16), []
+        lock = threading.Lock()
+
+        def worker():
+            barrier.wait()
+            br = be._breaker(model)
+            with lock:
+                got.append(br)
+
+        threads = [threading.Thread(target=worker) for _ in range(16)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+        return len({id(b) for b in got}) == 1 and be._breakers[model] is got[0]
+
+    old = sys.getswitchinterval()
+    sys.setswitchinterval(1e-6)  # switch threads as often as possible to expose the race
+    try:
+        rounds = [one_round() for _ in range(200)]
+    finally:
+        sys.setswitchinterval(old)
+    assert all(rounds), f"{rounds.count(False)} of {len(rounds)} rounds built more than one breaker"

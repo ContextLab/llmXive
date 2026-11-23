@@ -1061,3 +1061,128 @@ def test_a_stalled_ledger_skips_the_funded_candidate_with_a_type_only_note(repo,
     funded_notes = [n for n in res.notes if "funded" in n]
     assert funded_notes and all("timed out" not in n for n in funded_notes)  # TYPE only, never text
     assert any("LedgerError" in n for n in funded_notes)
+
+
+# --- a router 404 ("no allowed provider for this request") advances; 400/422 abort ---
+
+_NO_PROVIDER_404 = {"error": "No allowed providers are available for the selected model. "
+                             "Providers serving acme/beta-mini: prov-x"}
+
+
+def test_router_404_advances_to_the_next_candidate_and_charges_the_reservation(repo):
+    def route(req):
+        if req["json"]["model"] == B:
+            return (404, _NO_PROVIDER_404)
+        return (200, _chat_ok(req["json"]["model"]))
+
+    with ReplayServer({("POST", "/chat/completions"): route}) as srv:
+        res = _run(repo, _hf(srv), sel("cheap_structured", snapshot(local=False)))
+        assert [r["json"]["model"] for r in srv.requests] == [B, E]
+    assert res.model_ref.model_id == E
+    # Owner rule: a rejection without usage, other than 401/402/403 or an unsent
+    # request, charges the full reservation; every hold this call opened is settled.
+    assert sorted(charged(repo).values()) == [pytest.approx(E_COST), pytest.approx(0.0018)]
+    assert {e["reservation_id"] for e in events(repo) if e["type"] == "open"} == set(charged(repo))
+
+
+@pytest.mark.parametrize("status", [400, 422])
+def test_malformed_request_still_aborts_the_chain(repo, status):
+    with ReplayServer({("POST", "/chat/completions"): [(status, {"error": "bad request"})]}) as srv:
+        with pytest.raises(PermanentBackendError):
+            _run(repo, _hf(srv), sel("cheap_structured", snapshot(local=False)))
+        assert [r["json"]["model"] for r in srv.requests] == [B]
+    assert list(charged(repo).values()) == [pytest.approx(0.0018)]
+
+
+def _two_provider_vision_snapshot():
+    """The synthetic snapshot plus a SECOND image-capable provider of C's repo that is
+    cheaper than C, and image input on A — so a naive cheapest-two pick would be two
+    providers of the same model."""
+    from llmxive.model_selection.types import ModelPricing, ObservedModel
+    from tests.helpers.funded import REPO_C, A, C, _ref
+
+    snap = snapshot(local=False)
+    c2 = f"{REPO_C}:prov-d"
+    observed = dict(snap.observed)
+    observed[c2] = ObservedModel(128_000, frozenset({"structured", "vision"}))
+    observed[A] = ObservedModel(200_000, frozenset({"structured", "tools", "vision"}))
+    pricing = {**snap.pricing, c2: ModelPricing(4e-7, 1.5e-6)}
+    return replace(
+        snap, models=(*snap.models, _ref(c2, "huggingface", "prov-d")), pricing=pricing,
+        observed=observed, scores={**snap.scores, c2: snap.scores[C]},
+        health={**snap.health, c2: "ok"},
+    ), c2
+
+
+def test_second_funded_vision_candidate_is_another_model_and_serves_after_a_404(repo):
+    from tests.helpers.funded import C, order
+
+    snap, c2 = _two_provider_vision_snapshot()
+    chain = sel("vision", snap)
+    funded = [c.model_ref for c in chain.candidates if c.cost_class == "funded"]
+    assert len(funded) == 2 and funded[0].model_id == c2
+    assert funded[1].model_family != funded[0].model_family and C not in order(chain)
+
+    def route(req):
+        if req["json"]["model"] == c2:
+            return (404, _NO_PROVIDER_404)
+        return (200, _chat_ok(req["json"]["model"]))
+
+    with ReplayServer({("POST", "/chat/completions"): route}) as srv:
+        res = _run(repo, _hf(srv), chain)
+        assert [r["json"]["model"] for r in srv.requests] == [c2, funded[1].model_id]
+    assert res.model_ref == funded[1]
+    assert len(charged(repo)) == 2  # both holds this call opened are settled
+
+
+# --- a remote credential failure never falls silently to a weak local model ---
+
+def _no_dartmouth_key(monkeypatch, tmp_path):
+    monkeypatch.delenv("DARTMOUTH_CHAT_API_KEY", raising=False)
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "no-config"))  # no credentials.toml
+
+
+def test_missing_remote_key_skips_local_and_names_the_credential_problem(repo, monkeypatch, tmp_path, caplog):
+    from llmxive.backends.dartmouth import DartmouthBackend
+    from tests.helpers.funded import GLM, LOCAL, order
+
+    _no_dartmouth_key(monkeypatch, tmp_path)
+    chain = sel("cheap_structured", snapshot(dartmouth=(GLM,), hf=()))
+    assert order(chain) == [GLM, LOCAL]
+    built: list[str] = []
+
+    def factory(name):
+        built.append(name)
+        if name == "dartmouth":
+            return DartmouthBackend()          # the real constructor: raises, no key
+        raise AssertionError(f"{name} must not be built after a remote credential failure")
+
+    with pytest.raises(ChainExhausted, match=r"dartmouth credential failure \(BackendCredentialError\)") as ei:
+        execute(chain, MSG, options=ExecutionOptions(max_tokens=512), backend_factory=factory,
+                ledger_repo=repo, funded_ledger_config=CFG, funded_observer=OBS(), now=NOW)
+    assert built == ["dartmouth"]
+    assert "local candidates were not tried" in str(ei.value)
+    warnings = [r for r in caplog.records if r.levelname == "WARNING" and "credential" in r.getMessage()]
+    assert len(warnings) == 1 and "dartmouth" in warnings[0].getMessage()
+    assert "BackendCredentialError" in warnings[0].getMessage()
+
+
+def test_missing_remote_key_still_tries_another_remote_backend(repo, monkeypatch, tmp_path):
+    from llmxive.backends.dartmouth import DartmouthBackend
+    from tests.helpers.funded import GLM, LOCAL, order
+
+    _no_dartmouth_key(monkeypatch, tmp_path)
+    chain = sel("cheap_structured", snapshot(dartmouth=(GLM,)))
+    assert order(chain) == [GLM, B, E, LOCAL]
+    with ReplayServer({("POST", "/chat/completions"): lambda req: (200, _chat_ok(req["json"]["model"]))}) as srv:
+        def factory(name):
+            if name == "dartmouth":
+                return DartmouthBackend()
+            if name == "huggingface":
+                return _hf(srv)
+            raise AssertionError(f"{name} must not be built")
+
+        res = execute(chain, MSG, options=ExecutionOptions(max_tokens=512), backend_factory=factory,
+                      ledger_repo=repo, funded_ledger_config=CFG, funded_observer=OBS(), now=NOW)
+        assert [r["json"]["model"] for r in srv.requests] == [B]
+    assert res.model_ref.model_id == B and res.response.backend == "huggingface"
