@@ -55,29 +55,61 @@ _BARE_FAMILY_MODEL = re.compile(
 
 #: Hugging Face ``Org/Model`` form (e.g. ``Qwen/Qwen2.5-3B-Instruct``). The org
 #: is restricted to a known-ML-org set so ordinary ``a/b`` path strings (e.g.
-#: ``state/model_selection``) are NOT mistaken for model ids.
+#: ``state/model_selection``) are NOT mistaken for model ids. The set includes
+#: every org in the recorded Hugging Face router catalog, and an optional
+#: ``:<provider>`` suffix (the router's pinned-provider form) is accepted.
 _HF_ORGS = frozenset(
     {
-        "Qwen",
-        "meta-llama",
-        "mistralai",
-        "google",
-        "microsoft",
-        "deepseek-ai",
-        "HuggingFaceH4",
-        "bigcode",
-        "tiiuae",
-        "Salesforce",
-        "EleutherAI",
-        "stabilityai",
-        "NousResearch",
         "BAAI",
+        "BSC-LT",
+        "ByteDance-Seed",
+        "CohereLabs",
+        "EleutherAI",
+        "Gryphe",
+        "HuggingFaceH4",
+        "LiquidAI",
+        "MiniMaxAI",
+        "NousResearch",
+        "Qwen",
+        "RadixArk",
+        "RekaAI",
+        "Salesforce",
+        "Sao10K",
+        "Undi95",
+        "XiaomiMiMo",
+        "aisingapore",
+        "alpindale",
+        "anthracite-org",
+        "bigcode",
+        "cyankiwi",
+        "deepseek-ai",
+        "dphn",
+        "google",
+        "ibm-granite",
+        "inclusionAI",
+        "meta-llama",
+        "meta-models",
+        "microsoft",
+        "mistralai",
+        "moondream",
+        "moonshotai",
+        "nvidia",
+        "openai",
+        "reflection",
         "sentence-transformers",
+        "speakleash",
+        "stabilityai",
+        "stepfun-ai",
+        "swiss-ai",
+        "tencent",
+        "thinkingmachines",
+        "tiiuae",
+        "zai-org",
     }
 )
 _HF_SLASH_MODEL = re.compile(
     r"^(?:" + "|".join(re.escape(o) for o in sorted(_HF_ORGS)) + r")"
-    r"/[A-Za-z0-9][A-Za-z0-9._-]*$"
+    r"/[A-Za-z0-9][A-Za-z0-9._-]*(?::[A-Za-z0-9][A-Za-z0-9._-]*)?$"
 )
 
 

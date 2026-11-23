@@ -377,3 +377,48 @@ def test_error_signature_matcher_is_the_only_sanctioned_escalations_symbol(tmp_p
     )
     violations = find_pin_violations(tmp_path)
     assert [v["symbol"] for v in violations] == ["pick_model"]
+
+
+# --- spec 027: Hugging Face router ids (<org>/<model>[:<provider>]) --------
+
+_ROUTER_FIXTURE = REPO_ROOT / "tests/fixtures/hf_funded/router_models.json"
+
+
+def _router_models():
+    return json.loads(_ROUTER_FIXTURE.read_text())["payload"]["data"]
+
+
+def test_detector_recognises_every_recorded_router_id_with_and_without_provider():
+    from llmxive.model_selection.inventory import looks_like_model_id
+
+    for m in _router_models():
+        assert looks_like_model_id(m["id"]), m["id"]
+        for p in m["providers"]:
+            assert looks_like_model_id(f"{m['id']}:{p['provider']}"), (m["id"], p)
+    assert not looks_like_model_id("state/model_selection")
+    assert not looks_like_model_id("acme/alpha-large:prov-a")
+
+
+def test_detector_has_no_false_positives_on_ordinary_slash_strings():
+    from llmxive.model_selection.inventory import looks_like_model_id
+    from llmxive.model_selection.leaderboard import LMARENA_DATASET
+
+    assert LMARENA_DATASET == "lmarena-ai/leaderboard-dataset"
+    assert not looks_like_model_id(LMARENA_DATASET)
+    assert not looks_like_model_id("src/llmxive/backends/huggingface.py")
+    assert not looks_like_model_id("application/json")
+    assert not looks_like_model_id("text/plain")
+    assert not looks_like_model_id("refs/heads/main")
+
+
+def test_a_planted_provider_pinned_literal_in_production_is_a_violation(tmp_path):
+    rid = _router_models()[0]
+    pin = f"{rid['id']}:{rid['providers'][0]['provider']}"
+    _write(tmp_path / "src/llmxive/backends/huggingface.py", f'DEFAULT = "{pin}"\n')
+    assert [v["file"] for v in find_pin_violations(tmp_path)] == [
+        "src/llmxive/backends/huggingface.py"
+    ]
+
+
+def test_the_real_tree_still_has_zero_violations_after_027():
+    assert find_violations(REPO_ROOT) == []

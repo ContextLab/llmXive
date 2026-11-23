@@ -2874,6 +2874,17 @@
     },
     {
       "category": "test_double",
+      "file": "tests/unit/test_model_selection_leaderboard.py",
+      "kind": "model_id_literal",
+      "line": 61,
+      "models": [
+        "openai/gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_normalise_repo_uses_the_part_after_the_org"
+    },
+    {
+      "category": "test_double",
       "file": "tests/unit/test_model_selection_lkg.py",
       "kind": "model_id_literal",
       "line": 17,
