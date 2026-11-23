@@ -7,7 +7,7 @@ import json
 import logging
 import re
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import yaml
 
@@ -22,7 +22,24 @@ from llmxive.speckit.task_lines import (
     validate_open_tasks,
 )
 
+if TYPE_CHECKING:
+    from llmxive.model_selection.types import RequirementOverrides
+
 _LOG = logging.getLogger(__name__)
+
+#: "Resolve the escalation constraints from the project's recorded model tier" —
+#: distinct from ``None``, which means "no constraints".
+_PROJECT_TIER: Any = object()
+
+
+def _selection(profile: str, overrides: RequirementOverrides | None) -> str:
+    """The selection a paper receipt / retry counter is bound to (spec 026): the
+    profile-era replacement for "the model id this dispatch requested". A tier
+    escalation changes ``overrides`` and therefore this string, exactly as it
+    used to change the requested model id."""
+    from llmxive.model_selection.profiles import selection_identity
+
+    return selection_identity(profile, overrides)
 
 # Sentinel artifact keys the PaperImplementReviser reads via
 # ``artifacts.get("__X__", "")``. SSoT for the contract lives in
@@ -225,10 +242,12 @@ class PaperImplementerAgent(SlashCommandAgent):
         memory = ctx.project_dir / "paper/.specify/memory"
         result = run_verification_pass(
             ctx.project_dir, tasks, already_verified=verified_done_keys(
-                ctx.project_dir, tasks, model=ctx.default_model),
+                ctx.project_dir, tasks, overrides=ctx.requirement_overrides),
             spec_context=(tasks.parent / "spec.md").read_text() if (tasks.parent / "spec.md").exists() else "",
-            model=ctx.default_model, default_backend=ctx.default_backend.value,
-            fallback_backends=tuple(b.value for b in ctx.fallback_backends),
+            # The verifier keeps its own review profile; the dispatch's tier
+            # constraints ride along so an escalation re-judges under the new
+            # selection (and stale receipts stop matching).
+            overrides=ctx.requirement_overrides,
             notes_path=memory / "task_verify.notes.md", state_path=memory / "task_verify.yaml",
             project_id=ctx.project_id, repo_root=ctx.project_dir.parent.parent,
         )
@@ -249,7 +268,9 @@ class PaperImplementerAgent(SlashCommandAgent):
         path = ctx.project_dir / "paper/.specify/memory/proposal_failures.yaml"
         path.parent.mkdir(parents=True, exist_ok=True)
         attempts = yaml.safe_load(path.read_text()) if path.exists() else {}
-        key = hashlib.sha256((str(mechanical["next_task_line"]) + ctx.default_model).encode()).hexdigest()
+        key = hashlib.sha256((
+            str(mechanical["next_task_line"]) + _selection(ctx.profile, ctx.requirement_overrides)
+        ).encode()).hexdigest()
         count = int((attempts or {}).get(key, 0)) + 1
         path.write_text(yaml.safe_dump({**(attempts or {}), key: count}), encoding="utf-8")
         if count >= 3:
@@ -259,11 +280,13 @@ class PaperImplementerAgent(SlashCommandAgent):
         from llmxive.agents import registry
         from llmxive.agents.base import AgentContext
         from llmxive.agents.proofreader import ProofreaderAgent
-        entry = registry.get("proofreader", repo_root=ctx.project_dir.parent.parent).model_copy(update={
-            "default_backend": ctx.default_backend, "fallback_backends": ctx.fallback_backends,
-            "default_model": ctx.default_model,
-        })
-        result = ProofreaderAgent(entry).run(AgentContext(
+        entry = registry.get("proofreader", repo_root=ctx.project_dir.parent.parent)
+        proofreader = ProofreaderAgent(entry)
+        # Run the proofreader under THIS dispatch's tier constraints (it keeps its
+        # own registry profile), so an escalated paper implementer is not
+        # proofread by the selection that just failed.
+        proofreader.requirement_overrides = ctx.requirement_overrides
+        result = proofreader.run(AgentContext(
             project_id=ctx.project_id, run_id=ctx.run_id, task_id=ctx.task_id,
             inputs=[str(ctx.project_dir / "paper/source")],
             metadata={"repo_root": str(ctx.project_dir.parent.parent)},
@@ -360,7 +383,10 @@ class PaperImplementerAgent(SlashCommandAgent):
         except Exception:
             backend = None
 
-        if paper_implementation_review_current(ctx.project_dir, Path(mechanical_output["feature_dir"]), model=ctx.default_model):
+        if paper_implementation_review_current(
+            ctx.project_dir, Path(mechanical_output["feature_dir"]),
+            overrides=ctx.requirement_overrides, profile=ctx.profile,
+        ):
             return self._finish_gates(ctx)
         artifacts = self._gather_paper_artifacts(ctx.project_dir)
         if not artifacts:
@@ -425,7 +451,7 @@ class PaperImplementerAgent(SlashCommandAgent):
         receipt.write_text(yaml.safe_dump({
             "version": 1, "hash": _paper_review_hash(ctx.project_dir, Path(mechanical_output["feature_dir"])),
             "policy": _paper_review_policy_hash(ctx.project_dir.parent.parent),
-            "model": ctx.default_model,
+            "selection": _selection(ctx.profile, ctx.requirement_overrides),
         }), encoding="utf-8")
         outputs.append(str(receipt.relative_to(repo)))
         outputs.extend(self._finish_gates(ctx))
@@ -467,26 +493,39 @@ def _paper_review_policy_hash(repo: Path) -> str:
     return digest.hexdigest()
 
 
-def paper_implementation_review_current(project_dir: Path, feature_dir: Path, *, model: str | None = None) -> bool:
-    """Whole-paper convergence and per-task receipts must certify current bytes."""
+def paper_implementation_review_current(
+    project_dir: Path, feature_dir: Path, *,
+    overrides: RequirementOverrides | None = _PROJECT_TIER,
+    profile: str | None = None,
+) -> bool:
+    """Whole-paper convergence and per-task receipts must certify current bytes.
+
+    The receipt is bound to the SELECTION the review ran under (spec 026):
+    ``profile`` (default: the registered ``paper_implementer`` profile) plus the
+    escalation ``overrides`` (default: the project's recorded model tier). A
+    receipt written under a different selection — including a pre-026 receipt
+    that recorded a model id instead — is not current, so the review re-runs.
+    """
     from llmxive.agents.task_verifier import task_keys, verified_done_keys
     try:
         repo = project_dir.parent.parent
-        if model is None:
-            from llmxive.agents import registry
+        if overrides is _PROJECT_TIER:
             from llmxive.state import execution_status
-            model = execution_status.execution_model_override(project_dir.name,
-                default_model=registry.get("paper_implementer", repo_root=repo).default_model, repo_root=repo)
+            overrides = execution_status.tier_overrides(project_dir.name, repo_root=repo)
+        if profile is None:
+            from llmxive.agents import registry
+            profile = registry.get("paper_implementer", repo_root=repo).profile
         receipt = yaml.safe_load((project_dir / "paper/.specify/memory/implementation_review.yaml").read_text())
         text = (feature_dir / "tasks.md").read_text()
         if not isinstance(receipt, dict) or receipt.get("version") != 1 or not all_complete(text):
             return False
-        if receipt.get("model") != model or receipt.get("policy") != _paper_review_policy_hash(repo):
+        if (receipt.get("selection") != _selection(profile, overrides)
+                or receipt.get("policy") != _paper_review_policy_hash(repo)):
             return False
         if receipt.get("hash") != _paper_review_hash(project_dir, feature_dir):
             return False
         return set(task_keys(text.splitlines()).values()) <= verified_done_keys(
-            project_dir, feature_dir / "tasks.md", model=model)
+            project_dir, feature_dir / "tasks.md", overrides=overrides)
     except (OSError, KeyError, yaml.YAMLError):
         return False
 

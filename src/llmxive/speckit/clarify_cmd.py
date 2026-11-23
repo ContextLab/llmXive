@@ -247,7 +247,7 @@ class ClarifierAgent(SlashCommandAgent):
         """
         try:
             from llmxive.backends.router import make_backend, reasoning_chat
-            backend = make_backend(ctx.default_backend.value)
+            backend = make_backend("dartmouth")
         except Exception:
             backend = None
         if backend is None:
@@ -264,7 +264,10 @@ class ClarifierAgent(SlashCommandAgent):
             "the object and every list are closed."
         )))
         try:
-            response = reasoning_chat(backend, messages, model=ctx.default_model)
+            response = reasoning_chat(
+                backend, messages, profile=ctx.profile,
+                overrides=ctx.requirement_overrides,
+            )
         except Exception as exc:
             print(f"[clarify] re-ask for a readable reply failed: {type(exc).__name__}: {exc}")
             return None

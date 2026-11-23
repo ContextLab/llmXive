@@ -44,6 +44,32 @@ dedicated vision peer (its own attribution is unchanged) so the paper
 figure-review call (``paper_reprocess.preprint_figures``) can still reach it
 via ``RequirementOverrides(exclude_leader=True)`` when it needs a second
 opinion independent of qwen3.5.
+
+v3 (2026-11-23, merge of ``main`` into the spec-026 branch) adds the
+``glm-5.3`` family (``zai-org.glm-5.3``) as the TEXT leader. ``main`` had made
+it the registry-wide default model and the head of its fallback table
+(``glm-5.3`` → ``gpt-oss`` → ``gemma-4`` → guarded paid haiku); under this
+policy that intent is expressed as the highest quality tier, so ``select``
+ranks it first for ``cheap`` / ``standard`` / ``deep`` and the free text chain
+becomes ``zai-org.glm-5.3`` → ``qwen.qwen3.5-122b`` → ``google.gemma-4-31B-it``
+→ ``openai.gpt-oss-120b`` → guarded paid ``anthropic.claude-haiku-4-5``. Two
+differences from ``main``'s table follow from keeping ONE policy rather than a
+per-primary table: qwen3.5 stays in the chain (second), and gemma-4 precedes
+gpt-oss (the existing tier-2 tie-break on model id).
+
+What is attributed to ``glm-5.3``, and on what evidence in this repository:
+
+- ``reasoning``: ``backends.dartmouth._REASONING_MODELS`` lists ``"glm-5"``
+  (it gets the reasoning deadline), and ``main`` ran every reasoning agent on it.
+- ``structured``: ``main`` ran the structured-output agents (reviewers,
+  revisers, verifiers) on it as their default model.
+- NOT ``vision``: nothing in the repository shows it understanding an image, so
+  it is not attributed the capability (Constitution II). The ``vision`` chain is
+  unchanged (``qwen3.5`` → ``qwen3-vl``).
+- ``max_context_tokens=128_000`` is an ASSUMPTION, not a verified fact: the
+  repository states no context window for this model, so it takes the smallest
+  window among its Dartmouth-hosted text peers (gemma-4 / gpt-oss). Raise it
+  only with a verified figure.
 """
 
 from __future__ import annotations
@@ -57,7 +83,7 @@ from llmxive.model_selection.types import Capability
 #: Bump when the table below changes in a way that can alter a decision. Part of
 #: ``select``'s pure input so the same snapshot+requirement under a different
 #: policy version is a DIFFERENT (distinguishable) decision.
-SELECTION_POLICY_VERSION = 2
+SELECTION_POLICY_VERSION = 3
 
 
 @dataclass(frozen=True)
@@ -125,11 +151,18 @@ class CapabilityPolicy:
 # intrudes on the text chains (behavior-preserving vs the legacy
 # MODEL_FALLBACKS, which never routed text through a VL model); the paid
 # ``claude-haiku-4-5`` stays a TEXT fallback (no vision) — its role in the
-# legacy chain.
+# legacy chain. glm-5.3 (v3) is the text leader — the top quality tier; its
+# 128K window is an assumed conservative value (see the module docstring).
 # --------------------------------------------------------------------------- #
 CAPABILITY_POLICY = CapabilityPolicy(
     version=SELECTION_POLICY_VERSION,
     entries={
+        "glm-5.3": PolicyEntry(
+            capabilities=frozenset({"cheap", "standard", "deep"}),
+            features=frozenset({"reasoning", "structured"}),
+            quality_tier=4,
+            max_context_tokens=128_000,
+        ),
         "qwen3.5": PolicyEntry(
             capabilities=frozenset({"cheap", "standard", "deep", "vision"}),
             features=frozenset({"reasoning", "structured", "vision"}),

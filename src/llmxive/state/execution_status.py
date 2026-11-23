@@ -81,6 +81,8 @@ class TierConstraint:
     exclude_leader: bool = False
     require_paid: bool = False
     max_credits: int | None = None
+    #: Drop the top N ranked candidates (see ``RequirementOverrides.exclude_leaders``).
+    exclude_leaders: int = 0
 
     @property
     def is_paid(self) -> bool:
@@ -91,15 +93,19 @@ class TierConstraint:
             allow_paid=self.allow_paid,  # ALWAYS explicit (incl. False)
             require_paid=self.require_paid,
             exclude_leader=self.exclude_leader,
+            exclude_leaders=self.exclude_leaders,
             max_credits=self.max_credits,
         )
 
 
 #: The free rungs (indices stable): tier 0 = base free; tier 1 = free second opinion
-#: (exclude whatever ``select`` ranks first so the policy's next-best free leads).
+#: (exclude whatever ``select`` ranks first so the policy's next-best free leads);
+#: tier 2 = a THIRD free family (exclude the top two, so the policy's third-best
+#: free model leads) — the free ladder is tier0 → tier1 → tier2 → re-plan.
 _FREE_RUNGS: tuple[TierConstraint, ...] = (
     TierConstraint(allow_paid=False),
     TierConstraint(allow_paid=False, exclude_leader=True),
+    TierConstraint(allow_paid=False, exclude_leaders=2),
 )
 #: The single paid rung appended when paid escalation is enabled.
 _PAID_RUNG = TierConstraint(allow_paid=True, require_paid=True)
@@ -124,8 +130,8 @@ def _paid_escalation_enabled() -> bool:
 
 
 def model_tier_ladder() -> tuple[TierConstraint, ...]:
-    """The ordered escalation ladder as constraints (index = tier). Two free rungs,
-    plus ONE paid rung when paid escalation is enabled."""
+    """The ordered escalation ladder as constraints (index = tier). Three free
+    rungs, plus ONE paid rung when paid escalation is enabled."""
     return (*_FREE_RUNGS, _PAID_RUNG) if _paid_escalation_enabled() else _FREE_RUNGS
 
 

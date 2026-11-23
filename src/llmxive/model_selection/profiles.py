@@ -20,15 +20,24 @@ from __future__ import annotations
 
 from dataclasses import dataclass, replace
 
+from llmxive.model_selection.policy import SELECTION_POLICY_VERSION
 from llmxive.model_selection.types import (
     CallBudget,
     Capability,
     IndependenceBaseline,
     IndependenceDim,
     ModelRequirement,
+    RequirementOverrides,
+    canonical_overrides,
 )
 
-__all__ = ["PROFILES", "RequirementProfile", "build_requirement", "profile"]
+__all__ = [
+    "PROFILES",
+    "RequirementProfile",
+    "build_requirement",
+    "profile",
+    "selection_identity",
+]
 
 
 @dataclass(frozen=True)
@@ -155,6 +164,25 @@ PROFILES: dict[str, RequirementProfile] = {
 def profile(name: str) -> RequirementProfile:
     """Look up a canonical profile by name (raises ``KeyError`` if unknown)."""
     return PROFILES[name]
+
+
+def selection_identity(name: str, overrides: RequirementOverrides | None = None) -> str:
+    """A stable string naming WHAT a call asks the selector for: the profile,
+    the capability-policy version, and the effective escalation constraints.
+
+    This is the profile-era replacement for "the requested model id" wherever a
+    receipt, cache key or retry counter must be bound to the selection a verdict
+    was produced under (task-verifier receipts, paper review receipts, the
+    task-analysis policy fingerprint). It changes exactly when a deliberate,
+    reviewed input to selection changes — a different profile, a
+    ``SELECTION_POLICY_VERSION`` bump, or a tier escalation's overrides — so such
+    a change invalidates the stored decision instead of silently reusing it. It
+    deliberately does NOT bind the live runtime snapshot (catalog flaps are not a
+    reviewed decision), matching the convergence review cache's key.
+    """
+    return (
+        f"profile={name}|policy={SELECTION_POLICY_VERSION}|{canonical_overrides(overrides)}"
+    )
 
 
 def build_requirement(

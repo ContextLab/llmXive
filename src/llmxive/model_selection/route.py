@@ -67,7 +67,9 @@ from llmxive.model_selection.types import (
 __all__ = [
     "DETERMINISTIC_NO_LLM",
     "RequirementOverrides",
+    "free_peer_ids",
     "reset_snapshot_cache",
+    "resolve_chain",
     "route_chat",
 ]
 
@@ -241,6 +243,107 @@ def _select_audited(
         raise
 
 
+def resolve_chain(
+    messages: Iterable[ChatMessage],
+    *,
+    profile: str,
+    max_tokens: int,
+    allow_paid: bool | None = None,
+    independence_against: IndependenceBaseline | None = None,
+    snapshot: RuntimeSnapshot | None = None,
+    overrides: RequirementOverrides | None = None,
+    route_audit: RouteAudit | None = None,
+    route_id: str = "",
+) -> tuple[ModelRequirement, ModelChain]:
+    """THE selection decision for one call: acquire the (bounded-cache) snapshot,
+    build the profile's requirement priced against ``messages``, compose
+    ``overrides`` on top, and run the pure :func:`select`. Returns the final
+    ``(requirement, chain)``; performs NO dispatch.
+
+    This is the single place a profile + overrides become a chain.
+    :func:`route_chat` calls it and then executes the result; a caller that only
+    needs to know what the selector WOULD offer (:func:`free_peer_ids`) calls it
+    too, so a preview can never disagree with the real decision.
+
+    Raises :class:`ModelUnavailable` when no candidate is eligible (including
+    from the leader-resolving passes) and ``ValueError`` when ``allow_paid`` is
+    supplied both directly and through ``overrides``.
+    """
+    msg_list = list(messages)
+    snap = snapshot if snapshot is not None else _acquire_snapshot()
+
+    # allow_paid precedence (spec 026 slice 6, round-2 #1): no silent precedence.
+    if allow_paid is not None and overrides is not None and overrides.allow_paid is not None:
+        raise ValueError(
+            "allow_paid supplied both directly and through overrides — pass exactly one"
+        )
+    if overrides is not None and overrides.allow_paid is not None:
+        allow_paid_eff = overrides.allow_paid
+    elif allow_paid is not None:
+        allow_paid_eff = allow_paid
+    else:
+        allow_paid_eff = snap.credit.paid_opt_in
+
+    call_budget = call_budget_for(msg_list, max_tokens)
+    base = build_requirement(
+        profile,
+        call_budget,
+        independence_against=independence_against,
+        allow_paid=allow_paid_eff,
+    )
+    if overrides is None:
+        requirement = base
+    else:
+        requirement = replace(
+            base,
+            require_paid=base.require_paid or overrides.require_paid,
+            exclude_models=base.exclude_models | overrides.exclude_models,
+            max_credits=_tighter_credits(base.max_credits, overrides.max_credits),
+        )
+        # LEADER EXCLUSION (pure, no I/O): resolve who would lead, then exclude
+        # exactly that model — once for ``exclude_leader``, ``exclude_leaders``
+        # times for a deeper rung (each pass drops the leader of what remains).
+        # If a pass raises ModelUnavailable it propagates immediately — there is
+        # no leader left to exclude and the deciding pass never runs.
+        for _ in range(max(int(overrides.exclude_leader), overrides.exclude_leaders)):
+            leader = _select_audited(requirement, snap, route_audit, route_id).candidates[0].model_ref.model_id
+            requirement = replace(
+                requirement, exclude_models=requirement.exclude_models | {leader}
+            )
+    chain = _select_audited(requirement, snap, route_audit, route_id)   # THE decision
+    return requirement, chain
+
+
+def free_peer_ids(
+    profile: str,
+    *,
+    exclude_models: frozenset[str] = frozenset(),
+    overrides: RequirementOverrides | None = None,
+    snapshot: RuntimeSnapshot | None = None,
+) -> tuple[str, ...]:
+    """The model ids the selector would offer ``profile`` with paid admission OFF
+    and ``exclude_models`` prohibited — i.e. the verified-FREE candidates a
+    request-local retry could still use, in chain order. ``()`` when there are
+    none (including a paid-only rung, where ``require_paid`` with paid off
+    admits nothing).
+
+    A pure preview over the same :func:`resolve_chain` the real call uses; no
+    model is contacted. "Free" here is the snapshot's priced fact (unknown price
+    is never free), never a hardcoded allowlist.
+    """
+    base = overrides if overrides is not None else RequirementOverrides()
+    free_only = replace(
+        base, allow_paid=False, exclude_models=base.exclude_models | frozenset(exclude_models)
+    )
+    try:
+        _, chain = resolve_chain(
+            [], profile=profile, max_tokens=1, overrides=free_only, snapshot=snapshot
+        )
+    except ModelUnavailable:
+        return ()
+    return tuple(c.model_ref.model_id for c in chain.candidates)
+
+
 def route_chat(
     messages: Iterable[ChatMessage],
     *,
@@ -338,45 +441,17 @@ def route_chat(
         from llmxive.config import repo_root
 
         ledger_repo = repo_root()
-    snap = snapshot if snapshot is not None else _acquire_snapshot()
-
-    # allow_paid precedence (spec 026 slice 6, round-2 #1): no silent precedence.
-    if allow_paid is not None and overrides is not None and overrides.allow_paid is not None:
-        raise ValueError(
-            "allow_paid supplied both directly and through overrides — pass exactly one"
-        )
-    if overrides is not None and overrides.allow_paid is not None:
-        allow_paid_eff = overrides.allow_paid
-    elif allow_paid is not None:
-        allow_paid_eff = allow_paid
-    else:
-        allow_paid_eff = snap.credit.paid_opt_in
-
-    call_budget = call_budget_for(msg_list, max_tokens)
-    base = build_requirement(
-        profile,
-        call_budget,
+    requirement, chain = resolve_chain(
+        msg_list,
+        profile=profile,
+        max_tokens=max_tokens,
+        allow_paid=allow_paid,
         independence_against=independence_against,
-        allow_paid=allow_paid_eff,
+        snapshot=snapshot,
+        overrides=overrides,
+        route_audit=route_audit,
+        route_id=route_id,
     )
-    if overrides is None:
-        requirement = base
-    else:
-        requirement = replace(
-            base,
-            require_paid=base.require_paid or overrides.require_paid,
-            exclude_models=base.exclude_models | overrides.exclude_models,
-            max_credits=_tighter_credits(base.max_credits, overrides.max_credits),
-        )
-        if overrides.exclude_leader:
-            # PASS 1 (pure, no I/O): resolve who would lead, then exclude exactly
-            # that model. If pass 1 raises ModelUnavailable it propagates
-            # immediately — there is no leader to exclude and pass 2 never runs.
-            leader = _select_audited(requirement, snap, route_audit, route_id).candidates[0].model_ref.model_id
-            requirement = replace(
-                requirement, exclude_models=requirement.exclude_models | {leader}
-            )
-    chain = _select_audited(requirement, snap, route_audit, route_id)   # PASS 2 — THE decision
     chain = _promote_primary(chain, caller_model)
 
     # ChainResolved (spec 025): emitted once, after the final decision, before any

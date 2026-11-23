@@ -129,7 +129,8 @@ _OFFLINE_SNAPSHOT = None
 
 def _offline_snapshot(*_args, **_kwargs):
     """A fixed, deterministic free Dartmouth runtime snapshot for offline tests
-    (built once): qwen3.5-122b → gemma-4-31B-it → gpt-oss-120b, all free + live."""
+    (built once): glm-5.3 → qwen3.5-122b → gemma-4-31B-it → gpt-oss-120b, all
+    free + live — the production free text chain under the capability policy."""
     global _OFFLINE_SNAPSHOT
     if _OFFLINE_SNAPSHOT is None:
         from datetime import UTC, datetime
@@ -145,7 +146,10 @@ def _offline_snapshot(*_args, **_kwargs):
 
         now = datetime(2026, 7, 17, 12, 0, 0, tzinfo=UTC)
         ep = "https://chat.dartmouth.edu"
-        ids = ["qwen.qwen3.5-122b", "google.gemma-4-31B-it", "openai.gpt-oss-120b"]
+        ids = [
+            "zai-org.glm-5.3", "qwen.qwen3.5-122b",
+            "google.gemma-4-31B-it", "openai.gpt-oss-120b",
+        ]
         models = tuple(
             ModelRef("dartmouth", ep, mid, _family_of(mid, _vendor_of(mid)), _vendor_of(mid))
             for mid in ids
@@ -185,7 +189,7 @@ def _offline_model_selection_snapshot(
     cache is reset around each test so nothing leaks. Real-call suites
     (LLMXIVE_REAL_TESTS=1 / tests/real_call) use the genuine networked snapshot.
     """
-    if os.environ.get("LLMXIVE_REAL_TESTS") == "1" or "real_call" in str(request.node.fspath):
+    if os.environ.get("LLMXIVE_REAL_TESTS") == "1" or under_real_call(request.node.fspath):
         yield
         return
     import llmxive.model_selection.route as route_mod

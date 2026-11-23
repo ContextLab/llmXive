@@ -1775,7 +1775,7 @@ def _decide_next_stage(
                 "%s: %d repeatedly rejected tasks; retrying implementation with "
                 "free model tier %d (%s), preserving task definitions and feedback",
                 project.id, len(_entries), new_tier,
-                execution_status.tier_model(new_tier),
+                execution_status.tier_constraint(new_tier),
             )
             return Stage.IN_PROGRESS
         # Spec 023 defect #25: research_complete now requires the analysis to

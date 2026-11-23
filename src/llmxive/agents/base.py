@@ -17,6 +17,7 @@ import logging
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import TYPE_CHECKING
 from uuid import uuid4
 
 from llmxive.backends.base import ChatMessage, ChatResponse, render_text_content
@@ -28,6 +29,11 @@ from llmxive.types import (
     Outcome,
     RunLogEntry,
 )
+
+if TYPE_CHECKING:
+    # Annotation-only: a runtime import of the ``model_selection`` package here
+    # would run its ``__init__`` (→ ``execute`` → ``backends.router``).
+    from llmxive.model_selection.types import RequirementOverrides
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -110,6 +116,14 @@ class Agent(abc.ABC):
     #: here so the specialist-reviewer path is reasoning-safe too (SSoT).
     chat_max_tokens: int | None = None
 
+    #: Escalation constraints for this agent's chat calls (spec 026 slice 6), or
+    #: ``None`` for none. A caller that runs a helper agent on behalf of an
+    #: escalated dispatch (the paper implementer running the proofreader) sets
+    #: this on the INSTANCE so the helper is selected under the same tier
+    #: constraints — the profile-era form of handing the helper the caller's
+    #: escalated model. The agent keeps its own registry ``profile``.
+    requirement_overrides: RequirementOverrides | None = None
+
     def __init__(self, registry_entry: AgentRegistryEntry) -> None:
         self.entry = registry_entry
 
@@ -159,6 +173,7 @@ class Agent(abc.ABC):
                 response = chat_with_fallback(
                     attempt_messages,
                     profile=self.entry.profile,
+                    overrides=self.requirement_overrides,
                     temperature=self.chat_temperature,
                     max_tokens=self.chat_max_tokens,
                 )

@@ -45,7 +45,6 @@ cache, byte-identical to the pre-cache behavior.
 
 from __future__ import annotations
 
-import dataclasses
 import hashlib
 import json
 import logging
@@ -54,7 +53,7 @@ import tempfile
 import time
 from pathlib import Path
 
-from llmxive.model_selection.types import RequirementOverrides
+from llmxive.model_selection.types import RequirementOverrides, canonical_overrides
 
 from .types import Concern
 
@@ -118,7 +117,9 @@ def _canonical_overrides(overrides: RequirementOverrides | None) -> str:
     canonicalize to the SAME string, so a no-override run never spuriously
     MISSES a no-override cache entry.
 
-    Fields are read via :func:`dataclasses.fields` rather than a hand-written
+    Delegates to :func:`llmxive.model_selection.types.canonical_overrides` — the
+    single canonical form, shared with ``selection_identity`` (Constitution I).
+    There, fields are read via :func:`dataclasses.fields` rather than a hand-written
     tuple of attribute names, so a future field added to
     ``RequirementOverrides`` is picked up HERE automatically instead of being
     silently dropped from the cache key — a hand-written list would keep
@@ -126,14 +127,7 @@ def _canonical_overrides(overrides: RequirementOverrides | None) -> str:
     stopped busting the cache. ``frozenset`` fields (``exclude_models``) are
     sorted first since set iteration order is not stable/meaningful.
     """
-    effective = overrides if overrides is not None else RequirementOverrides()
-    parts: list[str] = []
-    for f in dataclasses.fields(effective):
-        value = getattr(effective, f.name)
-        if isinstance(value, frozenset):
-            value = tuple(sorted(value))
-        parts.append(f"{f.name}={value!r}")
-    return "|".join(parts)
+    return canonical_overrides(overrides)
 
 
 def compose_key(

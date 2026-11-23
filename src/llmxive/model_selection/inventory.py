@@ -105,11 +105,18 @@ _CANONICAL_FILES = frozenset({"src/llmxive/model_selection/policy.py"})
 #: live discovery mechanism (unlike Dartmouth's catalog fetch), so the single
 #: checkpoint it serves is inherently a fixed identifier here, not a call-site
 #: profile pin (spec 026 slice 7) — moving it into ``policy.py`` would likewise
-#: create a ``backends → model_selection`` import cycle. Extend only for a
+#: create a ``backends → model_selection`` import cycle.
+#: ``escalations._recurring_failure_category`` names a model id for a different
+#: reason again: it RECOGNIZES a provider error message (the HTTP-400 signature
+#: tracked by the recurring ``provider-availability`` issue) by the id that
+#: message contains. It reads an error string; it never chooses, requests or
+#: ranks a model, so there is no profile to migrate it to (added 2026-11-23 when
+#: merging ``main``, which introduced the matcher). Extend only for a
 #: genuinely canonical symbol, in a reviewed PR.
 _CANONICAL_SYMBOLS = frozenset(
     {
         ("src/llmxive/backends/dartmouth.py", "_REASONING_MODELS"),
+        ("src/llmxive/state/escalations.py", "_recurring_failure_category"),
         ("src/llmxive/backends/local.py", "list_models"),
     }
 )

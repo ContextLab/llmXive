@@ -7,7 +7,7 @@ credits (see ``worst_case_credits``).
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields
 from datetime import datetime
 from types import MappingProxyType
 from typing import Literal
@@ -193,6 +193,50 @@ class RequirementOverrides:
     #: the leader, pass 2 excludes it), NOT inside ``select`` — ``select``
     #: receives a ``ModelRequirement`` and stays pure.
     exclude_leader: bool = False
+    #: The same routing-only constraint, COUNTED: drop the top N ranked candidates
+    #: (each pass excludes the leader of what remains), so a deeper free rung can
+    #: reach the policy's third-best model without naming it. ``0`` (default) adds
+    #: nothing; the effective count is ``max(int(exclude_leader), exclude_leaders)``,
+    #: so ``exclude_leader=True`` keeps meaning exactly one.
+    exclude_leaders: int = 0
+
+    def __post_init__(self) -> None:
+        if isinstance(self.exclude_leaders, bool) or not isinstance(self.exclude_leaders, int):
+            raise TypeError("exclude_leaders must be an int")
+        if self.exclude_leaders < 0:
+            raise ValueError("exclude_leaders must be >= 0")
+
+
+def canonical_overrides(overrides: RequirementOverrides | None) -> str:
+    """Canonicalize the EFFECTIVE ``RequirementOverrides`` into a stable string.
+
+    ``overrides=None`` (no override object at all) and an all-default
+    ``RequirementOverrides()`` are semantically IDENTICAL to ``route_chat``
+    (both mean "no escalation constraints" — see ``model_selection.route``);
+    normalizing ``None`` to a fresh default instance up front makes them
+    canonicalize to the SAME string, so a no-override run never spuriously
+    MISSES a no-override cache entry.
+
+    Fields are read via :func:`dataclasses.fields` rather than a hand-written
+    tuple of attribute names, so a future field added to
+    ``RequirementOverrides`` is picked up HERE automatically instead of being
+    silently dropped from a cache key or receipt — a hand-written list would
+    keep compiling and hashing happily while a new escalation constraint
+    quietly stopped busting the cache. ``frozenset`` fields
+    (``exclude_models``) are sorted first since set iteration order is not
+    stable/meaningful.
+
+    The single canonical form shared by the convergence review cache and by
+    :func:`llmxive.model_selection.profiles.selection_identity` (Constitution I).
+    """
+    effective = overrides if overrides is not None else RequirementOverrides()
+    parts: list[str] = []
+    for f in fields(effective):
+        value = getattr(effective, f.name)
+        if isinstance(value, frozenset):
+            value = tuple(sorted(value))
+        parts.append(f"{f.name}={value!r}")
+    return "|".join(parts)
 
 
 @dataclass(frozen=True)
