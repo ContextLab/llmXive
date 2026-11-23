@@ -259,8 +259,13 @@ Near-ties (approved 2026-11-23)
   `rating_upper` is at or above the `rating_lower` of the model sitting at that level's
   percentile cut-off; for `strongest`, at or above the top model's `rating_lower`. The
   cheapest qualifying model still wins, so a statistically indistinguishable cheaper
-  model beats a dearer one at every level. A row without both bounds is treated as a
-  zero-width interval.
+  model beats a dearer one at every level. A row missing either bound is treated as a
+  zero-width interval (both bounds equal the rating).
+- Levels nest: a model qualifies for a level only if it also qualifies for every weaker
+  level, so a wide interval on the top model can never make `strongest` admit a model
+  that `strong` rejects.
+- A publish date more than one day in the future is invalid and makes the leaderboard
+  unavailable.
 - Freshness is judged from the row's `leaderboard_publish_date` as well as from when
   the snapshot was fetched.
 
