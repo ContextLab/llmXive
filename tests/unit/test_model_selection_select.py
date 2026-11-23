@@ -487,7 +487,7 @@ def test_chain_provenance_fields():
     chain = select(ModelRequirement(capability="deep", call_budget=cb), snap)
     assert chain.resolved_at == snap.observed_at
     assert chain.snapshot_digest == "TEST-DIGEST"
-    assert chain.selection_policy_version == 2
+    assert chain.selection_policy_version == 3
     assert set(chain.snapshot_provenance) == {"catalog", "local", "credit"}
     assert chain.call_budget == cb
 
@@ -565,7 +565,9 @@ def test_sc007_composite_snapshot_retains_guarded_paid_tail_after_local():
 #     ``route_chat``'s two-pass translation — spec 026 slice 7) and the leader
 #     becomes the policy's next-best free model gemma-4 (the sanctioned
 #     gpt-oss → gemma-4 delta, spec.md US6/SC-007).
-#   - tier 2 = the single paid rung (require_paid) → paid-only, leader claude.
+#   - tier 2 = a THIRD free family → ``exclude_leaders=2`` drops the top two
+#     (the third free rung ``main`` added), so gpt-oss leads here.
+#   - tier 3 = the single paid rung (require_paid) → paid-only, leader claude.
 # --------------------------------------------------------------------------- #
 
 QWEN_DEFAULT = QWEN  # rank-one free model the ladder's tier-1 rung excludes
@@ -599,13 +601,42 @@ def test_execution_tier1_golden_leads_with_gemma4(monkeypatch):
     assert QWEN not in _ids(chain)
 
 
-def test_execution_tier2_golden_is_paid_only_leader_claude(monkeypatch):
-    # Paid escalation enabled → the ladder gains the single paid rung at tier 2.
+def test_execution_tier2_golden_leads_with_the_third_free_model(monkeypatch):
+    """Tier 2 drives the REAL ``resolve_chain`` (the function ``route_chat`` uses)
+    with the rung's own overrides: the two best-ranked candidates are dropped and
+    the policy's third-best free model leads — no model id in the ladder."""
+    from llmxive.model_selection.route import resolve_chain
+
+    monkeypatch.delenv("LLMXIVE_EXECUTION_PAID_ESCALATION", raising=False)
+    ov2 = execution_status.tier_constraint(2).to_overrides()
+    assert ov2.allow_paid is False and ov2.require_paid is False
+    assert ov2.exclude_leaders == 2 and ov2.exclude_models == frozenset()
+
+    snap = _snapshot(model_ids=[QWEN, GEMMA4, GPT_OSS, LOCAL], paid_opt_in=False)
+    requirement, chain = resolve_chain(
+        [], profile="standard_generation", max_tokens=1, overrides=ov2, snapshot=snap
+    )
+    assert requirement.exclude_models == frozenset({QWEN, GEMMA4})
+    assert _ids(chain) == [GPT_OSS, LOCAL]
+
+    # The three free rungs lead with three DIFFERENT models, in policy order.
+    leaders = [
+        _ids(resolve_chain(
+            [], profile="standard_generation", max_tokens=1, snapshot=snap,
+            overrides=execution_status.tier_constraint(t).to_overrides(),
+        )[1])[0]
+        for t in range(3)
+    ]
+    assert leaders == [QWEN, GEMMA4, GPT_OSS]
+
+
+def test_execution_paid_rung_golden_is_paid_only_leader_claude(monkeypatch):
+    # Paid escalation enabled → the ladder gains the single paid rung at tier 3.
     monkeypatch.setenv("LLMXIVE_EXECUTION_PAID_ESCALATION", "1")
     monkeypatch.setenv("LLMXIVE_PAID_OPT_IN", "1")
-    assert len(execution_status.model_tier_ladder()) == 3  # two free rungs + one paid rung
+    assert len(execution_status.model_tier_ladder()) == 4  # three free rungs + one paid rung
 
-    ov2 = execution_status.tier_constraint(2).to_overrides()
+    ov2 = execution_status.tier_constraint(3).to_overrides()
     assert ov2.allow_paid is True and ov2.require_paid is True
 
     req = build_requirement(
@@ -625,3 +656,82 @@ def test_execution_tier2_golden_is_paid_only_leader_claude(monkeypatch):
     assert GEMMA4 not in _ids(chain)
     assert GPT_OSS not in _ids(chain)
     assert LOCAL not in _ids(chain)
+
+
+# --------------------------------------------------------------------------- #
+# Policy v3: the glm-5.3 family (``zai-org.glm-5.3``) is the TEXT leader — the
+# registry-wide default model on ``main`` when it was merged into spec 026. These
+# golden projections use the REAL ``CAPABILITY_POLICY`` (no injected policy).
+# --------------------------------------------------------------------------- #
+GLM = "zai-org.glm-5.3"
+_DARTMOUTH_TEXT_WITH_GLM = [QWEN, GEMMA4, GPT_OSS, GEMMA3, CLAUDE, GLM]
+
+
+def test_policy_v3_names_glm_as_a_non_vision_reasoning_family():
+    from llmxive.model_selection.policy import CAPABILITY_POLICY, SELECTION_POLICY_VERSION
+    from llmxive.model_selection.snapshot import _family_of, _vendor_of
+
+    assert SELECTION_POLICY_VERSION == 3 == CAPABILITY_POLICY.version
+    family = _family_of(GLM, _vendor_of(GLM))
+    assert family == "glm-5.3"
+    entry = CAPABILITY_POLICY.entry(family)
+    assert entry is not None
+    assert entry.capabilities == frozenset({"cheap", "standard", "deep"})  # no vision
+    assert entry.features == frozenset({"reasoning", "structured"})
+    # Strictly the best tier, so it leads every text chain it is eligible for.
+    assert entry.quality_tier > max(
+        e.quality_tier for f, e in CAPABILITY_POLICY.entries.items() if f != family
+    )
+    # Conservative (assumed) window: no larger than its Dartmouth text peers'.
+    assert entry.max_context_tokens == min(
+        CAPABILITY_POLICY.entry(f).max_context_tokens for f in ("gemma-4", "gpt-oss")
+    )
+
+
+@pytest.mark.parametrize(
+    "profile",
+    ["cheap_structured", "standard_generation", "deep_review", "deep_code", "independent_review"],
+)
+def test_glm_leads_every_text_profile_ahead_of_qwen(profile):
+    chain = select(
+        build_requirement(profile, _cb()),
+        _snapshot(model_ids=_DARTMOUTH_TEXT_WITH_GLM, paid_opt_in=False),
+    )
+    ids = _ids(chain)
+    assert ids[0] == GLM
+    assert ids.index(GLM) < ids.index(QWEN)
+
+
+def test_glm_golden_free_chain_paid_off():
+    chain = select(
+        build_requirement("standard_generation", _cb()),
+        _snapshot(model_ids=_DARTMOUTH_TEXT_WITH_GLM, paid_opt_in=False),
+    )
+    assert _ids(chain) == [GLM, QWEN, GEMMA4, GPT_OSS]
+
+
+def test_glm_golden_chain_keeps_the_guarded_paid_tail_last():
+    chain = select(
+        build_requirement("standard_generation", _cb(), allow_paid=True),
+        _snapshot(model_ids=_DARTMOUTH_TEXT_WITH_GLM, paid_opt_in=True, available_headroom=1400.0),
+    )
+    assert _ids(chain) == [GLM, QWEN, GEMMA4, GPT_OSS, CLAUDE]
+
+
+def test_glm_is_never_offered_for_vision():
+    chain = select(
+        build_requirement("vision", _cb()),
+        _snapshot(model_ids=[GLM, QWEN, VL, GEMMA4, GPT_OSS], paid_opt_in=False),
+    )
+    assert GLM not in _ids(chain)
+    assert _ids(chain)[0] == QWEN
+
+
+def test_absent_glm_leaves_the_pre_v3_chain_unchanged():
+    """The policy names a family; the catalog decides presence. Without glm in the
+    snapshot the chain is exactly the v2 one."""
+    chain = select(
+        build_requirement("standard_generation", _cb()),
+        _snapshot(model_ids=_DARTMOUTH_TEXT, paid_opt_in=False),
+    )
+    assert _ids(chain) == [QWEN, GEMMA4, GPT_OSS]

@@ -13,11 +13,13 @@ from llmxive.model_selection.policy import (
 from llmxive.model_selection.types import Capability
 
 _VALID_CAPABILITIES = {"cheap", "standard", "deep", "vision"}
-_EXPECTED_FAMILIES = {"qwen3.5", "gemma-4", "gpt-oss", "claude-haiku-4-5", "qwen3-vl", "qwen2.5"}
+_EXPECTED_FAMILIES = {
+    "glm-5.3", "qwen3.5", "gemma-4", "gpt-oss", "claude-haiku-4-5", "qwen3-vl", "qwen2.5",
+}
 
 
 def test_policy_version_matches_constant():
-    assert CAPABILITY_POLICY.version == SELECTION_POLICY_VERSION == 2
+    assert CAPABILITY_POLICY.version == SELECTION_POLICY_VERSION == 3
 
 
 def test_expected_families_present_and_gemma3_absent():

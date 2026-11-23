@@ -16,6 +16,9 @@ REFERENCE_PREFIXES = (
     "src/llmxive/librarian/", "src/llmxive/claims/",
     "src/llmxive/backends/", "src/llmxive/fill/", "src/llmxive/grounding/",
     "src/llmxive/results/", "src/llmxive/verify/",
+    # Spec 026: every backend call routes through model selection, so the
+    # reference modules import this package transitively (backends -> model_selection).
+    "src/llmxive/model_selection/",
     "agents/tools/", "contracts/", "tests/fixtures/",
 )
 REFERENCE_FILES = {
@@ -30,6 +33,9 @@ REFERENCE_FILES = {
     "src/llmxive/contract_validate.py", "src/llmxive/agents/grounding_guard.py",
     "src/llmxive/agents/prompts.py", "src/llmxive/speckit/task_lines.py",
     "src/llmxive/speckit/yaml_extract.py",  # fence handling for claim and verdict replies
+    # Reached through model selection: the credit-ledger transport and the
+    # prompt-size estimator used to price a call.
+    "src/llmxive/git_event_log.py", "src/llmxive/tools/summarize.py",
 }
 REFERENCE_TESTS = {
     "tests/real_call/test_dataset_source_services.py",

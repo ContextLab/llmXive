@@ -36,6 +36,8 @@ import json
 from pathlib import Path
 from textwrap import dedent
 
+import pytest
+
 from llmxive.model_selection.enforcement import (
     RETIRED_PIN_SYMBOLS,
     find_pin_violations,
@@ -334,3 +336,44 @@ def test_canonical_symbol_pins_are_never_flagged(tmp_path):
     )
 
     assert find_pin_violations(tmp_path) == []
+
+
+# --- policy v3: the current primary's vendor/family is a detectable pin ----
+
+
+@pytest.mark.parametrize("pinned", ["zai-org.glm-5.3", "glm-5.3", "glm-5"])
+def test_pin_on_the_current_primary_is_detected(tmp_path, pinned):
+    """``main`` made ``zai-org.glm-5.3`` the primary model. Its vendor prefix and
+    family stem were unknown to the detector, so a hardcoded pin on the very model
+    every profile now leads with would have passed the gate unnoticed."""
+    from llmxive.model_selection.inventory import looks_like_model_id
+
+    assert looks_like_model_id(pinned)
+    _write(
+        tmp_path / "src/llmxive/pipeline/rogue.py",
+        f'''
+        def summarize(text):
+            return chat(text, model="{pinned}")
+        ''',
+    )
+    (v,) = find_pin_violations(tmp_path)
+    assert v["file"] == "src/llmxive/pipeline/rogue.py"
+    assert v["models"] == [pinned]
+
+
+def test_error_signature_matcher_is_the_only_sanctioned_escalations_symbol(tmp_path):
+    """``escalations._recurring_failure_category`` recognizes a provider error by
+    the model id the MESSAGE contains; that one symbol is sanctioned. Any other
+    symbol in the same file that names a model is still a violation."""
+    _write(
+        tmp_path / "src/llmxive/state/escalations.py",
+        '''
+        def _recurring_failure_category(error):
+            return "provider-availability" if "qwen.qwen3.5-122b" in error else None
+
+        def pick_model():
+            return "qwen.qwen3.5-122b"
+        ''',
+    )
+    violations = find_pin_violations(tmp_path)
+    assert [v["symbol"] for v in violations] == ["pick_model"]

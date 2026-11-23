@@ -33,8 +33,10 @@ MANIFEST_MD = "specs/026-model-selection-consolidation/migration_manifest.md"
 GENERATED_BY = "llmxive.model_selection.inventory.build_manifest"
 
 #: Vendor prefixes of the dotted Dartmouth model-id form (``vendor.model``).
+#: ``zai-org`` (the ``zai-org.glm-5.3`` leader, policy v3) is listed so a
+#: hardcoded pin on the CURRENT primary is detected like any other.
 _KNOWN_VENDORS = frozenset(
-    {"qwen", "google", "openai", "anthropic", "meta", "mistralai", "cohere"}
+    {"qwen", "google", "openai", "anthropic", "meta", "mistralai", "cohere", "zai-org"}
 )
 #: ``vendor.model`` — the model part must carry a digit (every real Dartmouth id
 #: does), so import module names like ``google.generativeai`` are NOT matched.
@@ -48,7 +50,7 @@ _DOTTED_MODEL = re.compile(
 #: ordinary words never match.
 _BARE_FAMILY_MODEL = re.compile(
     r"^(?:qwen\d|gemma-\d|gpt-oss|claude-[a-z]|llama-\d|codellama|"
-    r"mistral-|voyage-|gemini-)[A-Za-z0-9._:-]*$"
+    r"mistral-|voyage-|gemini-|glm-\d)[A-Za-z0-9._:-]*$"
 )
 
 #: Hugging Face ``Org/Model`` form (e.g. ``Qwen/Qwen2.5-3B-Instruct``). The org

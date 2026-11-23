@@ -82,7 +82,7 @@ def test_live_panel_reaches_route_chat_with_deep_review_profile_and_no_caller_mo
     _disable_review_cache(monkeypatch)
 
     spec = build_plan_reviewspec(
-        backend=_FakeBackend(), repo_root=_REPO_ROOT, project_id="P",
+        backend=_FakeBackend(), repo_root=_REPO_ROOT, project_id="PROJ-900-panel-profile",
     )
 
     # The REAL engine panel runner — bounded ThreadPoolExecutor over the 5

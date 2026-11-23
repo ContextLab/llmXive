@@ -27,13 +27,14 @@ def isolated_backend_cache(monkeypatch):
 
 def test_independent_router_calls_share_outage_and_recover(monkeypatch):
     monkeypatch.setenv("DARTMOUTH_CHAT_API_KEY", "outage-test-credential")
-    monkeypatch.setattr(dm, "is_free_model", lambda _: True)
+    # The chat-time free-first guard reads the tri-state pricing verdict (spec 026).
+    monkeypatch.setattr(dm, "model_pricing_verdict", lambda _: dm.PricingVerdict.FREE)
     clock = [0.0]
     monkeypatch.setattr(dm.DartmouthBackend, "_new_breaker",
                         lambda _: dm._CircuitBreaker(clock=lambda: clock[0], cooldown_s=60))
     calls = Counter()
     primary = "zai-org.glm-5.3"
-    peer = "openai.gpt-oss-120b"
+    peer = "qwen.qwen3.5-122b"  # next in the selector's free chain (offline snapshot)
     recovered = [False]
 
     class Client:
@@ -48,12 +49,11 @@ def test_independent_router_calls_share_outage_and_recover(monkeypatch):
                                    additional_kwargs={})
 
     monkeypatch.setattr(dm.DartmouthBackend, "_client", lambda _, model: Client(model))
-    monkeypatch.setattr(router, "MODEL_FALLBACKS", {primary: [peer]})
     messages = [ChatMessage(role="user", content="test")]
 
     def call():
-        return router.chat_with_fallback(messages, model=primary, default_backend="dartmouth",
-                                         fallback_backends=())
+        # Spec 026: the chain (primary, then its free peers) is the selector's.
+        return router.chat_with_fallback(messages, profile="deep_review")
 
     assert call().model == peer
     assert call().model == peer

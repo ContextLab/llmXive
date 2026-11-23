@@ -4,8 +4,9 @@
       "category": "canonical_layer",
       "file": "src/llmxive/backends/dartmouth.py",
       "kind": "module_constant",
-      "line": 123,
+      "line": 125,
       "models": [
+        "glm-5",
         "gpt-oss",
         "qwen3",
         "qwen3.5"
@@ -28,7 +29,18 @@
       "category": "canonical_layer",
       "file": "src/llmxive/model_selection/policy.py",
       "kind": "model_id_literal",
-      "line": 133,
+      "line": 160,
+      "models": [
+        "glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "entries"
+    },
+    {
+      "category": "canonical_layer",
+      "file": "src/llmxive/model_selection/policy.py",
+      "kind": "model_id_literal",
+      "line": 166,
       "models": [
         "qwen3.5"
       ],
@@ -39,7 +51,7 @@
       "category": "canonical_layer",
       "file": "src/llmxive/model_selection/policy.py",
       "kind": "model_id_literal",
-      "line": 139,
+      "line": 172,
       "models": [
         "gemma-4"
       ],
@@ -50,7 +62,7 @@
       "category": "canonical_layer",
       "file": "src/llmxive/model_selection/policy.py",
       "kind": "model_id_literal",
-      "line": 145,
+      "line": 178,
       "models": [
         "gpt-oss"
       ],
@@ -61,7 +73,7 @@
       "category": "canonical_layer",
       "file": "src/llmxive/model_selection/policy.py",
       "kind": "model_id_literal",
-      "line": 151,
+      "line": 184,
       "models": [
         "claude-haiku-4-5"
       ],
@@ -72,7 +84,7 @@
       "category": "canonical_layer",
       "file": "src/llmxive/model_selection/policy.py",
       "kind": "model_id_literal",
-      "line": 157,
+      "line": 190,
       "models": [
         "qwen3-vl"
       ],
@@ -83,7 +95,7 @@
       "category": "canonical_layer",
       "file": "src/llmxive/model_selection/policy.py",
       "kind": "model_id_literal",
-      "line": 163,
+      "line": 196,
       "models": [
         "qwen2.5"
       ],
@@ -91,14 +103,26 @@
       "symbol": "entries"
     },
     {
+      "category": "canonical_layer",
+      "file": "src/llmxive/state/escalations.py",
+      "kind": "model_id_literal",
+      "line": 70,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "_recurring_failure_category"
+    },
+    {
       "category": "test_double",
       "file": "tests/conftest.py",
       "kind": "module_constant",
-      "line": 113,
+      "line": 149,
       "models": [
         "google.gemma-4-31B-it",
         "openai.gpt-oss-120b",
-        "qwen.qwen3.5-122b"
+        "qwen.qwen3.5-122b",
+        "zai-org.glm-5.3"
       ],
       "owning_slice": null,
       "symbol": "ids"
@@ -165,6 +189,7 @@
       "line": 30,
       "models": [
         "gemma-4",
+        "glm-5.3",
         "gpt-oss",
         "qwen3.5"
       ],
@@ -461,7 +486,7 @@
       "category": "test_double",
       "file": "tests/integration/test_personality_tick.py",
       "kind": "model_id_literal",
-      "line": 148,
+      "line": 113,
       "models": [
         "qwen.qwen3.5-122b"
       ],
@@ -767,29 +792,6 @@
     },
     {
       "category": "test_double",
-      "file": "tests/real_call/test_dartmouth_chat.py",
-      "kind": "module_constant",
-      "line": 37,
-      "models": [
-        "google.gemma-4-31B-it",
-        "qwen.qwen3.5-122b"
-      ],
-      "owning_slice": null,
-      "symbol": "preferred"
-    },
-    {
-      "category": "test_double",
-      "file": "tests/real_call/test_dartmouth_chat.py",
-      "kind": "model_id_literal",
-      "line": 42,
-      "models": [
-        "gpt-oss"
-      ],
-      "owning_slice": null,
-      "symbol": "non_reasoning"
-    },
-    {
-      "category": "test_double",
       "file": "tests/real_call/test_dartmouth_outage_falls_back.py",
       "kind": "model_id_literal",
       "line": 35,
@@ -941,6 +943,31 @@
       ],
       "owning_slice": null,
       "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_liveness_probe_real.py",
+      "kind": "module_constant",
+      "line": 20,
+      "models": [
+        "google.gemma-4-31B-it",
+        "openai.gpt-oss-120b",
+        "qwen.qwen3.5-122b",
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "FREE_MODELS"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/real_call/test_liveness_probe_real.py",
+      "kind": "model_id_literal",
+      "line": 68,
+      "models": [
+        "openai.gpt-oss-120b-retired-does-not-exist"
+      ],
+      "owning_slice": null,
+      "symbol": "test_an_unlisted_model_is_not_pinged"
     },
     {
       "category": "test_double",
@@ -1208,6 +1235,127 @@
     },
     {
       "category": "test_double",
+      "file": "tests/unit/test_breaker_liveness_probe.py",
+      "kind": "model_id_literal",
+      "line": 39,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "_opened"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_breaker_liveness_probe.py",
+      "kind": "model_id_literal",
+      "line": 53,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "test_a_sick_model_is_not_probed_with_the_real_request"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_breaker_liveness_probe.py",
+      "kind": "model_id_literal",
+      "line": 170,
+      "models": [
+        "anthropic.claude-opus-5"
+      ],
+      "owning_slice": null,
+      "symbol": "test_a_paid_model_is_never_pinged"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_breaker_liveness_probe.py",
+      "kind": "model_id_literal",
+      "line": 180,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_a_free_model_that_answers_is_live"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_breaker_liveness_probe.py",
+      "kind": "model_id_literal",
+      "line": 195,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_a_free_model_that_errors_is_not_live"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_breaker_liveness_probe.py",
+      "kind": "model_id_literal",
+      "line": 204,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_an_empty_reply_is_not_live"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_breaker_liveness_probe.py",
+      "kind": "model_id_literal",
+      "line": 216,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "first"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_breaker_liveness_probe.py",
+      "kind": "model_id_literal",
+      "line": 217,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "second"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_breaker_liveness_probe.py",
+      "kind": "model_id_literal",
+      "line": 219,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_each_model_breaker_knows_its_model_and_carries_the_check"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_breaker_liveness_probe.py",
+      "kind": "model_id_literal",
+      "line": 220,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "test_each_model_breaker_knows_its_model_and_carries_the_check"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_breaker_liveness_probe.py",
+      "kind": "model_id_literal",
+      "line": 222,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_each_model_breaker_knows_its_model_and_carries_the_check"
+    },
+    {
+      "category": "test_double",
       "file": "tests/unit/test_chat_with_fallback_delegation.py",
       "kind": "module_constant",
       "line": 32,
@@ -1278,7 +1426,7 @@
       "kind": "model_id_literal",
       "line": 89,
       "models": [
-        "qwen3.5"
+        "glm-5.3"
       ],
       "owning_slice": null,
       "symbol": "_POLICY_DISPLAY_NAMES"
@@ -1289,7 +1437,7 @@
       "kind": "model_id_literal",
       "line": 90,
       "models": [
-        "gemma-4"
+        "qwen3.5"
       ],
       "owning_slice": null,
       "symbol": "_POLICY_DISPLAY_NAMES"
@@ -1300,6 +1448,17 @@
       "kind": "model_id_literal",
       "line": 91,
       "models": [
+        "gemma-4"
+      ],
+      "owning_slice": null,
+      "symbol": "_POLICY_DISPLAY_NAMES"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_config_consistency.py",
+      "kind": "model_id_literal",
+      "line": 92,
+      "models": [
         "gpt-oss"
       ],
       "owning_slice": null,
@@ -1309,7 +1468,7 @@
       "category": "test_double",
       "file": "tests/unit/test_config_consistency.py",
       "kind": "model_id_literal",
-      "line": 235,
+      "line": 236,
       "models": [
         "qwen3-vl"
       ],
@@ -1428,6 +1587,17 @@
     },
     {
       "category": "test_double",
+      "file": "tests/unit/test_dartmouth_sdk_retry_boundary.py",
+      "kind": "model_id_literal",
+      "line": 41,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "client"
+    },
+    {
+      "category": "test_double",
       "file": "tests/unit/test_dartmouth_thinking.py",
       "kind": "model_id_literal",
       "line": 13,
@@ -1480,6 +1650,28 @@
       ],
       "owning_slice": null,
       "symbol": "test_non_qwen_models_untouched"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_dartmouth_total_deadline.py",
+      "kind": "module_constant",
+      "line": 15,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "PRIMARY"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_dartmouth_total_deadline.py",
+      "kind": "module_constant",
+      "line": 17,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "PEER"
     },
     {
       "category": "test_double",
@@ -1725,6 +1917,39 @@
     },
     {
       "category": "test_double",
+      "file": "tests/unit/test_execution_tier_constraints.py",
+      "kind": "model_id_literal",
+      "line": 115,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "test_third_free_rung_drops_the_top_two_candidates"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_execution_tier_constraints.py",
+      "kind": "model_id_literal",
+      "line": 115,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_third_free_rung_drops_the_top_two_candidates"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_execution_tier_constraints.py",
+      "kind": "model_id_literal",
+      "line": 115,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "test_third_free_rung_drops_the_top_two_candidates"
+    },
+    {
+      "category": "test_double",
       "file": "tests/unit/test_graph_advancement_persistence.py",
       "kind": "model_id_literal",
       "line": 114,
@@ -1751,7 +1976,7 @@
       "kind": "model_id_literal",
       "line": 88,
       "models": [
-        "qwen.qwen3.5-122b"
+        "zai-org.glm-5.3"
       ],
       "owning_slice": null,
       "symbol": "replies"
@@ -1762,7 +1987,7 @@
       "kind": "model_id_literal",
       "line": 94,
       "models": [
-        "qwen.qwen3.5-122b"
+        "zai-org.glm-5.3"
       ],
       "owning_slice": null,
       "symbol": "test_healthy_primary_no_fallback"
@@ -1773,7 +1998,7 @@
       "kind": "model_id_literal",
       "line": 102,
       "models": [
-        "qwen.qwen3.5-122b"
+        "zai-org.glm-5.3"
       ],
       "owning_slice": null,
       "symbol": "replies"
@@ -1784,7 +2009,7 @@
       "kind": "model_id_literal",
       "line": 103,
       "models": [
-        "google.gemma-4-31B-it"
+        "qwen.qwen3.5-122b"
       ],
       "owning_slice": null,
       "symbol": "replies"
@@ -1795,7 +2020,7 @@
       "kind": "model_id_literal",
       "line": 105,
       "models": [
-        "qwen.qwen3.5-122b"
+        "zai-org.glm-5.3"
       ],
       "owning_slice": null,
       "symbol": "transient_models"
@@ -1806,7 +2031,7 @@
       "kind": "model_id_literal",
       "line": 112,
       "models": [
-        "google.gemma-4-31B-it"
+        "qwen.qwen3.5-122b"
       ],
       "owning_slice": null,
       "symbol": "test_primary_transient_walks_to_peer"
@@ -1817,7 +2042,7 @@
       "kind": "model_id_literal",
       "line": 113,
       "models": [
-        "qwen.qwen3.5-122b"
+        "zai-org.glm-5.3"
       ],
       "owning_slice": null,
       "symbol": "test_primary_transient_walks_to_peer"
@@ -1832,6 +2057,28 @@
       ],
       "owning_slice": null,
       "symbol": "_LOCAL_MODEL"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_outage_recovery.py",
+      "kind": "module_constant",
+      "line": 36,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "primary"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_outage_recovery.py",
+      "kind": "module_constant",
+      "line": 37,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "peer"
     },
     {
       "category": "test_double",
@@ -1859,12 +2106,45 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_enforcement.py",
       "kind": "model_id_literal",
-      "line": 97,
+      "line": 99,
       "models": [
         "qwen.qwen3.5-122b"
       ],
       "owning_slice": null,
       "symbol": "test_find_pin_violations_catches_a_planted_literal_pin"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_enforcement.py",
+      "kind": "model_id_literal",
+      "line": 344,
+      "models": [
+        "glm-5"
+      ],
+      "owning_slice": null,
+      "symbol": "test_pin_on_the_current_primary_is_detected"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_enforcement.py",
+      "kind": "model_id_literal",
+      "line": 344,
+      "models": [
+        "glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "test_pin_on_the_current_primary_is_detected"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_enforcement.py",
+      "kind": "model_id_literal",
+      "line": 344,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "test_pin_on_the_current_primary_is_detected"
     },
     {
       "category": "test_double",
@@ -2545,6 +2825,7 @@
       "models": [
         "claude-haiku-4-5",
         "gemma-4",
+        "glm-5.3",
         "gpt-oss",
         "qwen2.5",
         "qwen3-vl",
@@ -2557,7 +2838,7 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_policy.py",
       "kind": "model_id_literal",
-      "line": 27,
+      "line": 29,
       "models": [
         "gemma-3"
       ],
@@ -2568,31 +2849,9 @@
       "category": "test_double",
       "file": "tests/unit/test_model_selection_policy.py",
       "kind": "model_id_literal",
-      "line": 46,
-      "models": [
-        "qwen3.5"
-      ],
-      "owning_slice": null,
-      "symbol": "test_attribution_helpers"
-    },
-    {
-      "category": "test_double",
-      "file": "tests/unit/test_model_selection_policy.py",
-      "kind": "model_id_literal",
-      "line": 47,
-      "models": [
-        "qwen3-vl"
-      ],
-      "owning_slice": null,
-      "symbol": "test_attribution_helpers"
-    },
-    {
-      "category": "test_double",
-      "file": "tests/unit/test_model_selection_policy.py",
-      "kind": "model_id_literal",
       "line": 48,
       "models": [
-        "qwen3-vl"
+        "qwen3.5"
       ],
       "owning_slice": null,
       "symbol": "test_attribution_helpers"
@@ -2603,7 +2862,7 @@
       "kind": "model_id_literal",
       "line": 49,
       "models": [
-        "qwen3.5"
+        "qwen3-vl"
       ],
       "owning_slice": null,
       "symbol": "test_attribution_helpers"
@@ -2614,7 +2873,7 @@
       "kind": "model_id_literal",
       "line": 50,
       "models": [
-        "gemma-4"
+        "qwen3-vl"
       ],
       "owning_slice": null,
       "symbol": "test_attribution_helpers"
@@ -2636,7 +2895,7 @@
       "kind": "model_id_literal",
       "line": 52,
       "models": [
-        "qwen2.5"
+        "gemma-4"
       ],
       "owning_slice": null,
       "symbol": "test_attribution_helpers"
@@ -2646,6 +2905,28 @@
       "file": "tests/unit/test_model_selection_policy.py",
       "kind": "model_id_literal",
       "line": 53,
+      "models": [
+        "qwen3.5"
+      ],
+      "owning_slice": null,
+      "symbol": "test_attribution_helpers"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_policy.py",
+      "kind": "model_id_literal",
+      "line": 54,
+      "models": [
+        "qwen2.5"
+      ],
+      "owning_slice": null,
+      "symbol": "test_attribution_helpers"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_policy.py",
+      "kind": "model_id_literal",
+      "line": 55,
       "models": [
         "qwen3.5"
       ],
@@ -2915,6 +3196,50 @@
       ],
       "owning_slice": null,
       "symbol": "families"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_select.py",
+      "kind": "module_constant",
+      "line": 666,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "GLM"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_select.py",
+      "kind": "model_id_literal",
+      "line": 676,
+      "models": [
+        "glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "test_policy_v3_names_glm_as_a_non_vision_reasoning_family"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_select.py",
+      "kind": "model_id_literal",
+      "line": 687,
+      "models": [
+        "gemma-4"
+      ],
+      "owning_slice": null,
+      "symbol": "test_policy_v3_names_glm_as_a_non_vision_reasoning_family"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_model_selection_select.py",
+      "kind": "model_id_literal",
+      "line": 687,
+      "models": [
+        "gpt-oss"
+      ],
+      "owning_slice": null,
+      "symbol": "test_policy_v3_names_glm_as_a_non_vision_reasoning_family"
     },
     {
       "category": "test_double",
@@ -3281,6 +3606,17 @@
     },
     {
       "category": "test_double",
+      "file": "tests/unit/test_paper_task_analysis_receipts.py",
+      "kind": "model_id_literal",
+      "line": 170,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "exclude_models"
+    },
+    {
+      "category": "test_double",
       "file": "tests/unit/test_personality_attribution.py",
       "kind": "model_id_literal",
       "line": 127,
@@ -3322,6 +3658,39 @@
       ],
       "owning_slice": null,
       "symbol": "test_disclaimer_template_names_persona_and_model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_personality_turn.py",
+      "kind": "model_id_literal",
+      "line": 189,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "model"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_personality_turn.py",
+      "kind": "model_id_literal",
+      "line": 193,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "test_a_comment_with_an_anchored_quote_is_accepted"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_pipeline_recovery.py",
+      "kind": "module_constant",
+      "line": 92,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "entry"
     },
     {
       "category": "test_double",
@@ -3371,7 +3740,7 @@
       "category": "test_double",
       "file": "tests/unit/test_preprint_review.py",
       "kind": "model_id_literal",
-      "line": 104,
+      "line": 103,
       "models": [
         "openai.gpt-oss-120b"
       ],
@@ -3391,6 +3760,39 @@
     },
     {
       "category": "test_double",
+      "file": "tests/unit/test_prompt_eval_provider.py",
+      "kind": "module_constant",
+      "line": 17,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "CONFIGURED_PRIMARY"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_prompt_eval_provider.py",
+      "kind": "model_id_literal",
+      "line": 60,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_peer_response_cannot_pass_selected_leader_eval"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_prompt_eval_provider.py",
+      "kind": "model_id_literal",
+      "line": 63,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_peer_response_cannot_pass_selected_leader_eval"
+    },
+    {
+      "category": "test_double",
       "file": "tests/unit/test_reasoning_walker_delegation.py",
       "kind": "module_constant",
       "line": 35,
@@ -3399,6 +3801,28 @@
       ],
       "owning_slice": null,
       "symbol": "PRIMARY"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_repair_diagnostics.py",
+      "kind": "model_id_literal",
+      "line": 44,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "test_validated_candidate_uses_different_reviewer"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_repair_diagnostics.py",
+      "kind": "model_id_literal",
+      "line": 44,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "test_validated_candidate_uses_different_reviewer"
     },
     {
       "category": "test_double",
@@ -3490,11 +3914,55 @@
     },
     {
       "category": "test_double",
+      "file": "tests/unit/test_reviser_peer_retry.py",
+      "kind": "module_constant",
+      "line": 18,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "GLM"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_reviser_peer_retry.py",
+      "kind": "module_constant",
+      "line": 19,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "QWEN"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_reviser_peer_retry.py",
+      "kind": "module_constant",
+      "line": 20,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "GPT"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_reviser_peer_retry.py",
+      "kind": "module_constant",
+      "line": 21,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "GEMMA"
+    },
+    {
+      "category": "test_double",
       "file": "tests/unit/test_reviser_self_consistency.py",
       "kind": "model_id_literal",
       "line": 469,
       "models": [
-        "google.gemma-4-31B-it"
+        "qwen.qwen3.5-122b"
       ],
       "owning_slice": null,
       "symbol": "replies"
@@ -3505,7 +3973,7 @@
       "kind": "model_id_literal",
       "line": 469,
       "models": [
-        "qwen.qwen3.5-122b"
+        "zai-org.glm-5.3"
       ],
       "owning_slice": null,
       "symbol": "replies"
@@ -3516,7 +3984,7 @@
       "kind": "model_id_literal",
       "line": 470,
       "models": [
-        "qwen.qwen3.5-122b"
+        "zai-org.glm-5.3"
       ],
       "owning_slice": null,
       "symbol": "transient_models"
@@ -3527,7 +3995,7 @@
       "kind": "model_id_literal",
       "line": 491,
       "models": [
-        "qwen.qwen3.5-122b"
+        "zai-org.glm-5.3"
       ],
       "owning_slice": null,
       "symbol": "replies"
@@ -3539,6 +4007,7 @@
       "line": 19,
       "models": [
         "gemma-4",
+        "glm-5.3",
         "gpt-oss",
         "qwen3.5"
       ],
@@ -3588,6 +4057,50 @@
       ],
       "owning_slice": null,
       "symbol": "base"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_selection_identity.py",
+      "kind": "module_constant",
+      "line": 23,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "GLM"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_selection_identity.py",
+      "kind": "module_constant",
+      "line": 24,
+      "models": [
+        "qwen.qwen3.5-122b"
+      ],
+      "owning_slice": null,
+      "symbol": "QWEN"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_selection_identity.py",
+      "kind": "module_constant",
+      "line": 25,
+      "models": [
+        "google.gemma-4-31B-it"
+      ],
+      "owning_slice": null,
+      "symbol": "GEMMA4"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_selection_identity.py",
+      "kind": "module_constant",
+      "line": 26,
+      "models": [
+        "openai.gpt-oss-120b"
+      ],
+      "owning_slice": null,
+      "symbol": "GPT_OSS"
     },
     {
       "category": "test_double",
@@ -3710,6 +4223,17 @@
       ],
       "owning_slice": null,
       "symbol": "old_model_budgets"
+    },
+    {
+      "category": "test_double",
+      "file": "tests/unit/test_task_analysis_receipts.py",
+      "kind": "model_id_literal",
+      "line": 141,
+      "models": [
+        "zai-org.glm-5.3"
+      ],
+      "owning_slice": null,
+      "symbol": "exclude_models"
     },
     {
       "category": "test_double",

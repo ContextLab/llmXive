@@ -114,3 +114,49 @@ def test_third_free_rung_drops_the_top_two_candidates() -> None:
     # Over the offline snapshot's free chain (tests/conftest.py), in policy order.
     assert leaders == ["zai-org.glm-5.3", "qwen.qwen3.5-122b", "google.gemma-4-31B-it"]
     assert all(c.to_overrides().allow_paid is False for c in free)
+
+
+def test_workflows_set_the_paid_escalation_variable_the_code_reads(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The deployed workflows must enable the paid rung through the variable this
+    module reads. They once kept setting the retired model-id list
+    ``LLMXIVE_EXECUTION_PAID_TIERS`` after the reader moved to the boolean, so the
+    paid rung could never enable in CI. Reads the REAL workflow files."""
+    import re
+    from pathlib import Path
+
+    import yaml
+
+    workflows = Path(__file__).resolve().parents[2] / ".github" / "workflows"
+    found: dict[str, list[tuple[str, str]]] = {}
+
+    def walk(node: object, name: str) -> None:
+        if isinstance(node, dict):
+            for key, value in node.items():
+                if isinstance(key, str) and key.startswith("LLMXIVE_EXECUTION_PAID"):
+                    found.setdefault(name, []).append((key, str(value)))
+                walk(value, name)
+        elif isinstance(node, list):
+            for item in node:
+                walk(item, name)
+
+    for path in sorted(workflows.glob("*.yml")):
+        text = path.read_text(encoding="utf-8")
+        walk(yaml.safe_load(text), path.name)
+        # Also catch the name outside a mapping key (an inline shell export).
+        assert "LLMXIVE_EXECUTION_PAID_TIERS" not in text, path.name
+        for name in re.findall(r"LLMXIVE_EXECUTION_PAID\w*", text):
+            assert name == es.PAID_ESCALATION_ENV, (path.name, name)
+
+    # The five pipeline lanes that opt in to paid spend also enable the rung.
+    assert set(found) >= {
+        "advance.yml", "llmxive-pipeline.yml", "maintenance.yml",
+        "pipeline-personality.yml", "reprocess.yml",
+    }
+    for name, pairs in found.items():
+        for key, value in pairs:
+            assert key == es.PAID_ESCALATION_ENV, (name, key)
+            # The value is a boolean the reader accepts, never a model-id list.
+            monkeypatch.setenv(es.PAID_ESCALATION_ENV, value)
+            assert es._paid_escalation_enabled() is True, (name, value)

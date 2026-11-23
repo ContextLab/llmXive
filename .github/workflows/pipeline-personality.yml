@@ -33,7 +33,9 @@ jobs:
       LLMXIVE_PAID_OPT_IN: "1"
       LLMXIVE_PAID_BUDGET_FRACTION: "0.9"
       # Paid escalation ladder (after the free tiers) for the execution/convergence fix-loop
-      LLMXIVE_EXECUTION_PAID_TIERS: "anthropic.claude-haiku-4-5-20251001,anthropic.claude-sonnet-4-6,anthropic.claude-opus-4-6"
+      # Boolean (spec 026): enables the single paid rung; the selector, not a
+      # model-id list, picks the paid model from the capability policy.
+      LLMXIVE_EXECUTION_PAID_ESCALATION: "1"
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v5

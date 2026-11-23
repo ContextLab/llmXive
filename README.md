@@ -120,9 +120,10 @@ Dartmouth Chat is the production model service. Each agent in
 resolves each profile at call time against the live Dartmouth model catalog and
 the versioned capability policy in
 [`model_selection/policy.py`](src/llmxive/model_selection/policy.py), producing
-a free-first chain (**Qwen 3.5 122B** (`qwen.qwen3.5-122b`), then
-**Gemma 4 31B** (`google.gemma-4-31B-it`), then **GPT-OSS 120B**
-(`openai.gpt-oss-120b`) for a standard reasoning call). For transient failures
+a free-first chain (**GLM-5.3** (`zai-org.glm-5.3`), then **Qwen 3.5 122B**
+(`qwen.qwen3.5-122b`), then **Gemma 4 31B** (`google.gemma-4-31B-it`), then
+**GPT-OSS 120B** (`openai.gpt-oss-120b`) for a standard reasoning call). For
+transient failures
 the executor walks that chain in order. Catalog availability and
 returned-model identity are checked separately from configuration. A fallback
 response is recorded as that model; primary-model acceptance tests do not let a
@@ -134,7 +135,8 @@ suitable hardware and a compatible available model; it is not a guarantee that
 a large Dartmouth model can run on a laptop. A model the capability policy does
 not list is never selected, whatever the catalog offers.
 
-The existing paid Dartmouth fallback is off by default. It requires
+The existing paid Dartmouth fallback (**Claude Haiku 4.5**, the one paid
+family the capability policy lists) is off by default. It requires
 `LLMXIVE_PAID_OPT_IN=1` and headroom under the
 [credit-budget guard](src/llmxive/backends/credits.py); an unavailable or invalid
 balance check refuses paid calls. The deployed

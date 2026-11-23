@@ -58,11 +58,13 @@ MAX_REPLAN_ROUNDS = 3
 #:   tier 1 → a free "second opinion": ``exclude_leader`` drops whatever
 #:            ``select`` ranks FIRST so the policy's next-best FREE model leads
 #:            (SSoT — no id hardcoded here, no model id threaded into dispatch).
+#:   tier 2 → a THIRD free family: ``exclude_leaders=2`` drops the top TWO ranked
+#:            candidates so the policy's third-best FREE model leads.
 #:   paid rung → a single OPTIONAL paid escalation, appended only when paid
 #:            escalation is enabled (``LLMXIVE_EXECUTION_PAID_ESCALATION``) AND
 #:            usable NOW (opt-in + fresh credit headroom); otherwise SKIPPED.
 #:
-#: This keeps the default behavior FREE-FIRST (tier0 → tier1 → re-plan); paid
+#: This keeps the default behavior FREE-FIRST (tier0 → tier1 → tier2 → re-plan); paid
 #: escalation is enabled later by config, no code change and no model-id pin.
 
 #: Env: enable the single PAID escalation rung (default off). Booleans use the

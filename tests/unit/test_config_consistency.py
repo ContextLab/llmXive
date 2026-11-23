@@ -86,6 +86,7 @@ _SANCTIONED_PAID_FAMILY = _family_of(
 #: longer names models at all (US5), so this can no longer diff against
 #: ``agents/registry.yaml``.
 _POLICY_DISPLAY_NAMES = {
+    "glm-5.3": "GLM-5.3",
     "qwen3.5": "Qwen 3.5 122B",
     "gemma-4": "Gemma 4 31B",
     "gpt-oss": "GPT-OSS 120B",
@@ -283,7 +284,8 @@ def test_no_point_system_language_in_live_code_or_docs():
 
 def _readme_models_section() -> str:
     readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
-    start = readme.index("## Models & cost")
+    # ``main`` rewrote the README; the section is now "Models and compute".
+    start = readme.index("## Models and compute")
     end = readme.index("\n## ", start + 1)
     return readme[start:end]
 
@@ -297,7 +299,7 @@ def test_readme_model_names_match_registry():
     for family, display in _POLICY_DISPLAY_NAMES.items():
         assert family in CAPABILITY_POLICY.entries, f"{family!r} missing from CAPABILITY_POLICY"
         assert display in section, (
-            f"README 'Models & cost' section must name {display!r} (policy family "
+            f"README 'Models and compute' section must name {display!r} (policy family "
             f"{family!r}) verbatim so prose cannot drift from the capability policy "
             f"(issue #294: 'Gemma 3 27B' vs google.gemma-4-31B-it)"
         )

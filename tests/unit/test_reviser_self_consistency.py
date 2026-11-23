@@ -456,8 +456,8 @@ def test_invoke_reviser_backend_uses_fallback():
     (``self._profile``), not a raw model pin — ``invoke_reviser_backend`` no
     longer promotes a caller model to the front of the chain, so the primary
     candidate is whatever the offline snapshot's policy ranks first for the
-    profile (``qwen.qwen3.5-122b``, per the fixed offline chain), with
-    ``google.gemma-4-31B-it`` as its same-backend peer.
+    profile (``zai-org.glm-5.3``, per the fixed offline chain), with
+    ``qwen.qwen3.5-122b`` as its same-backend peer.
     """
 
     class _Reviser:
@@ -466,8 +466,8 @@ def test_invoke_reviser_backend_uses_fallback():
             self._profile = "deep_code"
 
     backend = _ModelFallbackBackend(
-        replies={"qwen.qwen3.5-122b": "x", "google.gemma-4-31B-it": "peer revision"},
-        transient_models={"qwen.qwen3.5-122b"},
+        replies={"zai-org.glm-5.3": "x", "qwen.qwen3.5-122b": "peer revision"},
+        transient_models={"zai-org.glm-5.3"},
     )
     text = invoke_reviser_backend(_Reviser(backend), [])
     assert text == "peer revision"
@@ -488,7 +488,7 @@ def test_invoke_reviser_backend_uses_generation_budget():
             self._backend = backend
             self._profile = "deep_code"
 
-    backend = _ModelFallbackBackend(replies={"qwen.qwen3.5-122b": "revised doc"})
+    backend = _ModelFallbackBackend(replies={"zai-org.glm-5.3": "revised doc"})
     text = invoke_reviser_backend(_Reviser(backend), [])
     assert text == "revised doc"
     assert backend.calls, "backend was never called"

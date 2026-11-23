@@ -109,7 +109,7 @@ def test_real_overflow_cache_preserves_full_source_inside_project(tmp_path):
     git(tmp_path, "-c", "user.name=Test", "-c", "user.email=test@example.org", "commit", "--allow-empty", "-qm", "base")
     cache = project_control_dir(tmp_path, PID) / "summarize_cache"
     source = "Scientifically important source evidence.\n" * 2000
-    reduced = _maybe_reduce({"document": source}, goal="retain evidence", model="test", budget=1000, cache_dir=cache)
+    reduced = _maybe_reduce({"document": source}, goal="retain evidence", profile="deep_review", budget=1000, cache_dir=cache)
     assert reduced["document"] != source
     assert list(cache.glob("*/manifest.json"))
     # Expansion adds a separator between lossless chunks. Every source token

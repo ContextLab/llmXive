@@ -16,7 +16,7 @@ from llmxive.model_selection.types import IndependenceBaseline, ModelUnavailable
 
 _MSGS = [ChatMessage(role="user", content="review this")]
 #: Every family in the offline snapshot's free Dartmouth chain.
-_ALL_FAMILIES = frozenset({"qwen3.5", "gemma-4", "gpt-oss"})
+_ALL_FAMILIES = frozenset({"glm-5.3", "qwen3.5", "gemma-4", "gpt-oss"})
 
 
 class _Fake:

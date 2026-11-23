@@ -27,7 +27,7 @@ _BASELINE = IndependenceBaseline(families=frozenset({"qwen3.5"}))
 #: Every family in the offline snapshot's free Dartmouth chain (tests/conftest.py's autouse
 #: stub). Excluding all of them leaves selection nothing eligible, which is how a test drives
 #: a REAL ModelUnavailable out of the real path instead of raising one by hand.
-_ALL_FAMILIES = frozenset({"qwen3.5", "gemma-4", "gpt-oss"})
+_ALL_FAMILIES = frozenset({"glm-5.3", "qwen3.5", "gemma-4", "gpt-oss"})
 _MSGS = [ChatMessage(role="user", content="review this")]
 
 
