@@ -165,7 +165,8 @@ def parse_org_credits(payload: dict) -> float:
 
 
 #: Hosts the Hugging Face token may be sent to: Hugging Face itself (over https) and
-#: loopback (local test servers). Any other host is refused before a request is made.
+#: loopback (local test servers). Any other host, or any URL carrying userinfo
+#: (``user@host``), is refused before a request is made; redirects are never followed.
 _TOKEN_HOST = "huggingface.co"
 _LOOPBACK_HOSTS = frozenset({"127.0.0.1", "localhost", "::1"})
 
@@ -173,6 +174,10 @@ _LOOPBACK_HOSTS = frozenset({"127.0.0.1", "localhost", "::1"})
 def _require_token_safe_url(url: str) -> None:
     parts = urlsplit(url)
     host = (parts.hostname or "").lower()
+    if "@" in parts.netloc:
+        raise ValueError(
+            f"refusing to send the Hugging Face token to a URL with userinfo (host {host or '?'})"
+        )
     if host == _TOKEN_HOST and parts.scheme == "https":
         return
     if host in _LOOPBACK_HOSTS and parts.scheme in ("http", "https"):
@@ -190,14 +195,18 @@ def fetch_org_balance_usd(*, timeout: float = 30.0, url: str = ORG_CREDITS_URL) 
     unavailable"; callers fall back to the ledger-derived allowance alone.
 
     ``url`` must be ``https://huggingface.co/...`` or a loopback address (tests); any
-    other host raises ``ValueError`` before a token is loaded or a request is sent."""
+    other host, or userinfo in the URL, raises ``ValueError`` before a token is loaded
+    or a request is sent. A redirect is not followed (it reads as a non-200 → ``None``),
+    so the token never leaves the checked host."""
     _require_token_safe_url(url)
     token = load_hf_token()
     if not token:
         logger.info("org credits cross-check unavailable: no Hugging Face token")
         return None
     try:
-        resp = httpx.get(url, headers={"Authorization": f"Bearer {token}"}, timeout=timeout)
+        resp = httpx.get(
+            url, headers={"Authorization": f"Bearer {token}"}, timeout=timeout, follow_redirects=False
+        )
     except httpx.HTTPError as exc:
         logger.warning("org credits cross-check unavailable: %s", type(exc).__name__)
         return None
@@ -243,8 +252,9 @@ def funded_observer(
     ``append_event`` has just synced from the authoritative remote on this CAS
     attempt — and returns ``spend`` = month-to-date reconciled spend, ``effective_cap``
     = :func:`allowance_cap_usd`, ``budget_epoch`` = the current UTC month.
-    ``org_balance_usd`` is a cross-check value fetched once by the caller (``None`` =
-    unavailable; the ledger-derived allowance alone applies).
+    ``org_balance_usd`` is the cross-check value :func:`funded_guard` already fetched
+    (``None`` = unavailable; the ledger-derived allowance alone applies) — pass it
+    through, never fetch it again (:func:`reserve_funded` takes it from the guard).
 
     ``now_fn`` is REQUIRED and must be the same clock ``reserve`` stamps
     ``created_at`` with; otherwise, at a month boundary, a hold's ``budget_epoch``
@@ -273,21 +283,32 @@ def reserve_funded(
     lease_expires_at: datetime,
     now: datetime,
     config: LedgerConfig,
-    org_balance_usd: float | None = None,
+    guard: FundedGuardSnapshot,
 ) -> Reservation:
     """Open a funded reservation under strict CAS with ONE clock: the same ``now``
     prices the hold (epoch + cap via :func:`funded_observer`) and stamps its
     ``created_at``, so a hold can never land in a different month than it was priced
-    in. Raises ``LedgerDenied`` when the allowance has no headroom."""
+    in. Raises ``LedgerDenied`` when the allowance has no headroom.
+
+    ``guard`` is the runtime snapshot's live :class:`FundedGuardSnapshot`; the hold is
+    priced with ITS ``org_balance_usd`` — the one org-balance fetch :func:`funded_guard`
+    made — never a second fetch. A guard that is not live, or is from another epoch
+    than ``now``, raises :class:`FundedUnavailable` (fail closed: re-snapshot)."""
     from llmxive.model_selection.reservations import reserve
 
+    if guard.source != "live":
+        raise FundedUnavailable(f"funded guard is {guard.source!r}, not live")
+    if guard.epoch != epoch_of(now):
+        raise FundedUnavailable(
+            f"funded guard is for epoch {guard.epoch}, but the hold is in {epoch_of(now)}"
+        )
     return reserve(
         repo,
         reservation_id=reservation_id,
         worst_case_credits=worst_case_usd,
         model=model,
         credit_observer=funded_observer(
-            repo, config=config, now_fn=lambda: now, org_balance_usd=org_balance_usd
+            repo, config=config, now_fn=lambda: now, org_balance_usd=guard.org_balance_usd
         ),
         lease_expires_at=lease_expires_at,
         now=now,

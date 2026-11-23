@@ -12,6 +12,14 @@ component falls back to the last successfully-observed value from the LKG store
 a SUCCESSFUL fetch that omits a model (``unavailable``). Cold start (no live AND
 no LKG) → ``unavailable``. Only components that succeed live are written back.
 
+Spec 027 adds three components: ``hf_catalog`` (the Hugging Face router catalog:
+one ``ModelRef`` per live provider, real pricing, observed context/feature flags),
+``leaderboard`` (LMArena scores, joined to the catalog per repo) — both with their
+own LKG — and ``funded`` (the allowance guard; ``live`` or ``unavailable``, no LKG:
+money is never priced from a stale ledger read). The leaderboard LKG stores the
+parsed arena data, not the join, so an LKG leaderboard still joins against a live
+catalog. Raw ratings are persisted only in the gitignored LKG store.
+
 Reuses (Constitution I): the Dartmouth catalog fetch + pricing extraction, the
 local backend inventory, and the credit guard's balance/fraction helpers.
 """
@@ -21,26 +29,40 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import math
 import re
 from collections.abc import Callable
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
+from typing import TypeVar
 
 from llmxive.model_selection.lkg import LKGEntry, LKGStore
 from llmxive.model_selection.types import (
+    ArenaScore,
     CreditGuardSnapshot,
+    FundedGuardSnapshot,
     ModelPricing,
     ModelRef,
+    ModelScores,
+    ObservedModel,
     RuntimeSnapshot,
     SnapshotProvenance,
+    Track,
 )
 
 logger = logging.getLogger(__name__)
 
 _DARTMOUTH_BACKEND = "dartmouth"
 _LOCAL_BACKEND = "local"
+_HF_BACKEND = "huggingface"
 
 #: A resolved models component: (refs, pricing) — catalog and local share this shape.
 _ModelsData = tuple[list[ModelRef], dict[str, ModelPricing]]
+#: The Hugging Face catalog component: (refs, pricing, observed flags), keyed by model_id.
+_HFCatalogData = tuple[list[ModelRef], dict[str, ModelPricing], dict[str, ObservedModel]]
+#: The leaderboard component: per track, ``{normalised arena name: ArenaScore}``.
+_ArenaData = dict[Track, dict[str, ArenaScore]]
+
+_T = TypeVar("_T")
 
 
 def _vendor_of(model_id: str) -> str:
@@ -167,6 +189,98 @@ def _fetch_credit(*, now: datetime) -> CreditGuardSnapshot | None:
     )
 
 
+def _usd_per_million(value: object) -> float | None:
+    """A catalog price (USD per million tokens) as USD per token, or ``None`` (unknown,
+    never free) unless it is a finite non-negative number."""
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return None
+    if not math.isfinite(value) or value < 0:
+        return None
+    return float(value) / 1e6
+
+
+def _parse_hf_catalog(raw: dict) -> _HFCatalogData:
+    """Router ``/models`` body → one ``ModelRef`` per (repo, provider) whose status is
+    ``live``. ``model_id`` is ``<repo>:<provider>``; family and vendor come from the
+    repo id alone. Raises ``ValueError`` when the body has no ``data`` list."""
+    data = raw.get("data") if isinstance(raw, dict) else None
+    if not isinstance(data, list):
+        raise ValueError("Hugging Face catalog has no 'data' list")
+    refs: list[ModelRef] = []
+    pricing: dict[str, ModelPricing] = {}
+    observed: dict[str, ObservedModel] = {}
+    for model in data:
+        if not isinstance(model, dict) or not isinstance(model.get("id"), str) or not model["id"]:
+            continue
+        repo = model["id"]
+        vendor = _vendor_of(repo)
+        family = _family_of(repo, vendor)
+        arch = model.get("architecture")
+        modalities = arch.get("input_modalities") if isinstance(arch, dict) else None
+        vision = isinstance(modalities, list) and "image" in modalities
+        for prov in model.get("providers") or []:
+            if not isinstance(prov, dict) or prov.get("status") != "live":
+                continue
+            provider = prov.get("provider")
+            if not isinstance(provider, str) or not provider:
+                continue
+            mid = f"{repo}:{provider}"
+            if mid in pricing:
+                continue  # a repeated (repo, provider) row: the first one stands
+            refs.append(ModelRef(_HF_BACKEND, provider, mid, family, vendor))
+            price = prov.get("pricing") if isinstance(prov.get("pricing"), dict) else {}
+            pricing[mid] = ModelPricing(_usd_per_million(price.get("input")), _usd_per_million(price.get("output")))
+            ctx = prov.get("context_length")
+            features = {
+                name for name, on in (
+                    ("structured", prov.get("supports_structured_output") is True),
+                    ("tools", prov.get("supports_tools") is True),
+                    ("vision", vision),
+                ) if on
+            }
+            observed[mid] = ObservedModel(
+                context_length=ctx if isinstance(ctx, int) and not isinstance(ctx, bool) else None,
+                features=frozenset(features),
+            )
+    return refs, pricing, observed
+
+
+def _fetch_huggingface(*, base_url: str | None = None) -> _HFCatalogData | None:
+    """The Hugging Face router catalog (keyless), or ``None`` on a live failure
+    (transport, non-200, or a malformed body)."""
+    try:
+        from llmxive.backends.huggingface import ROUTER_BASE_URL, fetch_router_catalog
+
+        return _parse_hf_catalog(fetch_router_catalog(base_url=base_url or ROUTER_BASE_URL))
+    except Exception as exc:  # network / shape — live failure → LKG fallback
+        logger.warning("hugging face catalog fetch failed: %s: %s", type(exc).__name__, exc)
+        return None
+
+
+def _fetch_leaderboard() -> _ArenaData | None:
+    """Both tracks' LMArena scores, or ``None`` (already logged) on failure."""
+    from llmxive.model_selection.leaderboard import fetch_arena_scores
+
+    return fetch_arena_scores()
+
+
+def _fetch_funded_guard(*, now: datetime) -> FundedGuardSnapshot | None:
+    """The funded allowance guard, or ``None`` when funded spend is unavailable
+    (no bill-to id / token / ledger anchor, or the ledger cannot sync). The guard
+    fetches the org balance ONCE and records it as ``org_balance_usd``; whatever
+    reserves against this snapshot passes the guard itself to
+    ``hf_budget.reserve_funded`` so it prices with that same balance."""
+    from llmxive.backends.hf_budget import FundedUnavailable, funded_guard
+    from llmxive.config import repo_root
+    from llmxive.model_selection.ledger_transport import LedgerError
+
+    try:
+        return funded_guard(repo_root(), now=now)
+    except (FundedUnavailable, LedgerError) as exc:
+        logger.warning("funded guard unavailable: %s: %s", type(exc).__name__, exc)
+        return None
+
+
 # --------------------------------------------------------------------------- #
 # LKG (de)serialization — domain-type ↔ JSON payload. Kept here (snapshot owns
 # the domain types); ``lkg.py`` stays generic over the payload dict.
@@ -207,10 +321,78 @@ def _credit_from_payload(payload: dict, *, observed_at: datetime) -> CreditGuard
     )
 
 
+def _observed_row(o: ObservedModel) -> list:
+    return [o.context_length, sorted(o.features)]
+
+
+def _hf_catalog_to_payload(data: _HFCatalogData) -> dict:
+    refs, pricing, observed = data
+    return {
+        **_models_to_payload((refs, pricing)),
+        "observed": {k: _observed_row(o) for k, o in observed.items()},
+    }
+
+
+def _hf_catalog_from_payload(payload: dict) -> _HFCatalogData:
+    refs, pricing = _models_from_payload(payload)
+    observed = {k: ObservedModel(v[0], frozenset(v[1])) for k, v in payload["observed"].items()}
+    return refs, pricing, observed
+
+
+def _score_row(s: ArenaScore) -> list:
+    return [s.rating, s.rating_lower, s.rating_upper, s.publish_date.isoformat()]
+
+
+def _arena_to_payload(arena: _ArenaData) -> dict:
+    """``{track: {name: [rating, lower, upper, "YYYY-MM-DD"]}}`` (gitignored LKG only)."""
+    return {track: {name: _score_row(s) for name, s in table.items()} for track, table in arena.items()}
+
+
+def _arena_from_payload(payload: dict) -> _ArenaData:
+    return {
+        track: {
+            name: ArenaScore(float(v[0]), float(v[1]), float(v[2]), date.fromisoformat(v[3]))
+            for name, v in table.items()
+        }
+        for track, table in payload.items()
+    }
+
+
 # --------------------------------------------------------------------------- #
 # Per-component resolution: live → last_known_good → unavailable, emitting the
 # component's provenance and staging an LKG write-back on live success.
 # --------------------------------------------------------------------------- #
+
+
+def _resolve_component(
+    name: str,
+    fetch: Callable[[], _T | None],
+    to_payload: Callable[[_T], dict],
+    from_payload: Callable[[dict, datetime], _T],
+    empty: _T,
+    lkg: dict[str, LKGEntry],
+    now: datetime,
+    updates: dict[str, LKGEntry],
+) -> tuple[_T, SnapshotProvenance]:
+    """The one live → last_known_good → unavailable resolver every LKG-backed
+    component goes through. ``from_payload`` receives the entry's original
+    ``observed_at``; ``empty`` is the cold-start value."""
+    live = fetch()
+    if live is not None:
+        updates[name] = LKGEntry(observed_at=now, payload=to_payload(live))
+        return live, SnapshotProvenance(source="live", observed_at=now, age_s=0.0)
+
+    entry = lkg.get(name)
+    if entry is not None:
+        try:
+            data = from_payload(entry.payload, entry.observed_at)
+        except (KeyError, TypeError, ValueError, IndexError, AttributeError) as exc:
+            logger.warning("LKG %s payload invalid (%s); treating as absent", name, exc)
+        else:
+            age = max(0.0, (now - entry.observed_at).total_seconds())
+            return data, SnapshotProvenance("last_known_good", entry.observed_at, age)
+
+    return empty, SnapshotProvenance(source="unavailable", observed_at=now, age_s=0.0)
 
 
 def _resolve_models_component(
@@ -220,22 +402,10 @@ def _resolve_models_component(
     now: datetime,
     updates: dict[str, LKGEntry],
 ) -> tuple[_ModelsData, SnapshotProvenance]:
-    live = fetch()
-    if live is not None:
-        updates[name] = LKGEntry(observed_at=now, payload=_models_to_payload(live))
-        return live, SnapshotProvenance(source="live", observed_at=now, age_s=0.0)
-
-    entry = lkg.get(name)
-    if entry is not None:
-        try:
-            data = _models_from_payload(entry.payload)
-        except (KeyError, TypeError, ValueError) as exc:
-            logger.warning("LKG %s payload invalid (%s); treating as absent", name, exc)
-        else:
-            age = max(0.0, (now - entry.observed_at).total_seconds())
-            return data, SnapshotProvenance("last_known_good", entry.observed_at, age)
-
-    return ([], {}), SnapshotProvenance(source="unavailable", observed_at=now, age_s=0.0)
+    return _resolve_component(
+        name, fetch, _models_to_payload, lambda p, _at: _models_from_payload(p),
+        ([], {}), lkg, now, updates,
+    )
 
 
 def _resolve_credit_component(
@@ -243,27 +413,29 @@ def _resolve_credit_component(
     now: datetime,
     updates: dict[str, LKGEntry],
 ) -> tuple[CreditGuardSnapshot, SnapshotProvenance]:
-    live = _fetch_credit(now=now)
-    if live is not None:
-        updates["credit"] = LKGEntry(observed_at=now, payload=_credit_to_payload(live))
-        return live, SnapshotProvenance(source="live", observed_at=now, age_s=0.0)
-
-    entry = lkg.get("credit")
-    if entry is not None:
-        try:
-            credit = _credit_from_payload(entry.payload, observed_at=entry.observed_at)
-        except (KeyError, TypeError, ValueError) as exc:
-            logger.warning("LKG credit payload invalid (%s); treating as absent", exc)
-        else:
-            age = max(0.0, (now - entry.observed_at).total_seconds())
-            return credit, SnapshotProvenance("last_known_good", entry.observed_at, age)
-
     unavailable = CreditGuardSnapshot(
         balance=0.0, spend=0.0, max_budget=0.0, paid_opt_in=False,
         budget_fraction=0.0, effective_cap=0.0, available_headroom=0.0,
         budget_reset_at="", observed_at=now, source="unavailable",
     )
-    return unavailable, SnapshotProvenance(source="unavailable", observed_at=now, age_s=0.0)
+    return _resolve_component(
+        "credit", lambda: _fetch_credit(now=now), _credit_to_payload,
+        lambda p, at: _credit_from_payload(p, observed_at=at), unavailable, lkg, now, updates,
+    )
+
+
+def _join_hf_scores(refs: list[ModelRef], arena: _ArenaData) -> dict[str, ModelScores]:
+    """Scores per Hugging Face ``model_id``: the arena joined by repo id against EVERY
+    catalog repo (so uniqueness is judged across the whole catalog), then fanned out
+    to each provider of a matched repo. Ambiguous names are logged, never ratings."""
+    from llmxive.model_selection.leaderboard import join_scores
+
+    repo_of = {r.model_id: r.model_id.rsplit(":", 1)[0] for r in refs}
+    by_repo, ambiguous = join_scores(repo_of.values(), arena)
+    if ambiguous:
+        logger.warning("leaderboard names shared by several catalog repos (left unscored): %s",
+                       ", ".join(ambiguous))
+    return {mid: by_repo[repo] for mid, repo in repo_of.items() if repo in by_repo}
 
 
 def _digest(
@@ -273,14 +445,22 @@ def _digest(
     credit: CreditGuardSnapshot,
     observed_at: datetime,
     sources: dict[str, SnapshotProvenance],
+    *,
+    funded: FundedGuardSnapshot | None = None,
+    scores: dict[str, ModelScores] | None = None,
+    observed: dict[str, ObservedModel] | None = None,
 ) -> str:
     """SHA-256 over the COMPLETE canonical RuntimeSnapshot (FR-004, #5): every input
     that can change a decision — models, pricing, health, the FULL credit-guard
-    observation, the snapshot ``observed_at``, AND each component's full provenance
-    (source + observation time + age, since freshness gates eligibility per FR-007).
+    observation, the snapshot ``observed_at``, each component's full provenance
+    (source + observation time + age, since freshness gates eligibility per FR-007),
+    and (spec 027) every score's four ``ArenaScore`` fields per track, the observed
+    context/feature flags, and the FULL funded guard (``None`` when unavailable).
     Two snapshots taken at different times are DIFFERENT snapshots (distinct
     ``observed_at``) → distinct digests, which is correct; ``select`` determinism
     (SC-001) is over a FIXED snapshot, not across time."""
+    scores = scores or {}
+    observed = observed or {}
     payload = {
         "observed_at": observed_at.isoformat(),
         "models": sorted(
@@ -301,6 +481,22 @@ def _digest(
         "sources": {
             k: [sources[k].source, sources[k].observed_at.isoformat(), sources[k].age_s]
             for k in sorted(sources)
+        },
+        "scores": {
+            k: {
+                track: None if (s := scores[k].for_track(track)) is None else _score_row(s)
+                for track in ("reasoning", "coding")
+            }
+            for k in sorted(scores)
+        },
+        "observed": {k: _observed_row(observed[k]) for k in sorted(observed)},
+        "funded": None if funded is None else {
+            "monthly_usd": funded.monthly_usd, "spent_month_usd": funded.spent_month_usd,
+            "spent_before_today_usd": funded.spent_before_today_usd,
+            "outstanding_usd": funded.outstanding_usd, "org_balance_usd": funded.org_balance_usd,
+            "effective_cap_usd": funded.effective_cap_usd, "available_usd": funded.available_usd,
+            "epoch": funded.epoch, "observed_at": funded.observed_at.isoformat(),
+            "source": funded.source,
         },
     }
     return hashlib.sha256(json.dumps(payload, sort_keys=True, default=str).encode()).hexdigest()
@@ -324,15 +520,35 @@ def runtime_snapshot(*, now: datetime | None = None, lkg_store: LKGStore | None 
         "local", _fetch_local, lkg, observed_at, updates
     )
     credit, c_prov = _resolve_credit_component(lkg, observed_at, updates)
+    (h_refs, h_pricing, h_observed), h_prov = _resolve_component(
+        "hf_catalog", _fetch_huggingface, _hf_catalog_to_payload,
+        lambda p, _at: _hf_catalog_from_payload(p), ([], {}, {}), lkg, observed_at, updates,
+    )
+    arena, lb_prov = _resolve_component(
+        "leaderboard", _fetch_leaderboard, _arena_to_payload,
+        lambda p, _at: _arena_from_payload(p), {}, lkg, observed_at, updates,
+    )
+    funded = _fetch_funded_guard(now=observed_at)  # no LKG: live or unavailable
+    f_prov = SnapshotProvenance(
+        source="live" if funded is not None else "unavailable", observed_at=observed_at, age_s=0.0
+    )
 
     store.record(updates)  # persist only the components that succeeded live
 
-    models = tuple(d_refs + l_refs)
-    pricing = {**d_pricing, **l_pricing}
+    models = tuple(d_refs + l_refs + h_refs)
+    pricing = {**d_pricing, **l_pricing, **h_pricing}
     health = {m.model_id: "ok" for m in models}  # advisory only (see RuntimeSnapshot.health)
-    sources = {"catalog": d_prov, "local": l_prov, "credit": c_prov}
-    digest = _digest(models, pricing, health, credit, observed_at, sources)
+    scores = _join_hf_scores(h_refs, arena)
+    sources = {
+        "catalog": d_prov, "local": l_prov, "credit": c_prov,
+        "hf_catalog": h_prov, "leaderboard": lb_prov, "funded": f_prov,
+    }
+    digest = _digest(
+        models, pricing, health, credit, observed_at, sources,
+        funded=funded, scores=scores, observed=h_observed,
+    )
     return RuntimeSnapshot(
         models=models, pricing=pricing, health=health, credit=credit,
         observed_at=observed_at, sources=sources, digest=digest,
+        funded=funded, scores=scores, observed=h_observed,
     )

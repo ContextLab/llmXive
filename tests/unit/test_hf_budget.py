@@ -121,6 +121,9 @@ def test_fetch_org_balance_is_none_when_unreachable(monkeypatch):
     "http://huggingface.co/api/organizations/contextlab/billing/credits",   # token never over plain http
     "https://huggingface.co.evil.example/x",
     "https://10.0.0.5/x",
+    "https://huggingface.co@evil.example/api/organizations/contextlab/billing/credits",  # userinfo
+    "https://user:pw@huggingface.co/api/organizations/contextlab/billing/credits",     # userinfo, right host
+    "https://evil.example@HUGGINGFACE.CO.evil.example/x",
 ])
 def test_fetch_org_balance_refuses_to_send_the_token_elsewhere(monkeypatch, bad_url):
     monkeypatch.setenv("HF_TOKEN", "hf_t")
@@ -151,3 +154,23 @@ def test_fetch_org_balance_without_a_token_makes_no_request(monkeypatch):
     with ReplayServer({("GET", _PATH): [(200, {"balanceUsd": 1.0})]}) as srv:
         assert fetch_org_balance_usd(url=srv.base_url + _PATH, timeout=5.0) is None
     assert srv.requests == []
+
+
+def test_fetch_org_balance_uppercase_host_is_the_same_host(monkeypatch):
+    # Host names are case-insensitive: an uppercase Hugging Face host passes the check,
+    # and an uppercase loopback name reaches the local server.
+    from llmxive.backends.hf_budget import _require_token_safe_url
+
+    _require_token_safe_url("https://HuggingFace.CO/api/organizations/contextlab/billing/credits")
+    monkeypatch.setenv("HF_TOKEN", "hf_t")
+    with ReplayServer({("GET", _PATH): [(200, {"balanceUsd": 4.0})]}) as srv:
+        port = srv.base_url.rsplit(":", 1)[1]
+        assert fetch_org_balance_usd(url=f"http://LOCALHOST:{port}{_PATH}", timeout=5.0) == 4.0
+
+
+def test_fetch_org_balance_does_not_follow_redirects(monkeypatch):
+    monkeypatch.setenv("HF_TOKEN", "hf_t")
+    with ReplayServer({("GET", _PATH): [(302, {}, {"Location": "/elsewhere"})],
+                       ("GET", "/elsewhere"): [(200, {"balanceUsd": 99.0})]}) as srv:
+        assert fetch_org_balance_usd(url=srv.base_url + _PATH, timeout=5.0) is None
+    assert [r["path"] for r in srv.requests] == [_PATH]  # the token went nowhere else

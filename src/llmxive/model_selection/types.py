@@ -75,8 +75,9 @@ class SnapshotProvenance:
     WHEN it was actually observed, and how stale it is relative to the snapshot.
 
     FR-004/FR-007 require every decision to record BOTH the source AND the age of
-    each component (catalog / local / credit-guard), so the pure selector can
-    enforce ``max_catalog_age_s`` for high-stakes calls without touching a clock.
+    each component (catalog / local / credit-guard / hf_catalog / leaderboard /
+    funded), so the pure selector can enforce ``max_catalog_age_s`` for
+    high-stakes calls without touching a clock.
 
     - ``live``: freshly fetched → ``observed_at`` is the snapshot's ``observed_at``
       and ``age_s == 0.0``.
@@ -325,7 +326,8 @@ class RuntimeSnapshot:
     health: dict[str, str]  # model_id -> health hint ("ok" | "breaker_open" | ...)
     credit: CreditGuardSnapshot
     observed_at: datetime
-    sources: dict[str, SnapshotProvenance]  # component ("catalog"/"local"/"credit") -> provenance
+    # component -> provenance: catalog, local, credit, hf_catalog, leaderboard, funded
+    sources: dict[str, SnapshotProvenance]
     digest: str = ""
     funded: FundedGuardSnapshot | None = None
     scores: Mapping[str, ModelScores] = field(default_factory=dict)  # keyed by model_id

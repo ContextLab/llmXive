@@ -1,9 +1,9 @@
 """Last-known-good (LKG) component store for the runtime snapshot (spec 026, slice 1).
 
 When a live acquisition of a snapshot component (Dartmouth catalog, local
-inventory, or credit-guard balance) FAILS, the snapshot may fall back to the last
-value that was successfully observed — marked ``source=last_known_good`` with its
-TRUE age (FR-007, spec §48). This module persists those per-component values.
+inventory, credit-guard balance, Hugging Face catalog, or leaderboard scores)
+FAILS, the snapshot may fall back to the last value that was successfully
+observed — marked ``source=last_known_good`` with its TRUE age (FR-007, spec §48). This module persists those per-component values.
 
 Design notes:
 

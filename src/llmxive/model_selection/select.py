@@ -33,6 +33,7 @@ from __future__ import annotations
 
 from llmxive.model_selection.policy import CAPABILITY_POLICY, CapabilityPolicy
 from llmxive.model_selection.types import (
+    FUNDED_BACKENDS,
     Candidate,
     IndependenceDim,
     ModelChain,
@@ -143,6 +144,13 @@ def select(
 
     for model in snapshot.models:
         family = model.model_family
+
+        # Funded (Hugging Face) models are admitted only by the funded selection
+        # path (spec 027 section 5.10: leaderboard strength levels + the allowance
+        # guard), never by the free/paid family-table walk below, which would
+        # price them against the Dartmouth credit guard.
+        if model.backend in FUNDED_BACKENDS:
+            continue
 
         # (a) snapshot freshness for this model's component.
         prov = snapshot.sources.get(_component_of(model))

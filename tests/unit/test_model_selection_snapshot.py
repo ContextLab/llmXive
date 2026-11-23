@@ -76,6 +76,19 @@ def _live_credit(now: datetime):
     )
 
 
+def _patch_spec027_live(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Deterministic live values for the spec-027 components (no network)."""
+    import llmxive.model_selection.snapshot as snap_mod
+    from llmxive.model_selection.types import FundedGuardSnapshot
+
+    monkeypatch.setattr(snap_mod, "_fetch_huggingface", lambda: ([], {}, {}))
+    monkeypatch.setattr(snap_mod, "_fetch_leaderboard", lambda: {"reasoning": {}, "coding": {}})
+    monkeypatch.setattr(
+        snap_mod, "_fetch_funded_guard",
+        lambda *, now: FundedGuardSnapshot(50.0, 0.0, 0.0, 0.0, None, 6.0, 6.0, "2026-07", now, "live"),
+    )
+
+
 def test_runtime_snapshot_is_deterministic_and_provenanced(
     monkeypatch: pytest.MonkeyPatch, tmp_path
 ) -> None:
@@ -91,13 +104,15 @@ def test_runtime_snapshot_is_deterministic_and_provenanced(
     monkeypatch.setattr(snap_mod, "_fetch_dartmouth", lambda: ([ref], price))
     monkeypatch.setattr(snap_mod, "_fetch_local", lambda: ([], {}))
     monkeypatch.setattr(snap_mod, "_fetch_credit", lambda *, now: _live_credit(now))
+    _patch_spec027_live(monkeypatch)
 
     store = LKGStore(tmp_path / "lkg.json")
     a = snap_mod.runtime_snapshot(now=fixed_now, lkg_store=store)
     b = snap_mod.runtime_snapshot(now=fixed_now, lkg_store=store)
     assert a.digest == b.digest  # same inputs -> same digest
     assert {k: p.source for k, p in a.sources.items()} == {
-        "catalog": "live", "local": "live", "credit": "live"
+        "catalog": "live", "local": "live", "credit": "live",
+        "hf_catalog": "live", "leaderboard": "live", "funded": "live",
     }
     assert all(p.age_s == 0.0 and p.observed_at == fixed_now for p in a.sources.values())
     assert a.models[0].model_id == "qwen.qwen3.5-122b"
@@ -117,6 +132,7 @@ def test_digest_reflects_component_source(monkeypatch: pytest.MonkeyPatch, tmp_p
     t0 = datetime(2026, 7, 16, tzinfo=UTC)
     monkeypatch.setattr(snap_mod, "_fetch_local", lambda: ([], {}))
     monkeypatch.setattr(snap_mod, "_fetch_credit", lambda *, now: _live_credit(now))
+    _patch_spec027_live(monkeypatch)
 
     store = LKGStore(tmp_path / "lkg.json")
     monkeypatch.setattr(snap_mod, "_fetch_dartmouth", lambda: ([ref], price))
@@ -143,6 +159,7 @@ def test_digest_binds_full_snapshot_and_contracts_are_immutable(
     t0 = datetime(2026, 7, 16, tzinfo=UTC)
     monkeypatch.setattr(snap_mod, "_fetch_dartmouth", lambda: ([ref], price))
     monkeypatch.setattr(snap_mod, "_fetch_local", lambda: ([], {}))
+    _patch_spec027_live(monkeypatch)
 
     def snap(spend: float):
         monkeypatch.setattr(

@@ -5,7 +5,8 @@ either a list of ``(status, json_body)`` served in order (the last one repeats) 
 callable taking the recorded request dict and returning ``(status, json_body)``.
 Every request is recorded in ``.requests`` with ``method``, ``path``, ``query``
 (first value per key), ``headers`` (lower-cased names) and ``json`` (or ``None``).
-A body given as ``bytes`` is sent verbatim (for non-JSON replies).
+A body given as ``bytes`` is sent verbatim (for non-JSON replies). A reply may carry a
+third element, a dict of extra response headers (e.g. ``{"Location": ...}``).
 An unrouted request is answered 404 and still recorded.
 """
 
@@ -17,7 +18,8 @@ from collections.abc import Callable
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlsplit
 
-Route = list[tuple[int, dict | bytes]] | Callable[[dict], tuple[int, dict | bytes]]
+Reply = tuple[int, dict | bytes] | tuple[int, dict | bytes, dict[str, str]]
+Route = list[Reply] | Callable[[dict], Reply]
 
 
 class ReplayServer:
@@ -50,15 +52,19 @@ class ReplayServer:
             self.requests.append(record)
             route = self._routes.get(key)
             if route is None:
-                status, body = 404, {"error": "no route"}
+                reply: Reply = (404, {"error": "no route"})
             elif callable(route):
-                status, body = route(record)
+                reply = route(record)
             else:
                 i = self._cursor.get(key, 0)
-                status, body = route[min(i, len(route) - 1)]
+                reply = route[min(i, len(route) - 1)]
                 self._cursor[key] = i + 1
+        status, body = reply[0], reply[1]
+        extra = reply[2] if len(reply) > 2 else {}
         data = body if isinstance(body, bytes) else json.dumps(body).encode()
         handler.send_response(status)
+        for name, value in extra.items():
+            handler.send_header(name, value)
         handler.send_header("Content-Type", "application/json")
         handler.send_header("Content-Length", str(len(data)))
         handler.end_headers()

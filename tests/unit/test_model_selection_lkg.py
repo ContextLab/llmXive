@@ -97,6 +97,11 @@ def _patch_fetches(monkeypatch, *, dartmouth, local, credit) -> None:
     monkeypatch.setattr(snap_mod, "_fetch_dartmouth", dartmouth)
     monkeypatch.setattr(snap_mod, "_fetch_local", local)
     monkeypatch.setattr(snap_mod, "_fetch_credit", credit)
+    # spec 027 components: failed live (offline); their LKG transitions are covered
+    # in test_model_selection_hf_snapshot.py.
+    monkeypatch.setattr(snap_mod, "_fetch_huggingface", lambda: None)
+    monkeypatch.setattr(snap_mod, "_fetch_leaderboard", lambda: None)
+    monkeypatch.setattr(snap_mod, "_fetch_funded_guard", lambda *, now: None)
 
 
 def test_live_then_lkg_then_unavailable(monkeypatch, tmp_path) -> None:

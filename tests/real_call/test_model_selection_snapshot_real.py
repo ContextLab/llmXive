@@ -46,7 +46,7 @@ def test_runtime_snapshot_real_composite() -> None:
     assert snap.digest  # non-empty full-snapshot digest
 
     # every component records provenance (source + true age); a live fetch is age 0
-    assert set(snap.sources) == {"catalog", "local", "credit"}
+    assert set(snap.sources) == {"catalog", "local", "credit", "hf_catalog", "leaderboard", "funded"}
     for prov in snap.sources.values():
         assert prov.source in ("live", "last_known_good", "unavailable")
         assert prov.age_s >= 0.0

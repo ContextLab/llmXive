@@ -13,6 +13,7 @@ import pytest
 from llmxive.backends.hf_budget import (
     FundedSpend,
     FundedUnavailable,
+    epoch_of,
     funded_guard,
     funded_observer,
     funded_spend,
@@ -38,6 +39,7 @@ from llmxive.model_selection.reservations import (
     reserve,
     settle,
 )
+from llmxive.model_selection.types import FundedGuardSnapshot
 
 T0 = datetime(2026, 11, 23, 12, 0, 0, tzinfo=UTC)
 CFG = LedgerConfig(remote=None, ref=FUNDED_LEDGER_REF)
@@ -62,6 +64,12 @@ def remote_and_clone(tmp_path: Path):
     a = tmp_path / "clone_A"
     _git(["clone", "--quiet", str(remote), str(a)], tmp_path)
     return remote, a
+
+
+def _live_guard(now, *, org=None, source="live"):
+    # Only org_balance_usd, epoch and source reach reserve_funded's pricing; the
+    # cap itself is re-derived from the ledger under CAS.
+    return FundedGuardSnapshot(50.0, 0.0, 0.0, 0.0, org, 0.0, 0.0, epoch_of(now), now, source)
 
 
 def _reserve(repo, rid, usd, *, cap, spend=0.0, config=CFG, now=T0):
@@ -339,17 +347,20 @@ def test_december_hold_does_not_count_against_january(repo, monkeypatch):
     monkeypatch.delenv("LLMXIVE_HF_MONTHLY_USD", raising=False)
     dec31 = U("2026-12-31T23:59:30")
     r = reserve_funded(repo, reservation_id="dec", worst_case_usd=45.0, model="m",
-                       lease_expires_at=dec31 + timedelta(seconds=420), now=dec31, config=CFG)
+                       lease_expires_at=dec31 + timedelta(seconds=420), now=dec31, config=CFG,
+                       guard=_live_guard(dec31))
     assert r.budget_epoch == "2026-12" and r.created_at.startswith("2026-12-31")  # one clock
     with pytest.raises(LedgerDenied):  # December has only $5 left
         reserve_funded(repo, reservation_id="dec2", worst_case_usd=6.0, model="m",
-                       lease_expires_at=dec31 + timedelta(seconds=420), now=dec31, config=CFG)
+                       lease_expires_at=dec31 + timedelta(seconds=420), now=dec31, config=CFG,
+                       guard=_live_guard(dec31))
     jan1 = U("2027-01-01T00:00:30")
     obs = funded_observer(repo, config=CFG, now_fn=lambda: jan1)()
     assert (obs.budget_epoch, obs.spend) == ("2027-01", 0.0)
     assert obs.effective_cap == pytest.approx(4 * 50.0 / 31)  # allowance reset for January
     j = reserve_funded(repo, reservation_id="jan", worst_case_usd=6.0, model="m",
-                       lease_expires_at=jan1 + timedelta(seconds=420), now=jan1, config=CFG)
+                       lease_expires_at=jan1 + timedelta(seconds=420), now=jan1, config=CFG,
+                       guard=_live_guard(jan1))
     assert j.budget_epoch == "2027-01"
     spend = funded_spend(project(read_events(repo, ref=FUNDED_LEDGER_REF)).values(), now=jan1)
     assert spend == FundedSpend(0.0, 0.0, 6.0)  # December's open $45 hold is not January's
@@ -373,3 +384,32 @@ def test_settle_funded_unknown_reservation_fails(repo):
     _reserve(repo, "f1", 0.25, cap=1.0)
     with pytest.raises(LedgerError, match="nope"):
         settle_funded(repo, "nope", charged_usd=None, now=T0, config=CFG)
+
+
+def test_reserve_funded_prices_with_the_guards_own_org_balance(repo, monkeypatch):
+    # One org-balance fetch (inside funded_guard) feeds both the snapshot and the hold.
+    monkeypatch.delenv("LLMXIVE_HF_MONTHLY_USD", raising=False)
+    fetches = []
+    monkeypatch.setenv("LLMXIVE_HF_BILL_TO", "grp123")
+    monkeypatch.setenv("HF_TOKEN", "hf_t")
+    guard = funded_guard(repo, now=T0, config=CFG, org_balance_fetch=lambda: fetches.append(1) or 2.0)
+    assert guard.org_balance_usd == 2.0 and fetches == [1]
+    lease = T0 + timedelta(seconds=420)
+    with pytest.raises(LedgerDenied):  # $3 fits the $25 day cap but not the $2 org balance
+        reserve_funded(repo, reservation_id="r1", worst_case_usd=3.0, model="m",
+                       lease_expires_at=lease, now=T0, config=CFG, guard=guard)
+    r = reserve_funded(repo, reservation_id="r2", worst_case_usd=1.5, model="m",
+                       lease_expires_at=lease, now=T0, config=CFG, guard=guard)
+    assert r.state == STATE_OPEN and fetches == [1]  # no second fetch
+    ok = reserve_funded(repo, reservation_id="r3", worst_case_usd=3.0, model="m", lease_expires_at=lease,
+                        now=T0, config=CFG, guard=_live_guard(T0, org=None))
+    assert ok.state == STATE_OPEN  # without the org cap the same $3 hold fits
+
+
+@pytest.mark.parametrize("guard", [_live_guard(U("2026-10-31T23:00:00")),   # last month's guard
+                                   _live_guard(T0, source="unavailable")])
+def test_reserve_funded_refuses_a_guard_that_cannot_price_this_hold(repo, guard):
+    with pytest.raises(FundedUnavailable):
+        reserve_funded(repo, reservation_id="x", worst_case_usd=0.1, model="m",
+                       lease_expires_at=T0 + timedelta(seconds=420), now=T0, config=CFG, guard=guard)
+    assert read_events(repo, ref=FUNDED_LEDGER_REF) == []
