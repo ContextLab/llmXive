@@ -28719,7 +28719,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-11-23T05:25:05.523875+00:00",
+  "generated_at": "2026-11-23T06:14:15.186073+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -64973,6 +64973,14 @@
       "last_run_log": [
         {
           "agent": "planner",
+          "duration_s": 1748.30995,
+          "ended_at": "2026-11-23T05:34:04.677793Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-11-23T05:04:56.367843Z"
+        },
+        {
+          "agent": "planner",
           "duration_s": 1822.513256,
           "ended_at": "2026-11-22T07:35:00.426446Z",
           "model": "zai-org.glm-5.3",
@@ -65042,14 +65050,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-11-14T23:04:42.940106Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 1760.902721,
-          "ended_at": "2026-11-14T01:35:12.779787Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-11-14T01:05:51.877066Z"
         }
       ],
       "paper_status": null,
@@ -179259,6 +179259,18 @@
   ],
   "recent_activity": [
     {
+      "agent": "planner",
+      "duration_s": 1748.30995,
+      "ended_at": "2026-11-23T05:34:04.677793Z",
+      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-170-predicting-catalytic-activity-from-elect",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-11-23T05:04:56.367843Z"
+    },
+    {
       "agent": "implementer",
       "duration_s": 1169.095304,
       "ended_at": "2026-11-23T05:24:26.363545Z",
@@ -185245,18 +185257,6 @@
       "project_stage": "planned",
       "severity": "hard",
       "started_at": "2026-11-19T23:04:49.686606Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 1121.553915,
-      "ended_at": "2026-11-19T23:23:11.598447Z",
-      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-529-assessing-the-impact-of-sample-size-on-t",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-11-19T23:04:30.044532Z"
     }
   ],
   "reviewed_preprints": [
